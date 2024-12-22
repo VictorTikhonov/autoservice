@@ -3,7 +3,7 @@ package ru.victortikhonov.autoserviceapp.model.Personnel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import ru.victortikhonov.autoserviceapp.Person;
+import ru.victortikhonov.autoserviceapp.model.Person;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

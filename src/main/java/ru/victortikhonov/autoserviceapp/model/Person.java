@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp;
+package ru.victortikhonov.autoserviceapp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

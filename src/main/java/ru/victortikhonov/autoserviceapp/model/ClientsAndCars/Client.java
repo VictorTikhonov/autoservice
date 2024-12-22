@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.victortikhonov.autoserviceapp.Person;
+import ru.victortikhonov.autoserviceapp.model.Person;
 
 
 import java.time.LocalDate;

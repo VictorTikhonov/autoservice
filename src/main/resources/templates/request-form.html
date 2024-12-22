@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание заявки</title>
+    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+</head>
+<body>
+
+<h1>Оформление заявки на ремонт автомобиля</h1>
+
+<form th:action="@{/request/create-request}" th:object="${requestForm}" method="post">
+
+    <!-- Раздел "Информация о клиенте" -->
+    <fieldset>
+        <legend>Информация о клиенте</legend>
+
+        <label for="surname">Фамилия:</label>
+        <input type="text" id="surname" th:field="*{client.surname}" />
+        <span th:if="${#fields.hasErrors('client.surname')}" th:errors="*{client.surname}"></span><br/>
+
+        <label for="name">Имя:</label>
+        <input type="text" id="name" th:field="*{client.name}" />
+        <span th:if="${#fields.hasErrors('client.name')}" th:errors="*{client.name}"></span><br/>
+
+        <label for="phoneNumber">Номер телефона:</label>
+        <input type="text" id="phoneNumber" th:field="*{client.phoneNumber}" />
+        <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"></span><br/>
+
+        <label for="email">Email:</label>
+        <input type="text" id="email" th:field="*{client.email}" />
+        <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/>
+
+        <!-- Кнопка для поиска по номеру телефона -->
+        <button type="submit">Поиск по номеру</button><br/>
+    </fieldset>
+
+    <br/>
+
+    <!-- Раздел "Информация об автомобиле" -->
+    <fieldset>
+        <legend>Информация об автомобиле</legend>
+
+        <label for="stateNumber">Госномер:</label>
+        <input type="text" id="stateNumber" th:field="*{car.stateNumber}" />
+        <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
+
+        <label for="vin">VIN номер:</label>
+        <input type="text" id="vin" th:field="*{car.vin}" />
+        <span th:if="${#fields.hasErrors('car.vin')}" th:errors="*{car.vin}"></span><br/>
+
+        <label for="brand">Марка автомобиля:</label>
+        <input type="text" id="brand" th:field="*{car.brand}" />
+        <span th:if="${#fields.hasErrors('car.brand')}" th:errors="*{car.brand}"></span><br/>
+
+        <label for="model">Модель автомобиля:</label>
+        <input type="text" id="model" th:field="*{car.model}" />
+        <span th:if="${#fields.hasErrors('car.model')}" th:errors="*{car.model}"></span><br/>
+
+        <label for="yearOfManufacture">Год выпуска:</label>
+        <input type="text" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" />
+        <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
+
+        <!-- Кнопка для поиска по госномеру -->
+        <button type="submit">Поиск по госномеру</button><br/>
+    </fieldset>
+
+    <br/>
+
+    <!-- Поле для жалобы -->
+    <label for="complaint">Жалоба:</label>
+    <textarea id="complaint" th:field="*{complaint}"></textarea>
+    <span th:if="${#fields.hasErrors('complaint')}" th:errors="*{complaint}"></span><br/>
+
+    <button type="submit">Продолжить</button>
+</form>
+
+</body>
+</html>
