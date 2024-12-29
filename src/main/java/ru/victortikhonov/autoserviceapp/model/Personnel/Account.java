@@ -2,7 +2,6 @@ package ru.victortikhonov.autoserviceapp.model.Personnel;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -25,4 +24,8 @@ public class Account {
     @Size(max = 100, message = "Пароль не должен превышать 100 символов")
     @Column(name = "password")
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 }

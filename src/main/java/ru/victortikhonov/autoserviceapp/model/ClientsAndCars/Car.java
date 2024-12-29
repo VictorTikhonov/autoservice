@@ -38,7 +38,9 @@ public class Car {
     @Column(name = "model")
     private String model;
 
+
+    // TODO Огранчиения поставить или тут или как-нибудь в html
     @NotNull(message = "Год выпуска не может быть пустым")
     @Column(name = "year_of_manufacture")
-    private LocalDate yearOfManufacture;
+    private Integer yearOfManufacture;
 }

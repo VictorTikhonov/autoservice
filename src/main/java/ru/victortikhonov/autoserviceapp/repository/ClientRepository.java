@@ -6,4 +6,5 @@ import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
 
 @Repository
 public interface ClientRepository extends CrudRepository<Client, Long> {
+    Client findByPhoneNumber(String phoneNumber);
 }

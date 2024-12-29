@@ -7,4 +7,5 @@ import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
 
 @Repository
 public interface CarRepository extends CrudRepository<Car, Long> {
+    Car findByVin(String vin); // Поиск машины по VIN
 }

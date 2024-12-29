@@ -9,10 +9,15 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import ru.victortikhonov.autoserviceapp.model.Request.Request;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.repository.CarRepository;
 import ru.victortikhonov.autoserviceapp.repository.ClientRepository;
+import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
 
 @Controller
 @RequestMapping("/request")
@@ -22,10 +27,12 @@ public class RequestController {
 
     private final CarRepository carRepository;
     private final ClientRepository clientRepository;
+    private final RequestRepository requestRepository;
 
-    public RequestController(CarRepository carRepository, ClientRepository clientRepository) {
+    public RequestController(CarRepository carRepository, ClientRepository clientRepository, RequestRepository requestRepository) {
         this.carRepository = carRepository;
         this.clientRepository = clientRepository;
+        this.requestRepository = requestRepository;
     }
 
     @GetMapping
@@ -40,23 +47,45 @@ public class RequestController {
     {
         if(errors.hasErrors())
         {
-            model.addAttribute("requestForm", new RequestForm());
+            model.addAttribute("requestForm", requestForm);
             return "request-form";
         }
 
         save(requestForm);
 
-        log.info("Сохранение" +
-                "\nАвто: " + requestForm.getCar()  +
-                "\nКлиент: " + requestForm.getCar());
-
+        model.addAttribute("requestForm", new RequestForm());
         return "request-form";
     }
 
+
+    // TODO сделать, чтобы не было повторного сохранения авто
     @Transactional
     protected void save(RequestForm requestForm)
     {
         carRepository.save(requestForm.getCar());
-        clientRepository.save(requestForm.getClient());
+
+        // Проверка существования клиента
+        if (clientRepository.findByPhoneNumber(requestForm.getClient().getPhoneNumber()) == null) {
+            clientRepository.save(requestForm.getClient());
+        }
+
+        Request request = new Request(
+                requestForm.getClient(),
+                requestForm.getCar(),
+                employee,
+                RequestStatus.OPEN,
+                requestForm.getComplaint()
+        );
+        requestRepository.save(request);
+
+        log.info("Сохранение" +
+                "\nАвто: " + requestForm.getCar()  +
+                "\nКлиент: " + requestForm.getCar() +
+                "\nЗаявка: " + request);
+
+        System.out.println("Сохранение" +
+                "\nАвто: " + requestForm.getCar()  +
+                "\nКлиент: " + requestForm.getCar() +
+                "\nЗаявка: " + request);
     }
 }

@@ -22,13 +22,13 @@ public class Employee extends Person {
     @JoinColumn(name = "account_id")
     private Account accountId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "position_id")
     private Position positionId;
 
-    @OneToOne
-    @JoinColumn(name = "employment_status_id")
-    private EmployeeStatus employmentStatusId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employment_status")
+    private EmployeeStatus employmentStatus;
 
     @NotNull(message = "Зарплата не может быть пустой")
     @Column(name = "salary")

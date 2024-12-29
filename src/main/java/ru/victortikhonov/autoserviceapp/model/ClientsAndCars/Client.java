@@ -6,9 +6,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.victortikhonov.autoserviceapp.model.Person;
+import ru.victortikhonov.autoserviceapp.model.Request.Request;
 
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "clients")
@@ -27,4 +30,7 @@ public class Client extends Person {
 
     @Column(name = "registration_date", updatable = false, insertable = false)
     private LocalDate registrationDate;
+
+    @OneToMany(mappedBy = "client")
+    private Set<Request> requests = new HashSet<>();
 }

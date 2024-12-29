@@ -23,6 +23,10 @@
         <input type="text" id="name" th:field="*{client.name}" />
         <span th:if="${#fields.hasErrors('client.name')}" th:errors="*{client.name}"></span><br/>
 
+        <label for="patronymic">Отчество:</label>
+        <input type="text" id="patronymic" th:field="*{client.patronymic}" />
+        <span th:if="${#fields.hasErrors('client.patronymic')}" th:errors="*{client.patronymic}"></span><br/>
+
         <label for="phoneNumber">Номер телефона:</label>
         <input type="text" id="phoneNumber" th:field="*{client.phoneNumber}" />
         <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"></span><br/>
@@ -31,8 +35,6 @@
         <input type="text" id="email" th:field="*{client.email}" />
         <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/>
 
-        <!-- Кнопка для поиска по номеру телефона -->
-        <button type="submit">Поиск по номеру</button><br/>
     </fieldset>
 
     <br/>
@@ -58,11 +60,9 @@
         <span th:if="${#fields.hasErrors('car.model')}" th:errors="*{car.model}"></span><br/>
 
         <label for="yearOfManufacture">Год выпуска:</label>
-        <input type="text" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" />
+        <input type="number" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" min="1900" />
         <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
 
-        <!-- Кнопка для поиска по госномеру -->
-        <button type="submit">Поиск по госномеру</button><br/>
     </fieldset>
 
     <br/>
