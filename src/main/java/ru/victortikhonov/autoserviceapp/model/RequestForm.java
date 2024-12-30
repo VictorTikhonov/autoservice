@@ -3,7 +3,8 @@ package ru.victortikhonov.autoserviceapp.model;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
 
 @Data
 public class RequestForm {

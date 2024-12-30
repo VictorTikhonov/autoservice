@@ -1,5 +1,6 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -11,13 +12,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
-import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.repository.CarRepository;
 import ru.victortikhonov.autoserviceapp.repository.ClientRepository;
+import ru.victortikhonov.autoserviceapp.repository.OperatorRepository;
 import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/request")
@@ -28,25 +32,25 @@ public class RequestController {
     private final CarRepository carRepository;
     private final ClientRepository clientRepository;
     private final RequestRepository requestRepository;
+    private final OperatorRepository operatorRepository;     // TODO временное решение
 
-    public RequestController(CarRepository carRepository, ClientRepository clientRepository, RequestRepository requestRepository) {
+    public RequestController(CarRepository carRepository, ClientRepository clientRepository,
+                             RequestRepository requestRepository, OperatorRepository operatorRepository) {
         this.carRepository = carRepository;
         this.clientRepository = clientRepository;
         this.requestRepository = requestRepository;
+        this.operatorRepository = operatorRepository;
     }
 
     @GetMapping
-    public String registerForm(Model model)
-    {
+    public String registerForm(Model model) {
         model.addAttribute("requestForm", new RequestForm());
         return "request-form";
     }
 
-    @PostMapping("/create-request")
-    public String createRequest(@Valid RequestForm requestForm, Errors errors, Model model)
-    {
-        if(errors.hasErrors())
-        {
+    @PostMapping("/create")
+    public String createRequest(@Valid RequestForm requestForm, Errors errors, Model model) {
+        if (errors.hasErrors()) {
             model.addAttribute("requestForm", requestForm);
             return "request-form";
         }
@@ -58,34 +62,55 @@ public class RequestController {
     }
 
 
-    // TODO сделать, чтобы не было повторного сохранения авто
     @Transactional
-    protected void save(RequestForm requestForm)
-    {
-        carRepository.save(requestForm.getCar());
+    protected void save(RequestForm requestForm) {
 
-        // Проверка существования клиента
-        if (clientRepository.findByPhoneNumber(requestForm.getClient().getPhoneNumber()) == null) {
-            clientRepository.save(requestForm.getClient());
+        Car car = null;
+        List<Car> listCars = carRepository.findByVin(requestForm.getCar().getVin());
+
+        if (!listCars.isEmpty()) {
+            for (Car c : listCars) {
+                if (requestForm.getCar().getStateNumber().equals(c.getStateNumber())) {
+                    car = c;
+                    break;
+                }
+            }
         }
 
+        // Если авто не найдено, сохранем
+        if (car == null) {
+            carRepository.save(requestForm.getCar());
+            car = requestForm.getCar();
+        }
+
+        // Проверка существования клиента
+        Client client = clientRepository.findByPhoneNumber(requestForm.getClient().getPhoneNumber());
+
+        // Если клиент не найден, сохраняем его
+        if (client == null) {
+            clientRepository.save(requestForm.getClient());
+            client = requestForm.getClient();
+        }
+
+
+        Operator operator = operatorRepository.findById(1L)
+                .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (1)"));
+
+
         Request request = new Request(
-                requestForm.getClient(),
-                requestForm.getCar(),
-                employee,
+                client,
+                car,
+                operator,
                 RequestStatus.OPEN,
                 requestForm.getComplaint()
         );
         requestRepository.save(request);
 
-        log.info("Сохранение" +
-                "\nАвто: " + requestForm.getCar()  +
-                "\nКлиент: " + requestForm.getCar() +
-                "\nЗаявка: " + request);
 
-        System.out.println("Сохранение" +
-                "\nАвто: " + requestForm.getCar()  +
-                "\nКлиент: " + requestForm.getCar() +
+
+        log.info("Сохранение" +
+                "\nАвто: " + car +
+                "\nКлиент: " + client +
                 "\nЗаявка: " + request);
     }
 }

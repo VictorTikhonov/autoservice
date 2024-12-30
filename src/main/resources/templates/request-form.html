@@ -9,7 +9,7 @@
 
 <h1>Оформление заявки на ремонт автомобиля</h1>
 
-<form th:action="@{/request/create-request}" th:object="${requestForm}" method="post">
+<form th:action="@{/request/create}" th:object="${requestForm}" method="post">
 
     <!-- Раздел "Информация о клиенте" -->
     <fieldset>
@@ -44,8 +44,13 @@
         <legend>Информация об автомобиле</legend>
 
         <label for="stateNumber">Госномер:</label>
-        <input type="text" id="stateNumber" th:field="*{car.stateNumber}" />
+        <input
+                type="text"
+                id="stateNumber"
+                th:field="*{car.stateNumber}"
+                oninput="this.value = this.value.toUpperCase()" />
         <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
+
 
         <label for="vin">VIN номер:</label>
         <input type="text" id="vin" th:field="*{car.vin}" />

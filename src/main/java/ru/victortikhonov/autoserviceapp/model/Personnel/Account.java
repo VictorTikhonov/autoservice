@@ -3,7 +3,9 @@ package ru.victortikhonov.autoserviceapp.model.Personnel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 @Entity
 @Table(name = "accounts")
@@ -12,6 +14,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     @Column(name = "id")
     private Long id;
 
@@ -28,4 +31,13 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
+
+    public Account(String login, String password, Role role) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
+
+    public Account() {
+    }
 }

@@ -3,12 +3,14 @@ package ru.victortikhonov.autoserviceapp.model.ClientsAndCars;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.Year;
 
 @Entity
 @Table(name = "cars")
@@ -17,6 +19,7 @@ public class Car {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     @Column(name = "id")
     private Long id;
 
@@ -39,8 +42,7 @@ public class Car {
     private String model;
 
 
-    // TODO Огранчиения поставить или тут или как-нибудь в html
-    @NotNull(message = "Год выпуска не может быть пустым")
+    @PastOrPresent(message = "Год выпуска не может быть больше текущего")
     @Column(name = "year_of_manufacture")
-    private Integer yearOfManufacture;
+    private Year yearOfManufacture;
 }

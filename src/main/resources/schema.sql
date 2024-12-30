@@ -10,14 +10,43 @@ DROP TABLE IF EXISTS
 
 
 
+
+
+-- Вставка данных в таблицы
+INSERT INTO positions (position_name) VALUES
+    ('оператор');
+
+INSERT INTO accounts (login, password, role) VALUES
+    ('1', '1', 'OPERATOR');
+
+INSERT INTO employees (account_id, position_id, employment_status, surname, name, patronymic, phone_number, salary, hire_date, birth_date, dtype)
+VALUES
+    (
+        (SELECT id FROM accounts WHERE login = '1'),           -- Используем ID учётной записи
+        (SELECT id FROM positions WHERE position_name = 'оператор'), -- Используем ID должности
+        'ACTIVE',                                            -- Статус трудоустройства
+        'Тихонов',                                           -- Фамилия
+        'Виктор',                                            -- Имя
+        'Владимирович',                                      -- Отчество
+        '88888888888',                                       -- Номер телефона
+        50000,                                               -- Зарплата
+        '2022-01-01',                                        -- Дата трудоустройства
+        '1990-05-10',                                        -- Дата рождения
+        'OPERATOR'                                           -- Роль сотрудника
+    );
+
+
+
+
+
 -- Создание таблицы Clients
 CREATE TABLE clients (
-                         id BIGSERIAL PRIMARY KEY,               -- ID клиента, автоинкремент
-                         surname VARCHAR(50) NOT NULL,           -- Фамилия, обязательное поле
-                         name VARCHAR(50) NOT NULL,              -- Имя, обязательное поле
-                         patronymic VARCHAR(50),                 -- Отчество, может быть пустым
-                         phone_number VARCHAR(11) NOT NULL,      -- Номер телефона, длина 11 символов
-                         email VARCHAR(50),                      -- Почта, может быть пустым
+                         id BIGSERIAL PRIMARY KEY,                     -- ID клиента, автоинкремент
+                         surname VARCHAR(50) NOT NULL,                 -- Фамилия, обязательное поле
+                         name VARCHAR(50) NOT NULL,                    -- Имя, обязательное поле
+                         patronymic VARCHAR(50),                       -- Отчество, может быть пустым
+                         phone_number VARCHAR(11) NOT NULL UNIQUE ,    -- Номер телефона, длина 11 символов
+                         email VARCHAR(50),                            -- Почта, может быть пустым
                          registration_date DATE DEFAULT CURRENT_DATE,  -- Дата регистрации, по умолчанию текущая
 
     -- Ограничение на только цифры в номере телефона и точную длину 11 символов
@@ -75,11 +104,12 @@ CREATE TABLE employees (
                            surname VARCHAR(50) NOT NULL,                       -- Фамилия сотрудника, обязательное поле
                            name VARCHAR(50) NOT NULL,                          -- Имя сотрудника, обязательное поле
                            patronymic VARCHAR(50),                             -- Отчество сотрудника, может быть пустым
-                           phone_number VARCHAR(11) NOT NULL,                  -- Номер телефона, обязательное поле, длина 11
+                           phone_number VARCHAR(11) NOT NULL UNIQUE,           -- Номер телефона, обязательное поле, длина 11
                            salary DECIMAL(10, 2) NOT NULL,                     -- Заработная плата, обязательное поле
                            hire_date DATE NOT NULL,                            -- Дата трудоустройства, обязательное поле
                            dismissal_date DATE,                                -- Дата увольнения, может быть пустым
                            birth_date DATE NOT NULL,                           -- Дата рождения, обязательное поле
+                           dtype VARCHAR(20) NOT NULL,                         -- Тип сотрудника (роль)
 
     -- Внешний ключ на таблицу accounts
                            CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES accounts(id),
@@ -88,7 +118,9 @@ CREATE TABLE employees (
     -- Ограничение на значения employment_status
                            CONSTRAINT chk_employment_status CHECK (employment_status IN ('ACTIVE', 'DISMISSED', 'INACTIVE')),
     -- Ограничение на формат номера телефона
-                           CONSTRAINT phone_number_digits_employees CHECK (phone_number ~ '^[0-9]{11}$')
+                           CONSTRAINT phone_number_digits_employees CHECK (phone_number ~ '^[0-9]{11}$'),
+    -- Ограничение на допустимые значения dtype (роль сотрудника)
+                           CONSTRAINT chk_dtype CHECK (dtype IN ('ADMIN', 'MECHANIC', 'OPERATOR'))
 );
 
 

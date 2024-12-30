@@ -28,5 +28,16 @@ public abstract class Person {
     @Pattern(regexp = "^[0-9]{11}$", message = "Номер телефона должен состоять из 11 цифр")
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    public Person(String surname, String name, String patronymic, String phoneNumber) {
+        this.surname = surname;
+        this.name = name;
+        this.patronymic = patronymic;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Person() {
+    }
+
 }
 

@@ -1,11 +1,11 @@
 package ru.victortikhonov.autoserviceapp.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
 
+import java.util.List;
 
-@Repository
+
 public interface CarRepository extends CrudRepository<Car, Long> {
-    Car findByVin(String vin); // Поиск машины по VIN
+    List<Car> findByVin(String vin); // Поиск машин по VIN
 }

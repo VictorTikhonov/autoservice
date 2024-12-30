@@ -1,9 +1,12 @@
 package ru.victortikhonov.autoserviceapp.model.Request;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Data;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
-import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import lombok.Setter;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 
 import java.time.LocalDate;
 
@@ -14,36 +17,40 @@ public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     @Column(name = "id")
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
+    @Setter(AccessLevel.NONE)
     private Client client;
 
     @ManyToOne
     @JoinColumn(name = "car_id")
+    @Setter(AccessLevel.NONE)
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "operator_id")
-    private Employee operator;
+    @Setter(AccessLevel.NONE)
+    private Operator operator;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status")
     private RequestStatus requestStatus;
 
     @Column(name = "submission_date", updatable = false, insertable = false)
+    @Setter(AccessLevel.NONE)
     private LocalDate submissionDate;
 
     @Column(name = "complaints")
     private String complaints;
 
-//    public Request() {
-//    }
+    public Request() {
+    }
 
-
-    public Request(Client client, Car car, Employee operator, RequestStatus requestStatus, String complaints) {
+    public Request(Client client, Car car, Operator operator, RequestStatus requestStatus, String complaints) {
         this.client = client;
         this.car = car;
         this.operator = operator;
