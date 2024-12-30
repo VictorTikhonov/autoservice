@@ -32,7 +32,7 @@ public abstract class Employee extends Person {
     @JoinColumn(name = "position_id")
     private Position position;
 
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "employment_status")
     private EmployeeStatus employmentStatus;
 

@@ -3,7 +3,7 @@ package ru.victortikhonov.autoserviceapp.model.Request;
 
 
 public enum RequestStatus {
-    OPEN("Открыта (в ожидании)"),
+    OPEN("В ожидании"),
     IN_PROGRESS("Исполняется"),
     COMPLETED("Завершена"),
     REJECTED("Отклонена");

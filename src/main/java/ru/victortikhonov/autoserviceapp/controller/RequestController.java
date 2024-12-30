@@ -90,27 +90,26 @@ public class RequestController {
         if (client == null) {
             clientRepository.save(requestForm.getClient());
             client = requestForm.getClient();
+        } else {
+            // Если клиент найден, но почта в базе отсутствует, и она указана в форме
+            if ((client.getEmail() == null || client.getEmail().isEmpty())
+                    && requestForm.getClient().getEmail() != null) {
+                client.setEmail(requestForm.getClient().getEmail());
+                clientRepository.save(client);
+            }
         }
 
 
-        Operator operator = operatorRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (1)"));
+        Operator operator = operatorRepository.findById(2L)
+                .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (2)"));
 
 
-        Request request = new Request(
+        requestRepository.save(new Request(
                 client,
                 car,
                 operator,
                 RequestStatus.OPEN,
                 requestForm.getComplaint()
-        );
-        requestRepository.save(request);
-
-
-
-        log.info("Сохранение" +
-                "\nАвто: " + car +
-                "\nКлиент: " + client +
-                "\nЗаявка: " + request);
+        ));
     }
 }

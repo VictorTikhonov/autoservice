@@ -36,9 +36,9 @@ public class Request {
     @Setter(AccessLevel.NONE)
     private Operator operator;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "request_status")
     private RequestStatus requestStatus;
+
 
     @Column(name = "submission_date", updatable = false, insertable = false)
     @Setter(AccessLevel.NONE)

@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS
     positions,
     accounts,
     cars,
-    roles,
     requests,
     clients
     CASCADE;
@@ -19,12 +18,13 @@ INSERT INTO positions (position_name) VALUES
 INSERT INTO accounts (login, password, role) VALUES
     ('1', '1', 'OPERATOR');
 
-INSERT INTO employees (account_id, position_id, employment_status, surname, name, patronymic, phone_number, salary, hire_date, birth_date, dtype)
+INSERT INTO employees (account_id, position_id, employment_status, surname, name,
+                       patronymic, phone_number, salary, hire_date, birth_date, dtype)
 VALUES
     (
         (SELECT id FROM accounts WHERE login = '1'),           -- Используем ID учётной записи
         (SELECT id FROM positions WHERE position_name = 'оператор'), -- Используем ID должности
-        'ACTIVE',                                            -- Статус трудоустройства
+        'Активен',                                            -- Статус трудоустройства
         'Тихонов',                                           -- Фамилия
         'Виктор',                                            -- Имя
         'Владимирович',                                      -- Отчество
@@ -116,7 +116,7 @@ CREATE TABLE employees (
     -- Внешний ключ на таблицу positions
                            CONSTRAINT fk_position FOREIGN KEY (position_id) REFERENCES positions(id),
     -- Ограничение на значения employment_status
-                           CONSTRAINT chk_employment_status CHECK (employment_status IN ('ACTIVE', 'DISMISSED', 'INACTIVE')),
+                           CONSTRAINT chk_employment_status CHECK (employment_status IN ('Активен', 'Уволен', 'Не активен')),
     -- Ограничение на формат номера телефона
                            CONSTRAINT phone_number_digits_employees CHECK (phone_number ~ '^[0-9]{11}$'),
     -- Ограничение на допустимые значения dtype (роль сотрудника)
@@ -146,6 +146,6 @@ CREATE TABLE requests (
     -- Внешний ключ на таблицу employees
                           CONSTRAINT fk_operator FOREIGN KEY (operator_id) REFERENCES employees(id),
     -- Ограничение на допустимые значения статуса заявки
-                          CONSTRAINT chk_status CHECK (request_status IN ('OPEN', 'IN_PROGRESS', 'COMPLETED', 'REJECTED'))
+                          CONSTRAINT chk_status CHECK (request_status IN ('В ожидании', 'Исполняется', 'Завершена', 'Отклонена'))
 );
 
