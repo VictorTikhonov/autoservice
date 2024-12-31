@@ -3,12 +3,15 @@ package ru.victortikhonov.autoserviceapp.controller;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
@@ -42,11 +45,38 @@ public class RequestController {
         this.operatorRepository = operatorRepository;
     }
 
-    @GetMapping
+
+    @GetMapping("/create")
     public String registerForm(Model model) {
         model.addAttribute("requestForm", new RequestForm());
         return "request-form";
     }
+
+    @PostMapping("/create/search-client")
+    public String searchClient(RequestForm requestForm, Model model, Errors errors) {
+
+        String phoneNumber = requestForm.getClient().getPhoneNumber();
+
+        // Валидация номера телефона
+        if (!phoneNumber.matches("^[0-9]{11}$")) {
+            errors.rejectValue("client.phoneNumber", "invalid.phoneNumber",
+                    "Номер телефона должен состоять из 11 цифр");
+            return "request-form";
+        }
+
+        Client client = clientRepository.findByPhoneNumber(phoneNumber);
+
+        if (client != null) {
+            requestForm.setClient(client);
+            model.addAttribute("requestForm", requestForm);
+        } else {
+            // Если клиент не найден, добавим уведомление
+            model.addAttribute("clientNotFound", true); // Добавляем флаг для уведомления
+        }
+
+        return "request-form";
+    }
+
 
     @PostMapping("/create")
     public String createRequest(@Valid RequestForm requestForm, Errors errors, Model model) {
@@ -60,6 +90,7 @@ public class RequestController {
         model.addAttribute("requestForm", new RequestForm());
         return "request-form";
     }
+
 
 
     @Transactional
@@ -90,13 +121,6 @@ public class RequestController {
         if (client == null) {
             clientRepository.save(requestForm.getClient());
             client = requestForm.getClient();
-        } else {
-            // Если клиент найден, но почта в базе отсутствует, и она указана в форме
-            if ((client.getEmail() == null || client.getEmail().isEmpty())
-                    && requestForm.getClient().getEmail() != null) {
-                client.setEmail(requestForm.getClient().getEmail());
-                clientRepository.save(client);
-            }
         }
 
 

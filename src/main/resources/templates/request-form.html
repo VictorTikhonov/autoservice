@@ -9,7 +9,10 @@
 
 <h1>Оформление заявки на ремонт автомобиля</h1>
 
-<form th:action="@{/request/create}" th:object="${requestForm}" method="post">
+
+<br/>
+
+<form th:object="${requestForm}" method="post">
 
     <!-- Раздел "Информация о клиенте" -->
     <fieldset>
@@ -35,7 +38,15 @@
         <input type="text" id="email" th:field="*{client.email}" />
         <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/>
 
+        <label for="searchClientButton">Поиск клиента по номеру телефона: </label>
+        <br/>
+        <button id="searchClientButton" type="submit" formaction="/request/create/search-client">
+            Поиск
+        </button>
+
     </fieldset>
+
+
 
     <br/>
 
@@ -50,7 +61,6 @@
                 th:field="*{car.stateNumber}"
                 oninput="this.value = this.value.toUpperCase()" />
         <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
-
 
         <label for="vin">VIN номер:</label>
         <input type="text" id="vin" th:field="*{car.vin}" />
@@ -67,7 +77,6 @@
         <label for="yearOfManufacture">Год выпуска:</label>
         <input type="number" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" min="1900" />
         <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
-
     </fieldset>
 
     <br/>
@@ -77,8 +86,19 @@
     <textarea id="complaint" th:field="*{complaint}"></textarea>
     <span th:if="${#fields.hasErrors('complaint')}" th:errors="*{complaint}"></span><br/>
 
-    <button type="submit">Продолжить</button>
+    <!-- Кнопка для отправки формы на создание -->
+    <button type="submit" formaction="/request/create">
+        Продолжить
+    </button>
 </form>
+
+<!-- Уведомление, если клиент не найден -->
+<div th:if="${clientNotFound}">
+    <script type="text/javascript">
+        alert('Клиент с таким номером телефона не найден');
+    </script>
+</div>
+
 
 </body>
 </html>

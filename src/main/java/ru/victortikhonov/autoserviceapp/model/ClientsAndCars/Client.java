@@ -48,5 +48,4 @@ public class Client extends Person {
     public List<Request> getEmployees() {
         return Collections.unmodifiableList(requests);
     }
-
 }
