@@ -14,7 +14,9 @@ import ru.victortikhonov.autoserviceapp.repository.ClientRepository;
 import ru.victortikhonov.autoserviceapp.repository.OperatorRepository;
 import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RequestService {
@@ -82,4 +84,13 @@ public class RequestService {
         }
         return client;
     }
+
+    public List<Request> findRequests(RequestStatus status, LocalDate startDate, LocalDate endDate) {
+        return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate);
+    }
+
+    public Optional<Request> findRequestById(Long id) {
+        return requestRepository.findById(id);
+    }
+
 }

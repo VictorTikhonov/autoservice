@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список заявок</title>
+    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+</head>
+<body>
+<h1>Список заявок</h1>
+
+
+<!-- Кнопка для создания новой заявки -->
+<div>
+    <a href="/request/create">
+        <button type="button">Создать заявку</button>
+    </a>
+</div>
+
+<!-- Фильтры -->
+<form method="get" th:action="@{/request/list}">
+    <fieldset>
+        <legend>Фильтры</legend>
+
+        <!-- Фильтр по статусу -->
+        <label for="statusFilter">Статус:</label>
+        <select id="statusFilter" name="status">
+            <option value="OPEN" th:selected="${status == 'OPEN'}">В ожидании</option>
+            <option value="IN_PROGRESS" th:selected="${status == 'IN_PROGRESS'}">Исполняется</option>
+            <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Завершена</option>
+            <option value="REJECTED" th:selected="${status == 'REJECTED'}">Отклонена</option>
+        </select>
+
+        <!-- Фильтр по дате -->
+        <label for="startDate">Дата с:</label>
+        <input type="date" id="startDate" name="startDate" th:value="${startDate}"/>
+
+        <label for="endDate">Дата по:</label>
+        <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
+
+        <button type="submit">Применить</button>
+    </fieldset>
+</form>
+
+<!-- Таблица заявок -->
+<table>
+    <thead>
+    <tr>
+        <th>Номер заявки</th>
+        <th>Дата создания</th>
+        <th>Статус</th>
+        <th>Марка автомобиля</th>
+        <th>Модель автомобиля</th>
+        <th>Госномер</th>
+        <th>Действия</th> <!-- Новый столбец -->
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="request : ${requests}">
+        <td th:text="${request.id}"></td>
+        <td th:text="${request.submissionDate}"></td>
+        <td th:text="${request.requestStatus.description}"></td>
+        <td th:text="${request.car.brand}"></td>
+        <td th:text="${request.car.model}"></td>
+        <td th:text="${request.car.stateNumber}"></td>
+        <td>
+            <!-- Кнопка "Открыть" -->
+            <form th:action="@{/request/check}" method="post" style="display: inline;">
+                <input type="hidden" name="requestId" th:value="${request.id}" />
+                <button type="submit">Открыть</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(requests)}">
+        <td colspan="7">Нет заявок для отображения</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Скрытый элемент для передачи ошибки -->
+<input type="hidden" id="dateError" th:value="${dateError}" />
+
+<script>
+    // Получаем значение ошибки
+    const errorMessage = document.getElementById('dateError').value;
+
+    // Если ошибка существует, показываем alert
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+</script>
+
+
+</body>
+</html>
