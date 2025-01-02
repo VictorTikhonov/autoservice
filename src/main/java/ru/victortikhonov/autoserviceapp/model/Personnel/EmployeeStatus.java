@@ -3,7 +3,9 @@ package ru.victortikhonov.autoserviceapp.model.Personnel;
 
 
 public enum EmployeeStatus {
+
     ACTIVE("Активен"),
+
     DISMISSED("Уволен"),
     INACTIVE("Не активен");
 

@@ -12,11 +12,13 @@ public class RequestStatusConverterJPA implements AttributeConverter<RequestStat
 
     @Override
     public String convertToDatabaseColumn(RequestStatus status) {
+
         return (status == null ? null : status.getDescription());
     }
 
     @Override
     public RequestStatus convertToEntityAttribute(String description) {
+
         if(description == null)
             return null;
 

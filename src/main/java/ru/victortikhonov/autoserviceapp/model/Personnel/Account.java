@@ -18,26 +18,31 @@ public class Account {
     @Column(name = "id")
     private Long id;
 
+
     @NotBlank(message = "Логин не может быть пустым")
     @Size(max = 30, message = "Логин не должен превышать 30 символов")
     @Column(name = "login", unique = true)
     private String login;
+
 
     @NotBlank(message = "Пароль не может быть пустым")
     @Size(max = 100, message = "Пароль не должен превышать 100 символов")
     @Column(name = "password")
     private String password;
 
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
+
+
+    public Account() {
+    }
+
 
     public Account(String login, String password, Role role) {
         this.login = login;
         this.password = password;
         this.role = role;
-    }
-
-    public Account() {
     }
 }

@@ -10,41 +10,40 @@
 <h1>Детали заявки</h1>
 
 <!-- Информация о заявке -->
-
 <div>
-    <h2>Статус заявки:</h2>
-    <p th:text="${requestStatus != null ? requestStatus : 'Статус отсутствует'}"></p>
+    <h2>Статус заявки</h2>
+    <p th:text="${requestStatus}"></p>
 </div>
 
 <div>
-    <h2>Оператор:</h2>
-    <p th:text="'ФИО: ' + ${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></p>
+    <h2>Оператор</h2>
+    <p><strong>ФИО: </strong> <span th:text="${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></span></p>
+    <p><strong>Номер телефона: </strong> <span th:text="${request.operator.phoneNumber}"></span></p>
 </div>
 
 <div>
-    <h2>Клиент:</h2>
-    <p><strong>ФИО:</strong> <span th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span></p>
-    <p><strong>Номер телефона:</strong> <span th:text="${request.client.phoneNumber}"></span></p>
-    <p><strong>Email:</strong> <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
+    <h2>Клиент</h2>
+    <p><strong>ФИО: </strong> <span th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span></p>
+    <p><strong>Номер телефона: </strong> <span th:text="${request.client.phoneNumber}"></span></p>
+    <p><strong>Email: </strong> <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
 </div>
 
 <div>
-    <h2>Дата создания:</h2>
-    <p th:text="${formattedDate != null ? formattedDate : 'Дата отсутствует'}"></p>
+    <h2>Дата создания</h2>
+    <p th:text="${formattedDate}"></p>
 </div>
 
-
 <div>
-    <h2>Машина:</h2>
-    <p><strong>Марка:</strong> <span th:text="${request.car.brand}"></span></p>
+    <h2>Машина</h2>
+    <p><strong>Марка: </strong> <span th:text="${request.car.brand}"></span></p>
     <p><strong>Модель:</strong> <span th:text="${request.car.model}"></span></p>
     <p><strong>Госномер:</strong> <span th:text="${request.car.stateNumber}"></span></p>
     <p><strong>VIN номер:</strong> <span th:text="${request.car.vin}"></span></p>
 </div>
 
 <div>
-    <h2>Жалобы:</h2>
-    <p th:text="${request.complaints != null && !request.complaints.isEmpty() ? request.complaints : 'Жалобы отсутствуют'}"></p>
+    <h2>Жалобы</h2>
+    <p th:text="${request.complaints}"></p>
 </div>
 
 <!-- Кнопка для возврата -->

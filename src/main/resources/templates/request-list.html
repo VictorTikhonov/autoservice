@@ -8,7 +8,6 @@
 <body>
 <h1>Список заявок</h1>
 
-
 <!-- Кнопка для создания новой заявки -->
 <div>
     <a href="/request/create">
@@ -31,10 +30,10 @@
         </select>
 
         <!-- Фильтр по дате -->
-        <label for="startDate">Дата с:</label>
+        <label for="startDate">Дата с: </label>
         <input type="date" id="startDate" name="startDate" th:value="${startDate}"/>
 
-        <label for="endDate">Дата по:</label>
+        <label for="endDate">Дата по: </label>
         <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
 
         <button type="submit">Применить</button>
@@ -45,13 +44,13 @@
 <table>
     <thead>
     <tr>
-        <th>Номер заявки</th>
+        <th>Номер</th>
         <th>Дата создания</th>
         <th>Статус</th>
-        <th>Марка автомобиля</th>
-        <th>Модель автомобиля</th>
+        <th>Автомобиль</th>
         <th>Госномер</th>
-        <th>Действия</th> <!-- Новый столбец -->
+        <th>VIN</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -59,9 +58,9 @@
         <td th:text="${request.id}"></td>
         <td th:text="${request.submissionDate}"></td>
         <td th:text="${request.requestStatus.description}"></td>
-        <td th:text="${request.car.brand}"></td>
-        <td th:text="${request.car.model}"></td>
+        <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
         <td th:text="${request.car.stateNumber}"></td>
+        <td th:text="${request.car.vin}"></td>
         <td>
             <!-- Кнопка "Открыть" -->
             <form th:action="@{/request/check}" method="post" style="display: inline;">
@@ -80,15 +79,14 @@
 <input type="hidden" id="dateError" th:value="${dateError}" />
 
 <script>
-    // Получаем значение ошибки
+    // Получаю значение ошибки
     const errorMessage = document.getElementById('dateError').value;
 
-    // Если ошибка существует, показываем alert
+    // Если ошибка существует, показываю alert
     if (errorMessage) {
         alert(errorMessage);
     }
 </script>
-
 
 </body>
 </html>

@@ -26,28 +26,29 @@
     <fieldset>
         <legend>Информация о клиенте</legend>
 
-        <label for="surname">Фамилия:</label>
+        <label for="surname">Фамилия: </label>
         <input type="text" id="surname" th:field="*{client.surname}" />
         <span th:if="${#fields.hasErrors('client.surname')}" th:errors="*{client.surname}"></span><br/>
 
-        <label for="name">Имя:</label>
+        <label for="name">Имя: </label>
         <input type="text" id="name" th:field="*{client.name}" />
         <span th:if="${#fields.hasErrors('client.name')}" th:errors="*{client.name}"></span><br/>
 
-        <label for="patronymic">Отчество:</label>
+        <label for="patronymic">Отчество: </label>
         <input type="text" id="patronymic" th:field="*{client.patronymic}" />
         <span th:if="${#fields.hasErrors('client.patronymic')}" th:errors="*{client.patronymic}"></span><br/>
 
-        <label for="phoneNumber">Номер телефона:</label>
+        <label for="phoneNumber">Номер телефона: </label>
         <input type="text" id="phoneNumber" th:field="*{client.phoneNumber}" />
         <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"></span><br/>
 
-        <label for="email">Email:</label>
+        <label for="email">Email: </label>
         <input type="text" id="email" th:field="*{client.email}" />
         <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/>
 
+        <br/><br/><br/>
+
         <label for="searchClientButton">Поиск клиента по номеру телефона: </label>
-        <br/>
         <button id="searchClientButton" type="submit" formaction="/request/create/search-client">
             Поиск
         </button>
@@ -62,7 +63,7 @@
     <fieldset>
         <legend>Информация об автомобиле</legend>
 
-        <label for="stateNumber">Госномер:</label>
+        <label for="stateNumber">Госномер: </label>
         <input
                 type="text"
                 id="stateNumber"
@@ -70,19 +71,23 @@
                 oninput="this.value = this.value.toUpperCase()" />
         <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
 
-        <label for="vin">VIN номер:</label>
-        <input type="text" id="vin" th:field="*{car.vin}" />
+        <label for="vin">VIN номер: </label>
+        <input
+                type="text"
+                id="vin"
+                th:field="*{car.vin}"
+                oninput="this.value = this.value.toUpperCase()" />
         <span th:if="${#fields.hasErrors('car.vin')}" th:errors="*{car.vin}"></span><br/>
 
-        <label for="brand">Марка автомобиля:</label>
+        <label for="brand">Марка автомобиля: </label>
         <input type="text" id="brand" th:field="*{car.brand}" />
         <span th:if="${#fields.hasErrors('car.brand')}" th:errors="*{car.brand}"></span><br/>
 
-        <label for="model">Модель автомобиля:</label>
+        <label for="model">Модель автомобиля: </label>
         <input type="text" id="model" th:field="*{car.model}" />
         <span th:if="${#fields.hasErrors('car.model')}" th:errors="*{car.model}"></span><br/>
 
-        <label for="yearOfManufacture">Год выпуска:</label>
+        <label for="yearOfManufacture">Год выпуска: </label>
         <input type="number" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" min="1900" />
         <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
     </fieldset>
@@ -90,13 +95,13 @@
     <br/>
 
     <!-- Поле для жалобы -->
-    <label for="complaint">Жалоба:</label>
+    <label for="complaint">Жалоба: </label>
     <textarea id="complaint" th:field="*{complaint}"></textarea>
     <span th:if="${#fields.hasErrors('complaint')}" th:errors="*{complaint}"></span><br/>
 
     <!-- Кнопка для отправки формы на создание -->
     <button type="submit" formaction="/request/create">
-        Продолжить
+        Создать
     </button>
 </form>
 

@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
-
 import java.time.Year;
 
 @Entity
@@ -23,18 +22,22 @@ public class Car {
     @Column(name = "id")
     private Long id;
 
+
     @Pattern(regexp = "^[A-Za-zА-Яа-я0-9]{1,20}$", message = "Госномер введен не верно")
     @Column(name = "state_number")
     private String stateNumber;
+
 
     @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "VIN номер должен состоять из 17 символов и соответствовать стандарту")
     @Column(name = "vin")
     private String vin;
 
+
     @NotBlank(message = "Марка автомобиля не может быть пустой")
     @Size(max = 50, message = "Марка автомобиля не должна превышать 50 символов")
     @Column(name = "brand")
     private String brand;
+
 
     @NotBlank(message = "Модель автомобиля не может быть пустой")
     @Size(max = 50, message = "Модель автомобиля не должна превышать 50 символов")

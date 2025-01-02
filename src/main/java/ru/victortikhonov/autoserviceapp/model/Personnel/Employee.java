@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import ru.victortikhonov.autoserviceapp.model.Person;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -23,10 +22,12 @@ public abstract class Employee extends Person {
     @Column(name = "id")
     private Long id;
 
+
     @OneToOne
     @JoinColumn(name = "account_id")
     @Setter(AccessLevel.NONE)
     private Account account;
+
 
     @ManyToOne
     @JoinColumn(name = "position_id")
@@ -36,20 +37,25 @@ public abstract class Employee extends Person {
     @Column(name = "employment_status")
     private EmployeeStatus employmentStatus;
 
+
     @NotNull(message = "Зарплата не может быть пустой")
     @Column(name = "salary")
     private BigDecimal salary;
+
 
     @NotNull(message = "Дата трудоустройства не может быть пустой")
     @Column(name = "hire_date")
     private LocalDate hireDate;
 
+
     @Column(name = "dismissal_date")
     private LocalDate dismissalDate;
+
 
     @NotNull(message = "Дата дня рождения не может быть пустой")
     @Column(name = "birth_date")
     private LocalDate birthDate;
+
 
     public Employee(String surname, String name, String patronymic, String phoneNumber,
                     Account account, Position position, BigDecimal salary,
@@ -63,14 +69,12 @@ public abstract class Employee extends Person {
         this.birthDate = birthDate;
     }
 
-    public Employee(String surname, String name, String patronymic, String phoneNumber) {
-        super(surname, name, patronymic, phoneNumber);
-    }
 
     public Employee() {
     }
 
-    public String getRole() {
-        return account != null ? account.getRole().name() : null;  // Возвращаем роль из Account
+
+    public Employee(String surname, String name, String patronymic, String phoneNumber) {
+        super(surname, name, patronymic, phoneNumber);
     }
 }
