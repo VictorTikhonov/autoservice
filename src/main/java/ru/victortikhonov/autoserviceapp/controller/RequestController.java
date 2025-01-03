@@ -73,14 +73,10 @@ public class RequestController {
         }
 
         // Ищю клиента по номеру
-        Client client = requestService.findClientByPhoneNumber(phoneNumber);
-
-        if (client != null) {
-            requestForm.setClient(client);
-        } else {
-            // Если клиент не найден, добавляю уведомление
-            model.addAttribute("clientNotFound", true);
-        }
+        requestService.findClientByPhoneNumber(phoneNumber).ifPresentOrElse(
+                        requestForm::setClient,  // Если клиент найден
+                        () -> model.addAttribute("clientNotFound", true)  // Если клиент не найден
+                );
 
         return "request-form";
     }
@@ -114,7 +110,7 @@ public class RequestController {
             return "request-list";
         }
 
-        // Если статус не установлен то пор умолч. ставлю "В ожидании"
+        // Если статус не установлен то по умолч. ставлю "В ожидании"
         if (status == null) {
             status = RequestStatus.OPEN;
         }
@@ -138,9 +134,7 @@ public class RequestController {
     public String checkRequest(@RequestParam Long requestId, Model model) {
 
         // Получаю заявку
-        Request request = requestService.findRequestById(requestId).orElse(null);
-
-        if (request != null) {
+        requestService.findRequestById(requestId).ifPresent(request -> {
 
             // Форматирование
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -150,7 +144,7 @@ public class RequestController {
             model.addAttribute("request", request);
             model.addAttribute("formattedDate", formattedDate);
             model.addAttribute("requestStatus", request.getRequestStatus().getDescription());
-        }
+        });
 
         return "request-details";
     }

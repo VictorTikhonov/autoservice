@@ -31,7 +31,7 @@ public class RequestService {
     }
 
 
-    public Client findClientByPhoneNumber(String phoneNumber) {
+    public Optional<Client> findClientByPhoneNumber(String phoneNumber) {
 
         return clientRepository.findByPhoneNumber(phoneNumber);
     }
@@ -79,15 +79,20 @@ public class RequestService {
     }
 
 
+    //    public Client findOrCreateClient(Client clientRequest) {
+//
+//        Client client = clientRepository.findByPhoneNumber(clientRequest.getPhoneNumber()).orElse(null);
+//
+//        if (client == null) {
+//            return clientRepository.save(clientRequest);
+//        }
+//
+//        return client;
+//    }
     public Client findOrCreateClient(Client clientRequest) {
 
-        Client client = clientRepository.findByPhoneNumber(clientRequest.getPhoneNumber());
-
-        if (client == null) {
-            return clientRepository.save(clientRequest);
-        }
-
-        return client;
+        return clientRepository.findByPhoneNumber(clientRequest.getPhoneNumber())
+                .orElseGet(() -> clientRepository.save(clientRequest));
     }
 
 
