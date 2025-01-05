@@ -9,27 +9,30 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
-import ru.victortikhonov.autoserviceapp.repository.ServiceCategoryRepository;
-import ru.victortikhonov.autoserviceapp.repository.ServiceRepository;
+import ru.victortikhonov.autoserviceapp.repository.*;
 
 
 @RequestMapping("/service")
-@Controller
 @SessionAttributes("categories")
+@Controller
 public class ServiceController {
 
     private final ServiceCategoryRepository serviceCategoryRepository;
     private final ServiceRepository serviceRepository;
 
 
+
     public ServiceController(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository) {
+
         this.serviceCategoryRepository = serviceCategoryRepository;
         this.serviceRepository = serviceRepository;
     }
 
 
+
     @GetMapping("/create")
     public String showCreateServiceForm(Model model) {
+
         Iterable<ServiceCategory> categories = serviceCategoryRepository.findAll();
 
         Service service = new Service();
@@ -45,6 +48,7 @@ public class ServiceController {
 
         return "add-service";
     }
+
 
 
     @PostMapping("/create")
@@ -75,10 +79,13 @@ public class ServiceController {
     }
 
 
+
     @GetMapping("/category/create")
     public String showCreateCategoryForm(Model model) {
+
         return "create-service-category";
     }
+
 
 
     @PostMapping("/category/create")
@@ -102,5 +109,26 @@ public class ServiceController {
         serviceCategoryRepository.save(new ServiceCategory(name));
         model.addAttribute("success", name);
         return "create-service-category";
+    }
+
+
+
+    @GetMapping("/show-table")
+    public String showTableServices(Model model, @RequestParam(required = false) Long categoryId) {
+
+        Iterable<Service> services;
+        Iterable<ServiceCategory> categories = serviceCategoryRepository.findAll();
+
+        if (categoryId != null) {
+            services = serviceRepository.findByCategoryId(categoryId);
+        } else {
+            services = serviceRepository.findAll();
+        }
+
+        model.addAttribute("services", services);
+        model.addAttribute("categories", categories);
+        model.addAttribute("selectedCategoryId", categoryId);
+
+        return "table-services";
     }
 }

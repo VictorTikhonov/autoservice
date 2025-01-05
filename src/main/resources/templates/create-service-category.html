@@ -8,6 +8,12 @@
 
 <h1>Добавить категорию услуги</h1>
 
+<div>
+    <a th:href="@{/service/show-table}">
+        <button type="button">К списку услуг</button>
+    </a>
+</div>
+
 <!-- Отображение сообщения об ошибке -->
 <div th:if="${error}">
     <p th:text="${error}"></p>
