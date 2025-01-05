@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Добавление услуги</title>
+</head>
+<body>
+
+<h1>Добавить услугу</h1>
+
+<div th:if="${error}" style="color: red;">
+  <p th:text="${error}"></p>
+</div>
+
+<!-- Уведомление, если услуга успешно добавлена -->
+<div th:if="${success}">
+  <script th:inline="javascript">
+    alert([[${success}]]);
+  </script>
+</div>
+
+
+<form th:action="@{/service/create}" th:object="${service}" method="post">
+
+  <!-- Выбор категории -->
+  <div>
+    <label for="category">Категория:</label>
+    <select id="category" th:field="*{category}">
+      <option value="" disabled>Выберите категорию</option>
+      <option th:each="category : ${categories}"
+              th:value="${category.id}"
+              th:text="${category.name}"
+              th:selected="${category.id == service.category?.id}">
+      </option>
+    </select>
+    <div th:if="${#fields.hasErrors('category')}" style="color: red;">
+      <p th:errors="*{category}"></p>
+    </div>
+  </div>
+
+  <!-- Поле для названия -->
+  <div>
+    <label for="name">Название:</label>
+    <input id="name" type="text" th:field="*{name}" />
+    <div th:if="${#fields.hasErrors('name')}" style="color: red;">
+      <p th:errors="*{name}"></p>
+    </div>
+  </div>
+
+  <!-- Поле для описания -->
+  <div>
+    <label for="description">Описание:</label>
+    <textarea id="description" th:field="*{description}"></textarea>
+    <div th:if="${#fields.hasErrors('description')}" style="color: red;">
+      <p th:errors="*{description}"></p>
+    </div>
+  </div>
+
+  <!-- Кнопка сохранения -->
+  <div>
+    <button type="submit" th:disabled="${#lists.isEmpty(categories)}">Сохранить</button>
+  </div>
+</form>
+
+</body>
+</html>

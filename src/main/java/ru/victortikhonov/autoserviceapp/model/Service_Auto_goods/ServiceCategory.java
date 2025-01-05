@@ -6,12 +6,14 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Entity
 @Table(name = "categories_services")
 @Data
+@ToString(exclude = "services")
 public class ServiceCategory {
 
     @Id
@@ -29,4 +31,13 @@ public class ServiceCategory {
 
     @OneToMany(mappedBy = "category")
     private List<Service> services;
+
+
+    public ServiceCategory() {
+    }
+
+
+    public ServiceCategory(String name) {
+        this.name = name;
+    }
 }

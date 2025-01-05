@@ -1,17 +1,17 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
-import ru.victortikhonov.autoserviceapp.model.Request.*;
+import ru.victortikhonov.autoserviceapp.model.Request.Request;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.service.RequestService;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,10 +19,12 @@ import java.util.List;
 @Controller
 @RequestMapping("/request")
 @SessionAttributes("requestForm")
-@Slf4j
 public class RequestController {
 
     private final RequestService requestService;
+
+
+
 
     public RequestController(RequestService requestService) {
 

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавление категории услуг</title>
+</head>
+<body>
+
+<h1>Добавить категорию услуги</h1>
+
+<!-- Отображение сообщения об ошибке -->
+<div th:if="${error}">
+    <p th:text="${error}"></p>
+</div>
+
+<!-- Форма для добавления категории -->
+<form action="/service/category/create" method="post">
+    <div>
+        <label for="name">Наименование категории:</label>
+        <!-- Здесь будет выводиться введенное значение, если произошла ошибка -->
+        <input type="text" id="name" name="name" maxlength="35" placeholder="Введите название категории" required
+               th:value="${name != null ? name : ''}">
+    </div>
+
+    <div>
+        <button type="submit">Добавить</button>
+    </div>
+</form>
+
+<!-- Уведомление, если категория успешно добавлена -->
+<div th:if="${success}">
+    <script type="text/javascript">
+        alert("Категория услуг '" + "[[${success}]]'" + " создана");
+    </script>
+</div>
+
+</body>
+</html>

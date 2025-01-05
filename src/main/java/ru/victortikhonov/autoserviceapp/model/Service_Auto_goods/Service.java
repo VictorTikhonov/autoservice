@@ -9,10 +9,7 @@ import lombok.Setter;
 
 
 @Entity
-@Table(
-        name = "services",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "category_id"})
-)
+@Table(name = "services")
 @Data
 public class Service {
 
@@ -25,7 +22,6 @@ public class Service {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @Setter(AccessLevel.NONE)
     private ServiceCategory category;
 
 
@@ -38,21 +34,7 @@ public class Service {
     @NotBlank(message = "Опсиание не должно быть пустым")
     @Column(name = "description")
     private String description;
+
+    public Service() {
+    }
 }
-
-
-/*
--- Создание таблицы Услуги
-CREATE TABLE services (
-                          id BIGSERIAL PRIMARY KEY,        -- ID услуги, автоинкремент
-                          name VARCHAR(35) NOT NULL,       -- Наименование услуги
-                          description TEXT,                -- Описание услуги
-                          category_id BIGINT NOT NULL,     -- ID категории услуги
-
-    -- Внешний ключ на таблицу categories_of_services
-                          CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories_services(id),
-
-    -- Уникальность пары: категория + услуга
-                          CONSTRAINT unique_service_name_per_category UNIQUE (name, category_id)
-);
- */
