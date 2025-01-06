@@ -26,8 +26,7 @@
     <option th:each="category : ${categories}"
             th:value="${category.id}"
             th:text="${category.name}"
-            th:selected="${category.id == selectedCategoryId}">
-    </option>
+            th:selected="${category.id == selectedCategoryId}"></option>
   </select>
   <button type="submit">Фильтровать</button>
 </form>
@@ -36,21 +35,23 @@
 <table border="1">
   <thead>
   <tr>
+    <th>№</th>
     <th>Название услуги</th>
     <th>Описание</th>
     <th>Категория</th>
   </tr>
   </thead>
   <tbody>
-  <!-- Если услуг нет, выводим сообщение после шапки -->
+  <!-- Если услуг нет, выводим сообщение -->
   <tr th:if="${#lists.isEmpty(services)}">
-    <td colspan="3" style="color: red; text-align: center;">
-      Нет услуг в выбранной категории.
+    <td colspan="4" style="color: red; text-align: center;">
+      Нет услуг в выбранной категории
     </td>
   </tr>
 
   <!-- Отображение услуг -->
-  <tr th:each="service : ${services}">
+  <tr th:each="service, iterStat : ${services}">
+    <td th:text="${iterStat.index + 1}"></td>
     <td th:text="${service.name}"></td>
     <td th:text="${service.description}"></td>
     <td th:text="${service.category.name}"></td>

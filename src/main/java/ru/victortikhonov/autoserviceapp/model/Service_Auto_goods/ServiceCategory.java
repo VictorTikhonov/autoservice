@@ -14,20 +14,7 @@ import java.util.List;
 @Table(name = "categories_services")
 @Data
 @ToString(exclude = "services")
-public class ServiceCategory {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
-    @Column(name = "id")
-    private Long id;
-
-
-    @NotBlank(message = "Наименование не может быть пустым")
-    @Size(max = 35, message = "Наименование не должно превышать 35 символов")
-    @Column(name = "name")
-    private String name;
-
+public class ServiceCategory extends Category{
 
     @OneToMany(mappedBy = "category")
     private List<Service> services;
@@ -38,6 +25,6 @@ public class ServiceCategory {
 
 
     public ServiceCategory(String name) {
-        this.name = name;
+        super(name);
     }
 }

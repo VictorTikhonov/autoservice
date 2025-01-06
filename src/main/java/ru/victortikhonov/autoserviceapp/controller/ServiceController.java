@@ -100,14 +100,15 @@ public class ServiceController {
         // Проверка на существование категории с таким именем
         if (serviceCategoryRepository.findByName(name).isPresent()) {
 
-            model.addAttribute("error", "Категория с таким именем уже существует.");
+            model.addAttribute("error", "Категория с таким названием уже существует");
             model.addAttribute("name", name);
             return "create-service-category";  // Возвращаем на страницу добавления
         }
 
-
         serviceCategoryRepository.save(new ServiceCategory(name));
+
         model.addAttribute("success", name);
+
         return "create-service-category";
     }
 

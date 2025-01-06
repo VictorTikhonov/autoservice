@@ -3,6 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Добавление категории услуг</title>
+    <style>
+        /* Стиль для всплывающего уведомления */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2e7d32;
+            color: #f1f1f1;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            min-width: 250px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
 
@@ -16,7 +41,7 @@
 
 <!-- Отображение сообщения об ошибке -->
 <div th:if="${error}">
-    <p th:text="${error}"></p>
+    <p th:text="${error}" style="color: red;"></p>
 </div>
 
 <!-- Форма для добавления категории -->
@@ -33,12 +58,25 @@
     </div>
 </form>
 
-<!-- Уведомление, если категория успешно добавлена -->
-<div th:if="${success}">
-    <script type="text/javascript">
-        alert("Категория услуг '" + "[[${success}]]'" + " создана");
-    </script>
+<!-- Всплывающее уведомление -->
+<div id="toast" class="toast" th:if="${success}">
+    Категория услуг '<span th:text="${success}"></span>' создана!
 </div>
+
+<script>
+    // Показ уведомления, если оно есть
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.classList.add('show');
+
+            // Убираем уведомление через 1.5 секунды
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 1500);
+        }
+    });
+</script>
 
 </body>
 </html>
