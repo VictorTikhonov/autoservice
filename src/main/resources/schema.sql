@@ -31,6 +31,12 @@ VALUES ((SELECT id FROM accounts WHERE login = '1'), -- Используем ID учётной за
        );
 
 
+
+
+
+
+
+
 -- Создание таблицы Клиенты
 CREATE TABLE clients
 (
@@ -183,9 +189,7 @@ CREATE TABLE auto_goods
     name           VARCHAR(35)    NOT NULL, -- Наименование автотовара
     quantity       INT            NOT NULL, -- Количество
     price_one_unit DECIMAL(10, 2) NOT NULL, -- Цена за 1 штуку
-    manufacturer   VARCHAR(35)    NOT NULL, -- Производитель
-    description    TEXT,                    -- Описание
-    relevance      BOOLEAN DEFAULT TRUE,    -- Актуальность, по умолчанию TRUE
+    expiration_date DATE,                   -- Срок годности
 
     -- Внешний ключ на таблицу categories_auto_goods
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories_auto_goods (id),

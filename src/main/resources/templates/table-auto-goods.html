@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список автотоваров</title>
+</head>
+<body>
+
+<h1>Список автотоваров</h1>
+
+<!-- Кнопка для создания категории/автотовара -->
+<div>
+    <span>Создать автотовар/категорию: </span>
+    <a th:href="@{/auto-good/create}">
+        <button type="button">Создать</button>
+    </a>
+</div>
+
+
+<!-- Фильтрация по категории -->
+<form th:action="@{/auto-good/show-table}" method="get">
+    <label for="category">Выберите категорию:</label>
+    <select id="category" name="categoryId">
+        <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
+        <option th:each="category : ${categories}"
+                th:value="${category.id}"
+                th:text="${category.name}"
+                th:selected="${category.id == selectedCategoryId}"></option>
+    </select>
+    <button type="submit">Фильтровать</button>
+</form>
+
+<!-- Таблица автотоваров -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>№</th>
+        <th>Название автотовара</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th>Срок годности</th>
+        <th>Категория</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Если автотоваров нет, вывожу сообщение -->
+    <tr th:if="${#lists.isEmpty(autoGoods)}">
+        <td colspan="6" style="color: red; text-align: center;">
+            Нет автотоваров в выбранной категории
+        </td>
+    </tr>
+
+    <!-- Отображение автотоваров -->
+    <tr th:each="autoGood, iterStat : ${autoGoods}">
+        <td th:text="${iterStat.index + 1}"></td>
+        <td th:text="${autoGood.name}"></td>
+        <td th:text="${autoGood.quantity}"></td>
+        <td th:text="${autoGood.priceOneUnit}"></td>
+        <td th:text="${autoGood.expirationDate}"></td>
+        <td th:text="${autoGood.category.name}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

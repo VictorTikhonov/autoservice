@@ -5,7 +5,10 @@ import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 
 @Entity
@@ -22,7 +25,6 @@ public class AutoGood {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    @Setter(AccessLevel.NONE)
     private AutoGoodCategory category;
 
 
@@ -44,17 +46,8 @@ public class AutoGood {
     private BigDecimal priceOneUnit;
 
 
-    @Column(name = "manufacturer")
-    @NotBlank(message = "Наименование не может быть пустым")
-    @Size(max = 35, message = "Наименование не должно превышать 35 символов")
-    private String manufacturer;
-
-
-    @NotBlank(message = "Опсиание не должно быть пустым")
-    @Column(name = "description")
-    private String description;
-
-
-    @Column(name = "relevance")
-    private Boolean relevance;
+    @Column(name = "expiration_date")
+    @NotNull(message = "Дата не может быть пустой")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expirationDate;
 }
