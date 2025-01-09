@@ -10,11 +10,9 @@
 
 <!-- Кнопки для создания категории и услуги -->
 <div>
-  <a th:href="@{/service/category/create}">
-    <button type="button">Создать категорию</button>
-  </a>
+  <span>Создать услугу/категорию: </span>
   <a th:href="@{/service/create}">
-    <button type="button">Создать услугу</button>
+    <button type="button">Создать</button>
   </a>
 </div>
 
@@ -22,7 +20,7 @@
 <form th:action="@{/service/show-table}" method="get">
   <label for="category">Выберите категорию:</label>
   <select id="category" name="categoryId">
-    <option value="" th:selected="${selectedCategoryId == null}" disabled>Все категории</option>
+    <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
     <option th:each="category : ${categories}"
             th:value="${category.id}"
             th:text="${category.name}"

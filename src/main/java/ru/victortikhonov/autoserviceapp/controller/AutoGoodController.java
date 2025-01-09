@@ -51,7 +51,7 @@ public class AutoGoodController {
 
     @PostMapping("/create")
     @Transactional
-    public String handleCreate(
+    public String create(
             @RequestParam("action") String action,
             @RequestParam(value = "categoryName", required = false) String categoryName,
             @ModelAttribute("categories") ArrayList<AutoGoodCategory> categories,
@@ -111,7 +111,7 @@ public class AutoGoodController {
         }
 
         if (autoGoodCategoryRepository.findByName(categoryName).isPresent()) {
-            model.addAttribute("errorCategory", "Категория с таким именем уже существует");
+            model.addAttribute("errorCategory", "Категория с таким названием уже существует");
             model.addAttribute("categoryName", categoryName);
             return "add-auto-good-and-category";
         }
