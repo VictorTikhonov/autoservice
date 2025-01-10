@@ -1,11 +1,14 @@
 package ru.victortikhonov.autoserviceapp.model.Personnel;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.victortikhonov.autoserviceapp.model.Person;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -14,7 +17,7 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype")
 @Data
-public abstract class Employee extends Person {
+public class Employee extends Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +26,9 @@ public abstract class Employee extends Person {
     private Long id;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
-    @Setter(AccessLevel.NONE)
+    @Valid
     private Account account;
 
 
@@ -45,15 +48,18 @@ public abstract class Employee extends Person {
 
     @NotNull(message = "Дата трудоустройства не может быть пустой")
     @Column(name = "hire_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate hireDate;
 
 
     @Column(name = "dismissal_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dismissalDate;
 
 
     @NotNull(message = "Дата дня рождения не может быть пустой")
     @Column(name = "birth_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
 
@@ -71,10 +77,5 @@ public abstract class Employee extends Person {
 
 
     public Employee() {
-    }
-
-
-    public Employee(String surname, String name, String patronymic, String phoneNumber) {
-        super(surname, name, patronymic, phoneNumber);
     }
 }

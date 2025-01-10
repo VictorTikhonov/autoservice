@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список сотрудников</title>
+</head>
+<body>
+
+<div>
+    <span>Добавить нового сотрудника: </span>
+    <a th:href="@{/employee/create}">
+        <button type="button">Добавить</button>
+    </a>
+</div>
+
+<h2>Список сотрудников</h2>
+
+<!-- Форма фильтрации -->
+<form th:action="@{/employee/list}" method="get">
+    <label for="statusFilter">Фильтр по статусу:</label>
+    <select id="statusFilter" name="status">
+        <option value="" th:selected="${filterStatus == null}">Все</option>
+        <option value="ACTIVE" th:selected="${filterStatus?.name() == 'ACTIVE'}">Активен</option>
+        <option value="INACTIVE" th:selected="${filterStatus?.name() == 'INACTIVE'}">Не активен</option>
+        <option value="DISMISSED" th:selected="${filterStatus?.name() == 'DISMISSED'}">Уволен</option>
+    </select>
+    <button type="submit">Применить фильтр</button>
+</form>
+
+<!-- Таблица сотрудников -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Фамилия</th>
+        <th>Имя</th>
+        <th>Отчество</th>
+        <th>Телефон</th>
+        <th>Должность</th>
+        <th>Статус</th>
+        <th>Зарплата</th>
+        <th>Дата трудоустройства</th>
+        <th>Дата увольнения</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="employee : ${employees}">
+        <td th:text="${employee.surname}"></td>
+        <td th:text="${employee.name}"></td>
+        <td th:text="${employee.patronymic ?: '—'}"></td>
+        <td th:text="${employee.phoneNumber}"></td>
+        <td th:text="${employee.position.positionName}"></td>
+        <td th:text="${employee.employmentStatus.description}"></td>
+        <td th:text="${employee.salary} + ' ₽'"></td>
+        <td th:text="${#temporals.format(employee.hireDate, 'dd-MM-yyyy')}"></td>
+        <td th:text="${employee.employmentStatus == 'DISMISSED' ? #temporals.format(employee.dismissalDate, 'dd-MM-yyyy') : '—'}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(employees)}">
+        <td colspan="9" style="text-align: center;">Нет данных для отображения</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

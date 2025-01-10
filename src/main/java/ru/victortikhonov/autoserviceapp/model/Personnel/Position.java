@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "positions")
 @Data
+@ToString(exclude = "employees")
 public class Position {
 
     @Id

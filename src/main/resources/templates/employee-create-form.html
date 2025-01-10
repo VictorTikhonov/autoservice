@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание работника и аккаунта</title>
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2e7d32;
+            color: #f1f1f1;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            min-width: 250px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <a th:href="@{/employee/list}">
+        <button type="button">К списку сотрудников</button>
+    </a>
+</div>
+
+
+<h2>Создание работника и аккаунта</h2>
+
+<form th:action="@{/employee/create}" th:object="${employee}" method="post">
+    <!-- Выбор роли -->
+    <h2>Информация о сотруднике</h2>
+
+    <div>
+        <label>Роль:</label>
+        <label>
+            <input type="radio" name="role" value="OPERATOR" th:checked="${role == 'OPERATOR'}"/> Оператор
+        </label>
+        <label>
+            <input type="radio" name="role" value="MECHANIC" th:checked="${role == 'MECHANIC'}"/> Механик
+        </label>
+        <div th:if="${errorRole}" style="color: red;" th:text="${errorRole}"></div>
+    </div>
+
+    <!-- Поля для работника -->
+    <div>
+        <label for="surname">Фамилия: </label>
+        <input type="text" id="surname" th:field="*{surname}"/>
+        <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
+    </div>
+    <div>
+        <label for="name">Имя: </label>
+        <input type="text" id="name" th:field="*{name}"/>
+        <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
+    </div>
+    <div>
+        <label for="patronymic">Отчество: </label>
+        <input type="text" id="patronymic" th:field="*{patronymic}"/>
+        <div th:if="${#fields.hasErrors('patronymic')}" style="color: red;" th:errors="*{patronymic}"></div>
+    </div>
+    <div>
+        <label for="phoneNumber">Телефон: </label>
+        <input type="text" id="phoneNumber" th:field="*{phoneNumber}"/>
+        <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
+        <div th:if="${errorPhoneNumber}" style="color: red;" th:text="${errorPhoneNumber}"></div>
+    </div>
+
+
+    <!-- Список должностей -->
+    <div>
+        <label for="position">Должность:</label>
+        <select id="position" th:field="*{position}">
+            <option value="" disabled>Выберите должность</option>
+            <option th:each="position : ${positions}"
+                    th:value="${position.id}"
+                    th:text="${position.positionName}"
+                    th:selected="${position.id == employee.position?.id}"/>
+        </select>
+    </div>
+
+
+    <!-- Поля для зарплаты и даты трудоустройства, дня рождения -->
+    <div>
+        <label for="salary">Зарплата: </label>
+        <input type="number" id="salary" th:field="*{salary}" step="0.01"/>
+        <div th:if="${#fields.hasErrors('salary')}" style="color: red;" th:errors="*{salary}"></div>
+    </div>
+    <div>
+        <label for="hireDate">Дата трудоустройства: </label>
+        <input type="date" id="hireDate" th:field="*{hireDate}"/>
+        <div th:if="${#fields.hasErrors('hireDate')}" style="color: red;" th:errors="*{hireDate}"></div>
+    </div>
+    <div>
+        <label for="birthDate">Дата рождения: </label>
+        <input type="date" id="birthDate" th:field="*{birthDate}"/>
+        <div th:if="${#fields.hasErrors('birthDate')}" style="color: red;" th:errors="*{birthDate}"></div>
+    </div>
+
+
+    <h2>Информация об учетной записи</h2>
+    <!-- Поля для аккаунта -->
+    <div>
+        <label for="login">Логин: </label>
+        <input type="text" id="login" th:field="*{account.login}"/>
+        <div th:if="${#fields.hasErrors('account.login')}" style="color: red;" th:errors="*{account.login}"></div>
+        <div th:if="${errorLogin}" style="color: red;" th:text="${errorLogin}"></div>
+    </div>
+    <div>
+        <label for="password">Пароль: </label>
+        <input type="password" id="password" th:field="*{account.password}"/>
+        <button type="button" id="togglePasswordButton">Показать пароль</button>
+        <div th:if="${#fields.hasErrors('account.password')}" style="color: red;" th:errors="*{account.password}"></div>
+    </div>
+
+    <button type="submit">Создать работника</button>
+</form>
+
+
+<!-- Всплывающее уведомление -->
+<div id="toast" class="toast" th:if="${success}">
+    <span th:text="${success}"></span>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Функция для переключения видимости пароля
+        const passwordField = document.getElementById('password');
+        const toggleButton = document.getElementById('togglePasswordButton');
+        if (passwordField && toggleButton) {
+            toggleButton.addEventListener('click', function() {
+                var type = passwordField.type === 'password' ? 'text' : 'password';
+                passwordField.type = type;
+            });
+        }
+    });
+</script>
+
+
+</body>
+</html>

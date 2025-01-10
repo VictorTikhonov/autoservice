@@ -4,8 +4,19 @@ DROP TABLE IF EXISTS
     accounts,
     cars,
     requests,
-    clients
+    clients,
+    services,
+    categories_services,
+    auto_goods,
+    categories_auto_goods
     CASCADE;
+DROP INDEX IF EXISTS idx_auto_goods_category_id;
+DROP INDEX IF EXISTS idx_services_category_id;
+
+
+
+
+
 
 
 -- Вставка данных в таблицы
@@ -24,14 +35,21 @@ VALUES ((SELECT id FROM accounts WHERE login = '1'), -- Используем ID учётной за
         'Виктор', -- Имя
         'Владимирович', -- Отчество
         '88888888888', -- Номер телефона
-        50000, -- Зарплата
+         50000, -- Зарплата
         '2022-01-01', -- Дата трудоустройства
         '1990-05-10', -- Дата рождения
         'OPERATOR' -- Роль сотрудника
        );
 
-
-
+-- Вставка записей в таблицу positions
+INSERT INTO positions (position_name)
+VALUES
+    ('Старший оператор'),   -- 1
+    ('Помощник оператора'), -- 2
+    ('Стажер-оператор'), -- 3
+    ('Главный механик'),   -- 4
+    ('Механик первой категории'), -- 5
+    ('Стажёр-механик');   -- 6
 
 
 
@@ -142,35 +160,6 @@ CREATE TABLE requests
     -- Ограничение на допустимые значения статуса заявки
     CONSTRAINT chk_status CHECK (request_status IN ('В ожидании', 'Исполняется', 'Завершена', 'Отклонена'))
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-DROP INDEX IF EXISTS idx_auto_goods_category_id;
-DROP INDEX IF EXISTS idx_services_category_id;
-
-DROP TABLE IF EXISTS services CASCADE;
-DROP TABLE IF EXISTS categories_services CASCADE;
-DROP TABLE IF EXISTS auto_goods CASCADE;
-DROP TABLE IF EXISTS categories_auto_goods CASCADE;
-
-
-
-
 
 
 -- Создание таблицы Категории автотоваров

@@ -21,7 +21,8 @@ public class Operator extends Employee {
     public Operator(String surname, String name, String patronymic, String phoneNumber,
                     Account accountId, Position positionId, BigDecimal salary,
                     LocalDate hireDate, LocalDate birthDate) {
-        super(surname, name, patronymic, phoneNumber, accountId, positionId, salary, hireDate, birthDate);
+        super(surname, name, patronymic, phoneNumber,
+                accountId, positionId, salary, hireDate, birthDate);
     }
 
 
