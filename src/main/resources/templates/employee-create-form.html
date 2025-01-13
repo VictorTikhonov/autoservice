@@ -36,6 +36,7 @@
     </a>
 </div>
 
+<div th:if="${error}" style="color: red;" th:text="${error}"></div>
 
 <h2>Создание работника и аккаунта</h2>
 
@@ -72,7 +73,9 @@
     </div>
     <div>
         <label for="phoneNumber">Телефон: </label>
-        <input type="text" id="phoneNumber" th:field="*{phoneNumber}"/>
+        <input type="text" id="phoneNumber" th:field="*{phoneNumber}"
+               pattern="[0-9]*" title="Введите только цифры"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
         <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
         <div th:if="${errorPhoneNumber}" style="color: red;" th:text="${errorPhoneNumber}"></div>
     </div>
@@ -147,7 +150,7 @@
         const passwordField = document.getElementById('password');
         const toggleButton = document.getElementById('togglePasswordButton');
         if (passwordField && toggleButton) {
-            toggleButton.addEventListener('click', function() {
+            toggleButton.addEventListener('click', function () {
                 var type = passwordField.type === 'password' ? 'text' : 'password';
                 passwordField.type = type;
             });

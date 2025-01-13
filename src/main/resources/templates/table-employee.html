@@ -31,6 +31,7 @@
 <table border="1">
     <thead>
     <tr>
+        <th>№</th>
         <th>Фамилия</th>
         <th>Имя</th>
         <th>Отчество</th>
@@ -40,10 +41,12 @@
         <th>Зарплата</th>
         <th>Дата трудоустройства</th>
         <th>Дата увольнения</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="employee : ${employees}">
+    <tr th:each="employee, stat : ${employees}">
+        <td th:text="${stat.index + 1}"></td>
         <td th:text="${employee.surname}"></td>
         <td th:text="${employee.name}"></td>
         <td th:text="${employee.patronymic ?: '—'}"></td>
@@ -52,13 +55,21 @@
         <td th:text="${employee.employmentStatus.description}"></td>
         <td th:text="${employee.salary} + ' ₽'"></td>
         <td th:text="${#temporals.format(employee.hireDate, 'dd-MM-yyyy')}"></td>
-        <td th:text="${employee.employmentStatus == 'DISMISSED' ? #temporals.format(employee.dismissalDate, 'dd-MM-yyyy') : '—'}"></td>
+        <td th:text="${employee.employmentStatus ==
+        T(ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeStatus).DISMISSED
+        ? #temporals.format(employee.dismissalDate, 'dd-MM-yyyy') : '—'}"></td>
+        <td>
+            <a th:href="@{/employee/profile/{id}(id=${employee.id})}">
+                <button type="button">Открыть</button>
+            </a>
+        </td>
     </tr>
     <tr th:if="${#lists.isEmpty(employees)}">
-        <td colspan="9" style="text-align: center;">Нет данных для отображения</td>
+        <td colspan="11" style="text-align: center;">Нет данных для отображения</td>
     </tr>
     </tbody>
 </table>
+
 
 </body>
 </html>

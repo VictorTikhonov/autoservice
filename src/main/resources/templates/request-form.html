@@ -27,23 +27,25 @@
         <legend>Информация о клиенте</legend>
 
         <label for="surname">Фамилия: </label>
-        <input type="text" id="surname" th:field="*{client.surname}" />
+        <input type="text" id="surname" th:field="*{client.surname}"/>
         <span th:if="${#fields.hasErrors('client.surname')}" th:errors="*{client.surname}"></span><br/>
 
         <label for="name">Имя: </label>
-        <input type="text" id="name" th:field="*{client.name}" />
+        <input type="text" id="name" th:field="*{client.name}"/>
         <span th:if="${#fields.hasErrors('client.name')}" th:errors="*{client.name}"></span><br/>
 
         <label for="patronymic">Отчество: </label>
-        <input type="text" id="patronymic" th:field="*{client.patronymic}" />
+        <input type="text" id="patronymic" th:field="*{client.patronymic}"/>
         <span th:if="${#fields.hasErrors('client.patronymic')}" th:errors="*{client.patronymic}"></span><br/>
 
         <label for="phoneNumber">Номер телефона: </label>
-        <input type="text" id="phoneNumber" th:field="*{client.phoneNumber}" />
+        <input type="text" id="phoneNumber" th:field="*{client.phoneNumber}"
+               pattern="[0-9]*" title="Введите только цифры"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
         <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"></span><br/>
 
         <label for="email">Email: </label>
-        <input type="text" id="email" th:field="*{client.email}" />
+        <input type="text" id="email" th:field="*{client.email}"/>
         <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/>
 
         <br/><br/><br/>
@@ -54,7 +56,6 @@
         </button>
 
     </fieldset>
-
 
 
     <br/>
@@ -68,7 +69,7 @@
                 type="text"
                 id="stateNumber"
                 th:field="*{car.stateNumber}"
-                oninput="this.value = this.value.toUpperCase()" />
+                oninput="this.value = this.value.toUpperCase()"/>
         <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
 
         <label for="vin">VIN номер: </label>
@@ -76,19 +77,19 @@
                 type="text"
                 id="vin"
                 th:field="*{car.vin}"
-                oninput="this.value = this.value.toUpperCase()" />
+                oninput="this.value = this.value.toUpperCase()"/>
         <span th:if="${#fields.hasErrors('car.vin')}" th:errors="*{car.vin}"></span><br/>
 
         <label for="brand">Марка автомобиля: </label>
-        <input type="text" id="brand" th:field="*{car.brand}" />
+        <input type="text" id="brand" th:field="*{car.brand}"/>
         <span th:if="${#fields.hasErrors('car.brand')}" th:errors="*{car.brand}"></span><br/>
 
         <label for="model">Модель автомобиля: </label>
-        <input type="text" id="model" th:field="*{car.model}" />
+        <input type="text" id="model" th:field="*{car.model}"/>
         <span th:if="${#fields.hasErrors('car.model')}" th:errors="*{car.model}"></span><br/>
 
         <label for="yearOfManufacture">Год выпуска: </label>
-        <input type="number" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" min="1900" />
+        <input type="number" id="yearOfManufacture" th:field="*{car.yearOfManufacture}" min="1900"/>
         <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
     </fieldset>
 

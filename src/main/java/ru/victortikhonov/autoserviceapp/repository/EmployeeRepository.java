@@ -12,4 +12,6 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long> {
     boolean existsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
     Iterable<Employee> findByEmploymentStatus(EmployeeStatus status);
+
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
 }

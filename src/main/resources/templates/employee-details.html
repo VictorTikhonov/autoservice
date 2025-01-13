@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Данные сотрудника</title>
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2e7d32;
+            color: #f1f1f1;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            min-width: 250px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+<div>
+    <a th:href="@{/employee/list}">
+        <button type="button">К списку сотрудников</button>
+    </a>
+</div>
+
+<h1>Информация о сотруднике</h1>
+
+<form id="employeeForm" th:action="@{/employee/profile/update}" method="post" th:object="${selectedEmployee}">
+    <input type="hidden" name="id" th:value="${selectedEmployee.id}"/>
+
+    <!-- Фамилия -->
+    <div>
+        <label for="surname">Фамилия:</label>
+        <input id="surname" type="text" name="surname" th:value="${selectedEmployee.surname}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
+    </div>
+
+    <!-- Имя -->
+    <div>
+        <label for="name">Имя:</label>
+        <input id="name" type="text" name="name" th:value="${selectedEmployee.name}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
+    </div>
+
+    <!-- Отчество -->
+    <div>
+        <label for="patronymic">Отчество:</label>
+        <input id="patronymic" type="text" name="patronymic" th:value="${selectedEmployee.patronymic}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+    </div>
+
+    <!-- Телефон -->
+    <div>
+        <label for="phoneNumber">Телефон:</label>
+        <input id="phoneNumber" type="text" name="phoneNumber" th:value="${selectedEmployee.phoneNumber}"
+               class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"
+               pattern="[0-9]*" title="Введите только цифры"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+        <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
+        <div th:if="${errorPhoneNumberUpdate}" style="color: red;" th:text="${errorPhoneNumberUpdate}"></div>
+    </div>
+
+    <!-- Должность -->
+    <div>
+        <label for="position">Должность:</label>
+        <select id="position" th:field="*{position}" name="positionId"
+                class="editable"
+                th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}">
+            <option value="" disabled>Выберите должность</option>
+            <option th:each="position : ${positions}"
+                    th:value="${position.id}"
+                    th:text="${position.positionName}"
+                    th:selected="${position.id == selectedEmployee.position?.id}"/>
+        </select>
+    </div>
+
+    <!-- Зарплата -->
+    <div>
+        <label for="salary">Зарплата:</label>
+        <input id="salary" type="number" name="salary" th:value="${selectedEmployee.salary}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${#fields.hasErrors('salary')}" style="color: red;" th:errors="*{salary}"></div>
+    </div>
+
+    <!-- Статус -->
+    <div>
+        <label for="employmentStatus">Статус:</label>
+        <select id="employmentStatus" name="employmentStatus" class="editable"
+                th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}">
+            <option value="" disabled>Выберите статус</option>
+            <option th:each="status : ${statuses}" th:value="${status.name()}" th:text="${status.description}"
+                    th:selected="${status == selectedEmployee.employmentStatus}"/>
+        </select>
+    </div>
+
+    <!-- Дата трудоустройства -->
+    <div>
+        <label for="hireDate">Дата трудоустройства:</label>
+        <input id="hireDate" type="date" name="hireDate" th:value="${selectedEmployee.hireDate}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${#fields.hasErrors('hireDate')}" style="color: red;" th:errors="*{hireDate}"></div>
+    </div>
+
+    <!-- Дата увольнения -->
+    <div>
+        <label for="dismissalDate">Дата увольнения:</label>
+        <input id="dismissalDate" type="date" name="dismissalDate" th:value="${selectedEmployee.dismissalDate}"
+               class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${errorDismissalDate}" style="color: red;"><span th:text="${errorDismissalDate}"></span></div>
+    </div>
+
+    <!-- Дата рождения -->
+    <div>
+        <label for="birthDate">Дата рождения:</label>
+        <input id="birthDate" type="date" name="birthDate" th:value="${selectedEmployee.birthDate}" class="editable"
+               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
+        <div th:if="${#fields.hasErrors('birthDate')}" style="color: red;" th:errors="*{birthDate}"></div>
+    </div>
+
+    <!-- Кнопки управления -->
+    <div>
+        <button type="button" id="editButton" th:style="'display: ' + (${editMode} ? 'none' : 'inline-block')"
+                onclick="toggleEditMode(true)">Редактировать
+        </button>
+        <button type="submit" id="saveButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')">
+            Сохранить
+        </button>
+        <button type="button" id="cancelButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')"
+                th:onclick="'window.location.href=\'/employee/profile/' + ${selectedEmployee.id} + '?action=cancel\''">
+            Отмена
+        </button>
+    </div>
+</form>
+
+<!-- Всплывающее уведомление -->
+<div id="toast" class="toast" th:if="${success != null}">
+    <span th:text="${success}"></span>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Показ уведомления и его скрытие через 2 секунды
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000); // 2 секунды
+        }
+
+        // Функция переключения режима редактирования
+        function toggleEditMode(editMode) {
+            const inputs = document.querySelectorAll('.editable');
+            inputs.forEach(input => input.disabled = !editMode);
+
+            document.getElementById('editButton').style.display = editMode ? 'none' : 'inline-block';
+            document.getElementById('saveButton').style.display = editMode ? 'inline-block' : 'none';
+            document.getElementById('cancelButton').style.display = editMode ? 'inline-block' : 'none';
+        }
+
+        // Сделать функции доступными в глобальной области видимости
+        window.toggleEditMode = toggleEditMode;
+    });
+</script>
+
+</body>
+</html>

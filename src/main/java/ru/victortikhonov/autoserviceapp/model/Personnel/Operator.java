@@ -2,6 +2,7 @@ package ru.victortikhonov.autoserviceapp.model.Personnel;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
@@ -14,7 +15,7 @@ import java.util.*;
 @Data
 public class Operator extends Employee {
 
-    @OneToMany(mappedBy = "operator")
+    @OneToMany(mappedBy = "operator", fetch = FetchType.EAGER)
     private List<Request> requests = new ArrayList<>();
 
 
