@@ -53,8 +53,8 @@ public class RequestService {
         }
 
         // TODO временное решение
-        Operator operator = operatorRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (1)"));
+        Operator operator = operatorRepository.findById(10L)
+                .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (10)"));
 
         requestRepository.save(new Request(
                 client,

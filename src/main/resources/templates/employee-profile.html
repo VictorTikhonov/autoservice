@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль сотрудника</title>
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2e7d32;
+            color: #f1f1f1;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            min-width: 250px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>Профиль сотрудника</h1>
+
+<!-- Блок 1: Личная информация -->
+<div>
+    <h2>Личная информация</h2>
+    <p><strong>Фамилия:</strong> <span th:text="${employeeProfile.surname}"></span></p>
+    <p><strong>Имя:</strong> <span th:text="${employeeProfile.name}"></span></p>
+    <p><strong>Отчество:</strong> <span th:text="${employeeProfile.patronymic}"></span></p>
+    <p><strong>Номер телефона:</strong> <span th:text="${employeeProfile.phoneNumber}"></span></p>
+    <p><strong>Дата рождения:</strong> <span th:text="${employeeProfile.birthDate}"></span></p>
+</div>
+
+<!-- Блок 2: Информация о трудоустройстве -->
+<div>
+    <h2>Профессиональные сведения</h2>
+    <p><strong>Должность:</strong> <span th:text="${employeeProfile.position.positionName}"></span></p>
+    <p><strong>Зарплата:</strong> <span th:text="${employeeProfile.salary}"></span></p>
+    <p><strong>Дата трудоустройства:</strong> <span th:text="${employeeProfile.hireDate}"></span></p>
+    <p th:if="${employeeProfile.employmentStatus == 'DISMISSED'}">
+        <strong>Дата увольнения:</strong> <span th:text="${employeeProfile.dismissalDate}"></span>
+    </p>
+</div>
+
+<!-- Блок 3: Учетная запись -->
+<div>
+    <h2>Учетная запись</h2>
+    <p><strong>Логин:</strong> <span th:text="${employeeProfile.account.login}"></span></p>
+</div>
+
+
+<div>
+    <button type="button"
+            id="editInfoButton"
+            th:onclick="'window.location.href=\'/my-profile/update-info\''">
+        Редактировать личную информацию
+    </button>
+    <button type="button"
+            id="changePasswordButton"
+            th:onclick="'window.location.href=\'/my-profile/update-password\''">
+        Сменить пароль
+    </button>
+
+</div>
+
+<!-- Всплывающее уведомление -->
+<div id="toast" class="toast" th:if="${success != null}" th:text="${success}"></div>
+
+<script>
+    // Покажем Toast уведомление, если оно есть
+    document.addEventListener('DOMContentLoaded', function () {
+        var toast = document.getElementById("toast");
+        if (toast) {
+            // Показываем Toast
+            toast.classList.add("show");
+
+            // Скрываем после 2 секунд
+            setTimeout(function () {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Личная информация</title>
+</head>
+
+<body>
+
+<h1>Редактирование личной информации</h1>
+
+<form id="employeeForm" th:action="@{/my-profile/update-info}" method="post" th:object="${employeeProfile}">
+
+    <!-- Фамилия -->
+    <div>
+        <label for="surname">Фамилия:</label>
+        <input id="surname" type="text" name="surname" th:value="${employeeProfile.surname}" class="editable"/>
+        <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
+    </div>
+
+    <!-- Имя -->
+    <div>
+        <label for="name">Имя:</label>
+        <input id="name" type="text" name="name" th:value="${employeeProfile.name}" class="editable"/>
+        <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
+    </div>
+
+    <!-- Отчество -->
+    <div>
+        <label for="patronymic">Отчество:</label>
+        <input id="patronymic" type="text" name="patronymic" th:value="${employeeProfile.patronymic}" class="editable"/>
+        <div th:if="${#fields.hasErrors('patronymic')}" style="color: red;" th:errors="*{patronymic}"></div>
+    </div>
+
+    <!-- Телефон -->
+    <div>
+        <label for="phoneNumber">Телефон:</label>
+        <input id="phoneNumber" type="text" name="phoneNumber" th:value="${employeeProfile.phoneNumber}"
+               class="editable"
+               pattern="[0-9]*" title="Введите только цифры"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+        <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
+        <div th:if="${errorPhoneNumberUpdate}" style="color: red;" th:text="${errorPhoneNumberUpdate}"></div>
+    </div>
+
+    <!-- Дата рождения -->
+    <div>
+        <label for="birthDate">Дата рождения:</label>
+        <input id="birthDate" type="date" name="birthDate" th:value="${employeeProfile.birthDate}" class="editable"/>
+        <div th:if="${#fields.hasErrors('birthDate')}" style="color: red;" th:errors="*{birthDate}"></div>
+    </div>
+
+    <!-- Кнопки управления -->
+    <div>
+        <button type="submit" id="saveButton">Сохранить</button>
+        <button type="button" id="cancelButton" onclick="window.location.href='/my-profile';">Отмена</button>
+    </div>
+</form>
+
+
+</body>
+</html>

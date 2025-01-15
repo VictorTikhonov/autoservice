@@ -1,26 +1,23 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.*;
 import ru.victortikhonov.autoserviceapp.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Controller
-@RequestMapping("/employee")
-@SessionAttributes({"employee", "positions", "statuses", "selectedEmployee"})
-public class EmployeeController {
+@RequestMapping("/employee/create")
+@SessionAttributes({"employee", "positions"})
+public class EmployeeCreationController {
 
     private final AccountRepository accountRepository;
     private final OperatorRepository operatorRepository;
@@ -28,9 +25,9 @@ public class EmployeeController {
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeController(AccountRepository accountRepository, OperatorRepository operatorRepository,
-                              MechanicRepository mechanicRepository, PositionRepository positionRepository,
-                              EmployeeRepository employeeRepository) {
+    public EmployeeCreationController(AccountRepository accountRepository, OperatorRepository operatorRepository,
+                                      MechanicRepository mechanicRepository, PositionRepository positionRepository,
+                                      EmployeeRepository employeeRepository) {
 
         this.accountRepository = accountRepository;
         this.operatorRepository = operatorRepository;
@@ -40,7 +37,7 @@ public class EmployeeController {
     }
 
 
-    @GetMapping("/create")
+    @GetMapping
     public String showEmployeeCreateForm(Model model) {
 
         Iterable<Position> positions = positionRepository.findAll();
@@ -55,7 +52,7 @@ public class EmployeeController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping
     @Transactional
     public String createEmployee(@Valid @ModelAttribute("employee") Employee employee, Errors errors,
                                  @RequestParam(value = "role", required = false) String roleString,
@@ -158,94 +155,5 @@ public class EmployeeController {
         );
 
         return operatorRepository.save(operator);
-    }
-
-    @GetMapping("/list")
-    public String listEmployees(@RequestParam(value = "status", required = false) EmployeeStatus status,
-                                Model model, SessionStatus sessionStatus) {
-
-        sessionStatus.setComplete();
-
-        Iterable<Employee> employees;
-
-        if (status != null) {
-            employees = employeeRepository.findByEmploymentStatus(status);
-        } else {
-            employees = employeeRepository.findAll();
-        }
-
-        model.addAttribute("employees", employees);
-        model.addAttribute("filterStatus", status);
-
-        return "table-employee";
-    }
-
-
-    @GetMapping("/profile/{id}")
-    public String checkProfileEmployee(@PathVariable Long id, Model model,
-                                       @RequestParam(value = "action", required = false) String action,
-                                       HttpSession httpSession) {
-
-        Employee employee = employeeRepository.findById(id).orElse(null);
-        if (employee != null) {
-            Hibernate.initialize(employee.getAccount());
-            Hibernate.initialize(employee.getPosition());
-        }
-
-        if (action != null && action.equals("cancel")) {
-            httpSession.removeAttribute("selectedEmployee");
-            model.addAttribute("selectedEmployee", employee);
-            return "employee-details";
-        }
-
-        model.addAttribute("selectedEmployee", employee);
-        model.addAttribute("positions", positionRepository.findAll());
-        model.addAttribute("statuses", EmployeeStatus.values());
-
-        return "employee-details";
-    }
-
-
-    @PostMapping("/profile/update")
-    @Transactional
-    public String updateEmployee(@Valid @ModelAttribute("selectedEmployee") Employee employee, Errors errors,
-                                 RedirectAttributes redirectAttributes, SessionStatus sessionStatus, Model model) {
-
-        // Создание списка ошибок
-        List<String> errorMessages = new ArrayList<>();
-
-        if (errors.hasErrors()) {
-            errorMessages.add("errors");
-        }
-
-        // Если установлен статут "Уволен" а дата не стоит
-        if ((employee.getEmploymentStatus().equals(EmployeeStatus.DISMISSED) && employee.getDismissalDate() == null)) {
-            model.addAttribute("errorDismissalDate", "Дата увольнения не может быть пустой");
-            errorMessages.add("errorDismissalDate");
-        }
-
-        // Если статут НЕ "Уволен" а дата стоит
-        if ((!employee.getEmploymentStatus().equals(EmployeeStatus.DISMISSED) && employee.getDismissalDate() != null)) {
-            model.addAttribute("errorDismissalDate", "Дату увольнения можно указать только при статусе \"Уволен\"");
-            errorMessages.add("errorLogin");
-        }
-
-        if (employeeRepository.existsByPhoneNumberAndIdNot(employee.getPhoneNumber(), employee.getId())) {
-            model.addAttribute("errorPhoneNumberUpdate", "Номер телефона уже существует");
-            errorMessages.add("errorLogin");
-        }
-
-        if (!errorMessages.isEmpty()) {
-            model.addAttribute("editMode", true);
-            return "employee-details";
-        }
-
-        employeeRepository.save(employee);
-
-        redirectAttributes.addFlashAttribute("success", "Данные успешно обновлены");
-        model.addAttribute("editMode", false);
-        sessionStatus.setComplete();
-
-        return "redirect:/employee/profile/" + employee.getId();
     }
 }
