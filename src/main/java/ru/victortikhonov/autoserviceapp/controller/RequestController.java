@@ -112,10 +112,10 @@ public class RequestController {
             return "request-list";
         }
 
-        // Если статус не установлен то по умолч. ставлю "В ожидании"
-        if (status == null) {
-            status = RequestStatus.OPEN;
-        }
+//        // Если статус не установлен то по умолч. ставлю "В ожидании"
+//        if (status == null) {
+//            status = RequestStatus.OPEN;
+//        }
 
         // Получаю отфильтрованные заявки
         List<Request> filteredRequests =
@@ -145,7 +145,7 @@ public class RequestController {
 
             model.addAttribute("request", request);
             model.addAttribute("formattedDate", formattedDate);
-            model.addAttribute("requestStatus", request.getRequestStatus().getDescription());
+            model.addAttribute("requestStatus", request.getRequestStatus());
         });
 
         return "request-details";

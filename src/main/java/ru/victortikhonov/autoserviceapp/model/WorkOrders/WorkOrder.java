@@ -3,7 +3,9 @@ package ru.victortikhonov.autoserviceapp.model.WorkOrders;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 
@@ -44,19 +46,25 @@ public class WorkOrder {
 
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<WorkOrderAutoGood> autoGoods = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<WorkOrderService> services = new ArrayList<>();
 
 
     @Column(name = "start_date", updatable = false, insertable = false)
     @Setter(AccessLevel.NONE)
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime startDate;
 
 
     @Column(name = "end_date")
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime endDate;
 
 

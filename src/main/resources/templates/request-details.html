@@ -7,12 +7,27 @@
 </head>
 <body>
 
+
+<!-- Кнопка для создания заказ-наряда или сообщение о невозможности взять заявку -->
+<div>
+    <p th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">Приступить к выполнению заявки:</p>
+    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}" th:action="@{/work-order/create}" method="post">
+        <input type="hidden" name="requestId" th:value="${request.id}">
+        <button type="submit">Начать работу</button>
+    </form>
+
+    <p th:unless="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
+        Заявка не доступна для выполнения, так как ее статус: <span th:text="${requestStatus.description}"></span>.</p>
+</div>
+
+
+
 <h1>Детали заявки</h1>
 
 <!-- Информация о заявке -->
 <div>
     <h2>Статус заявки</h2>
-    <p th:text="${requestStatus}"></p>
+    <p th:text="${requestStatus.description}"></p>
 </div>
 
 <div>

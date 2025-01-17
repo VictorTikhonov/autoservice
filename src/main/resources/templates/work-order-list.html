@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список заказ-нарядов</title>
+    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+    <style>
+        /* Стили для подсветки нового заказ-наряда */
+        .highlight {
+            background-color: yellow;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2e7d32;
+            color: #f1f1f1;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            min-width: 250px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<h1>Список заказ-нарядов</h1>
+
+
+<div th:if="${dateError}" style="color: red;">
+    <p th:text="${dateError}"></p>
+</div>
+
+<!-- Фильтры -->
+<form th:action="@{/work-order/list}" method="get">
+    <fieldset>
+        <legend>Фильтры</legend>
+        <label for="statusFilter">Статус:</label>
+        <select id="statusFilter" name="status">
+            <option th:each="status : ${statuses}"
+                    th:value="${status}"
+                    th:text="${status.description}"
+                    th:selected="${status == selectedStatus}"></option>
+        </select>
+
+        <!-- Фильтры по дате -->
+        <label for="startDate">Дата с: </label>
+        <input type="date" id="startDate" name="startDate" th:value="${startDate}"/>
+
+        <label for="endDate">Дата по: </label>
+        <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
+
+        <button type="submit">Применить</button>
+    </fieldset>
+</form>
+
+<!-- Таблица заказ-нарядов -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>№</th>
+        <th>№ заявки</th>
+        <th>Статус</th>
+        <th>Авто</th>
+        <th>Дата создания</th>
+        <th>Дата окончания работ</th>
+        <th>Цена</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="workOrder : ${workOrders}"
+        th:classappend="${workOrder.id == newWorkOrderId ? 'highlight' : ''}">
+        <td th:text="${workOrder.id}"></td>
+        <td th:text="${workOrder.request.id}"></td>
+        <td th:text="${workOrder.workOrderStatuses.description}"></td>
+        <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
+        <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
+        <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
+        <td th:text="${workOrder.price}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(workOrders)}">
+        <td colspan="7">Нет заказ-нарядов для отображения</td>
+    </tr>
+    </tbody>
+</table>
+
+
+
+<!-- Всплывающее уведомление -->
+<div id="toast" class="toast" th:if="${success}">
+    <span th:text="${success}"></span>
+</div>
+
+<script>
+    // Показ уведомления, если оно есть
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.classList.add('show');
+
+            // Убираем уведомление через 2 секунды
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    });
+</script>
+
+
+
+</body>
+</html>

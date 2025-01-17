@@ -1,7 +1,28 @@
 package ru.victortikhonov.autoserviceapp.repository;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
+import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface WorkOrderRepository extends CrudRepository<WorkOrder, Long> {
+    List<WorkOrder> findByMechanicId(Long mechanicId);
+
+    @Query("SELECT w FROM WorkOrder w WHERE w.mechanic.id = :mechanicId " +
+            "AND w.workOrderStatuses = :status " +
+            "AND w.startDate BETWEEN :startDate AND :endDate")
+    Iterable<WorkOrder> findByMechanicIdAndStatusAndDate(@Param("mechanicId") Long mechanicId,
+                                                     @Param("status") WorkOrderStatus status,
+                                                     @Param("startDate") LocalDateTime startDate,
+                                                     @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT w FROM WorkOrder w WHERE w.mechanic.id = :mechanicId " +
+            "AND w.startDate BETWEEN :startDate AND :endDate")
+    Iterable<WorkOrder> findByMechanicIdAndDateRange(@Param("mechanicId") Long mechanicId,
+                                                     @Param("startDate") LocalDateTime startDate,
+                                                     @Param("endDate") LocalDateTime endDate);
 }
