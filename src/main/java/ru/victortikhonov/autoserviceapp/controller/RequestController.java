@@ -112,10 +112,10 @@ public class RequestController {
             return "request-list";
         }
 
-//        // Если статус не установлен то по умолч. ставлю "В ожидании"
-//        if (status == null) {
-//            status = RequestStatus.OPEN;
-//        }
+        // Если статус не установлен то по умолч. ставлю "В ожидании"
+        if (status == null) {
+            status = RequestStatus.OPEN;
+        }
 
         // Получаю отфильтрованные заявки
         List<Request> filteredRequests =
