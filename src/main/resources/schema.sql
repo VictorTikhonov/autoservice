@@ -216,3 +216,110 @@ CREATE TABLE services (
 );
 -- Добавление индекса на category_id
 CREATE INDEX idx_services_category_id ON services(category_id);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Удаление индексов
+DROP INDEX IF EXISTS idx_work_order_services_service_id;
+DROP INDEX IF EXISTS idx_work_order_services_work_order_id;
+DROP INDEX IF EXISTS idx_work_order_auto_goods_auto_good_id;
+DROP INDEX IF EXISTS idx_work_order_auto_goods_work_order_id;
+
+-- Удаление внешних ключей
+ALTER TABLE work_order_services DROP CONSTRAINT IF EXISTS fk_service;
+ALTER TABLE work_order_services DROP CONSTRAINT IF EXISTS fk_work_order_services;
+ALTER TABLE work_order_auto_goods DROP CONSTRAINT IF EXISTS fk_auto_good;
+ALTER TABLE work_order_auto_goods DROP CONSTRAINT IF EXISTS fk_work_order_auto_goods;
+ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS fk_mechanic;
+ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS fk_request;
+
+-- Удаление таблиц
+DROP TABLE IF EXISTS work_order_services CASCADE;
+DROP TABLE IF EXISTS work_order_auto_goods CASCADE;
+DROP TABLE IF EXISTS work_orders CASCADE;
+
+
+
+
+-- Создание таблицы work_orders (Заказ-наряды)
+CREATE TABLE work_orders (
+                             id BIGSERIAL PRIMARY KEY,                         -- ID заказ-наряда, автоинкремент
+                             request_id BIGINT NOT NULL,                       -- ID заявки, обязательное поле
+                             mechanic_id BIGINT NOT NULL,                      -- ID механика, обязательное поле
+                             work_order_status VARCHAR(20) NOT NULL,           -- Статус заказ-наряда, обязательное поле
+                             price DECIMAL(10, 2) NOT NULL DEFAULT 0,          -- Цена работ, обязательное поле с начальным значением 0
+                             start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- Дата начала работ, может быть пустым
+                             end_date TIMESTAMP,                               -- Дата окончания работ, может быть пустым
+
+    -- Внешние ключи
+                             CONSTRAINT fk_request FOREIGN KEY (request_id) REFERENCES requests(id),
+                             CONSTRAINT fk_mechanic FOREIGN KEY (mechanic_id) REFERENCES employees(id),
+
+    -- Ограничение на статус заказ-наряда
+                             CONSTRAINT chk_status CHECK (work_order_status IN ('В процессе', 'Завершен', 'Отменен'))
+);
+
+
+
+-- Создание таблицы work_order_services (Заказ_наряд_Автотовары)
+CREATE TABLE work_order_auto_goods (
+                                       work_order_id BIGINT NOT NULL,                                      -- ID заказ-наряда, обязательное поле
+                                       auto_good_id BIGINT NOT NULL,                                       -- ID автотовара, обязательное поле
+                                       quantity INT NOT NULL CHECK (quantity > 0),                         -- Количество автотовара, обязательное поле
+                                       price_one_unit DECIMAL(10, 2) NOT NULL CHECK (price_one_unit  > 0), -- Цена за 1 штуку, обязательное поле
+
+    -- Внешний ключ на таблицу work_orders
+                                       CONSTRAINT fk_work_order_auto_goods FOREIGN KEY (work_order_id) REFERENCES work_orders(id),
+    -- Внешний ключ на таблицу auto_goods
+                                       CONSTRAINT fk_auto_good FOREIGN KEY (auto_good_id) REFERENCES auto_goods(id),
+
+    -- Составной первичный ключ
+                                       CONSTRAINT pk_work_order_auto_goods PRIMARY KEY (work_order_id, auto_good_id)
+);
+-- Индексы для работы с полями work_order_id и auto_good_id
+CREATE INDEX idx_work_order_auto_goods_work_order_id ON work_order_auto_goods(work_order_id);
+CREATE INDEX idx_work_order_auto_goods_auto_good_id ON work_order_auto_goods(auto_good_id);
+
+
+
+
+-- Создание таблицы work_order_services (Заказ_наряд_Услуги)
+CREATE TABLE work_order_services (
+                                     work_order_id BIGINT NOT NULL,                       -- ID заказ-наряда, обязательное поле
+                                     service_id BIGINT NOT NULL,                          -- ID услуги, обязательное поле
+                                     price DECIMAL(10, 2) NOT NULL CHECK (price > 0),    -- Цена услуги, обязательное поле
+
+    -- Внешний ключ на таблицу work_orders
+                                     CONSTRAINT fk_work_order_services FOREIGN KEY (work_order_id) REFERENCES work_orders(id),
+    -- Внешний ключ на таблицу services
+                                     CONSTRAINT fk_service FOREIGN KEY (service_id) REFERENCES services(id),
+
+    -- Составной первичный ключ
+                                     CONSTRAINT pk_work_order_services PRIMARY KEY (work_order_id, service_id)
+);
+-- Индексы для работы с полями work_order_id и service_id
+CREATE INDEX idx_work_order_services_work_order_id ON work_order_services(work_order_id);
+CREATE INDEX idx_work_order_services_service_id ON work_order_services(service_id);
