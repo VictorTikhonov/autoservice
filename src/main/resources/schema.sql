@@ -270,7 +270,7 @@ CREATE TABLE work_orders (
                              request_id BIGINT NOT NULL,                       -- ID заявки, обязательное поле
                              mechanic_id BIGINT NOT NULL,                      -- ID механика, обязательное поле
                              work_order_status VARCHAR(20) NOT NULL,           -- Статус заказ-наряда, обязательное поле
-                             price DECIMAL(10, 2) NOT NULL DEFAULT 0,          -- Цена работ, обязательное поле с начальным значением 0
+--                              price DECIMAL(10, 2) NOT NULL DEFAULT 0,          -- Цена работ, обязательное поле с начальным значением 0
                              start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- Дата начала работ, может быть пустым
                              end_date TIMESTAMP,                               -- Дата окончания работ, может быть пустым
 

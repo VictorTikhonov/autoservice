@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Детали заказ-наряда</title>
+</head>
+<body>
+<h1>Детали заказ-наряда</h1>
+
+<!-- Информация о заявке -->
+<div class="form-section">
+    <h3>Клиент</h3>
+    <p><strong>ФИО клиента:</strong> <span
+            th:text="${workOrder.request.client.surname} + ' ' + ${workOrder.request.client.name} + ' ' + ${workOrder.request.client.patronymic}"></span>
+    </p>
+    <p><strong>Номер телефона:</strong> <span th:text="${workOrder.request.client.phoneNumber}"></span></p>
+    <h3>Автомобиль</h3>
+    <p><strong>Марка</strong> <span th:text="${workOrder.request.car.brand}"></span></p>
+    <p><strong>Модель</strong> <span th:text="${workOrder.request.car.model}"></span></p>
+    <p><strong>VIN:</strong> <span th:text="${workOrder.request.car.vin}"></span></p>
+    <p><strong>Госномер:</strong> <span th:text="${workOrder.request.car.stateNumber}"></span></p>
+    <h3>Заказ-наряд</h3>
+    <p><strong>Жалобы:</strong> <span th:text="${workOrder.request.complaints}"></span></p>
+</div>
+
+<div class="form-section">
+    <h3>Добавить автотовары</h3>
+    <form th:action="@{/work-order/details/add-auto-goods}" method="post">
+        <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
+
+        <!-- Фильтрация автотоваров -->
+        <label for="searchAutoGoods">Поиск товара:</label>
+        <input type="text" id="searchAutoGoods" onkeyup="filterTable('autoGoodsTable', 'searchAutoGoods')"
+               placeholder="Введите название товара"/>
+
+        <!-- Если автотоваров нет -->
+        <div th:if="${#lists.isEmpty(availableAutoGoods)}" style="color: red;">
+            <p>Автотовары отсутствуют</p>
+        </div>
+
+        <table id="autoGoodsTable" border="1" th:if="${!#lists.isEmpty(availableAutoGoods)}">
+            <thead>
+            <tr>
+                <th>Выбрать</th>
+                <th>Наименование</th>
+                <th>Количество в наличии</th>
+                <th>Цена за штуку</th>
+                <th>Количество для заказа</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="autoGood : ${availableAutoGoods}">
+                <td>
+                    <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}" class="checkbox"
+                           disabled/>
+                </td>
+                <td th:text="${autoGood.name}"></td>
+                <td th:text="${autoGood.quantity}"></td>
+                <td th:text="${autoGood.priceOneUnit}"></td>
+                <td>
+                    <input type="number" name="quantities" min="1" th:max="${autoGood.quantity}" class="quantity-input"
+                           oninput="enableCheckbox(this)"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Сообщение, если ни один товар не выбран -->
+        <div id="noItemsMessage" style="color: red; display: none;">
+            <p>Пожалуйста, выберите хотя бы один товар для добавления.</p>
+        </div>
+
+        <button type="button" onclick="submitSelectedAutoGoods()">Добавить товары</button>
+    </form>
+</div>
+
+<div id="selectedAutoGoods">
+    <h4>Выбранные автотовары:</h4>
+    <ul id="selectedAutoGoodsList"></ul>
+</div>
+
+
+<!-- Текущие автотовары и услуги -->
+<div class="form-section">
+    <h3>Текущие автотовары</h3>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Отображаем автотовары -->
+        <tr th:each="autoGood : ${autoGoods}">
+            <td th:text="${autoGood.autoGood.name}"></td>
+            <td th:text="${autoGood.quantity}"></td>
+            <td th:text="${autoGood.priceOneUnit}"></td>
+            <td th:text="${autoGood.calculatePrice()}"></td>
+        </tr>
+
+        <!-- Если автотовары отсутствуют, выводим сообщение -->
+        <tr th:if="${#lists.isEmpty(autoGoods)}">
+            <td colspan="3">Нет добавленных автотоваров</td>
+        </tr>
+
+        <tr>
+            <td colspan="3"><strong>Общая сумма</strong></td>
+            <td th:text="${workOrder.calculateTotalPriceAutoGoods()}"></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+
+
+
+<script>
+    // Функция для активации/деактивации чекбокса в зависимости от введенного количества
+    function enableCheckbox(inputElement) {
+        const checkbox = inputElement.closest('tr').querySelector('input[type="checkbox"]');
+
+        // Если количество больше нуля, разрешаем выбрать и ставим галочку
+        if (inputElement.value && parseInt(inputElement.value) > 0) {
+            checkbox.disabled = false;  // Разрешить выбрать
+            checkbox.checked = true;    // Ставим галочку
+        } else {
+            checkbox.disabled = true;   // Запрещаем выбрать
+            checkbox.checked = false;   // Снимаем галочку
+        }
+
+        updateSelectedItems();
+    }
+
+
+    // Функция фильтрации товаров по имени
+    function filterTable(tableId, searchInputId) {
+        const searchInput = document.getElementById(searchInputId).value.toLowerCase();
+        const rows = document.getElementById(tableId).getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            const nameCell = cells[1]; // Наименование товара/услуги
+            if (nameCell) {
+                const nameText = nameCell.textContent || nameCell.innerText;
+                if (nameText.toLowerCase().indexOf(searchInput) > -1) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    }
+
+    // Функция для обновления списка выбранных автотоваров и услуг
+    function updateSelectedItems() {
+        // Обновление списка выбранных автотоваров
+        const selectedAutoGoodsList = document.getElementById('selectedAutoGoodsList');
+        selectedAutoGoodsList.innerHTML = ''; // Очистить список перед обновлением
+
+        const checkboxesAutoGoods = document.querySelectorAll('input[name="selectedAutoGoods"]:checked');
+        checkboxesAutoGoods.forEach((checkbox) => {
+            const row = checkbox.closest('tr');
+            const name = row.querySelector('td:nth-child(2)').textContent; // Название товара
+            const quantity = row.querySelector('input[name="quantities"]').value; // Количество товара для заказа
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name} (Кол-во: ${quantity})`;
+            selectedAutoGoodsList.appendChild(listItem);
+        });
+
+        // Обновление списка выбранных услуг
+        const selectedServicesList = document.getElementById('selectedServicesList');
+        selectedServicesList.innerHTML = ''; // Очистить список перед обновлением
+
+        const checkboxesServices = document.querySelectorAll('input[name="selectedServices"]:checked');
+        checkboxesServices.forEach((checkbox) => {
+            const row = checkbox.closest('tr');
+            const name = row.querySelector('td:nth-child(2)').textContent; // Название услуги
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name}`;
+            selectedServicesList.appendChild(listItem);
+        });
+    }
+
+    // Добавить слушатель на изменение чекбоксов
+    document.querySelectorAll('input[name="selectedAutoGoods"], input[name="selectedServices"]').forEach((checkbox) => {
+        checkbox.addEventListener('change', updateSelectedItems);
+    });
+
+    // Слушатель на изменение поля ввода для количества
+    const quantityInputs = document.querySelectorAll('input[name="quantities"]');
+    quantityInputs.forEach(input => {
+        input.addEventListener('input', function () {
+            enableCheckbox(input); // Проверка и активация/деактивация чекбокса
+        });
+    });
+
+    // Функция для сохранения текущей позиции прокрутки
+    function saveScrollPosition() {
+        sessionStorage.setItem('scrollPosition', window.scrollY);
+    }
+
+    // Функция для восстановления позиции прокрутки
+    function restoreScrollPosition() {
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        if (scrollPosition !== null) {
+            window.scrollTo(0, parseInt(scrollPosition, 10));
+            sessionStorage.removeItem('scrollPosition'); // Удалить после восстановления
+        }
+    }
+
+    // Добавляем обработчик события для сохранения позиции прокрутки перед отправкой данных
+    function submitSelectedAutoGoods() {
+        saveScrollPosition(); // Сохранение позиции прокрутки
+        var selectedItems = [];
+
+        // Скрываем сообщение об ошибке, если оно было показано ранее
+        var errorMessage = document.getElementById('noItemsMessage');
+        errorMessage.style.display = 'none';
+
+        // Сбор данных из формы
+        var checkboxes = document.querySelectorAll("input[name='selectedAutoGoods']:checked");
+
+        // Проверяем, что хотя бы один товар выбран
+        if (checkboxes.length === 0) {
+            // Если товары не выбраны, показываем сообщение
+            errorMessage.style.display = 'block';
+            return;  // Прерываем выполнение функции
+        }
+
+        checkboxes.forEach(function (checkbox) {
+            var row = checkbox.closest("tr");
+            var autoGoodId = checkbox.value;
+            var quantity = row.querySelector(".quantity-input").value;
+
+            if (quantity > 0) {
+                selectedItems.push({
+                    id: autoGoodId,
+                    quantity: quantity
+                });
+            }
+        });
+
+        // Отправка данных на сервер
+        fetch('/work-order/details/add-auto-goods', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedItems)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Сбрасываем чекбоксы и количества
+                    document.querySelectorAll("input[name='selectedAutoGoods']:checked").forEach((checkbox) => {
+                        checkbox.checked = false;
+                        checkbox.disabled = true; // Делаем их снова неактивными
+                    });
+                    document.querySelectorAll("input[name='quantities']").forEach((input) => {
+                        input.value = ''; // Очищаем поля количества
+                    });
+
+                    // Очищаем список выбранных автотоваров
+                    document.getElementById('selectedAutoGoodsList').innerHTML = '';
+
+                    // Перезагружаем страницу
+                    const workOrderId = document.querySelector('input[name="workOrderId"]').value;
+                    window.location.href = `/work-order/details?workOrderId=${workOrderId}`;
+                } else {
+                    console.error('Ошибка при добавлении автотоваров');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке данных:', error);
+            });
+    }
+
+    // Восстанавливаем позицию прокрутки при загрузке страницы
+    window.addEventListener('load', restoreScrollPosition);
+</script>
+
+</body>
+</html>

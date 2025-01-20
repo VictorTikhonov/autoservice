@@ -5,6 +5,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.ToString;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "work_order_auto_goods")
 @Data
+@ToString(exclude = "workOrder")
 public class WorkOrderAutoGood {
 
     @EmbeddedId
@@ -51,5 +53,11 @@ public class WorkOrderAutoGood {
     }
 
     public WorkOrderAutoGood() {
+    }
+
+
+    public BigDecimal calculatePrice(){
+
+        return priceOneUnit.multiply(new BigDecimal(quantity));
     }
 }

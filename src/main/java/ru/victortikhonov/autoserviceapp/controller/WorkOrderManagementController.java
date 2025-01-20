@@ -18,29 +18,23 @@ import ru.victortikhonov.autoserviceapp.repository.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Iterator;
-import java.util.List;
 
 @Controller
 @RequestMapping("/work-order")
-public class WorkOrderController {
+public class WorkOrderManagementController {
 
     private final WorkOrderRepository workOrderRepository;
     private final RequestRepository requestRepository;
-    private final AutoGoodRepository autoGoodRepository;
-    private final ServiceRepository serviceRepository;
 
     // TODO временное решение
     private final MechanicRepository mechanicRepository;
     private final Mechanic mechanic;
 
-    public WorkOrderController(WorkOrderRepository workOrderRepository, RequestRepository requestRepository,
-                               MechanicRepository mechanicRepository, AutoGoodRepository autoGoodRepository,
-                               ServiceRepository serviceRepository) {
+    public WorkOrderManagementController(WorkOrderRepository workOrderRepository, RequestRepository requestRepository,
+                                         MechanicRepository mechanicRepository) {
+
         this.workOrderRepository = workOrderRepository;
         this.requestRepository = requestRepository;
-        this.autoGoodRepository = autoGoodRepository;
-        this.serviceRepository = serviceRepository;
 
         this.mechanicRepository = mechanicRepository;
         mechanic = mechanicRepository.findById(16L).orElse(null);
@@ -134,38 +128,3 @@ public class WorkOrderController {
         return "work-order-list";
     }
 }
-
-
-
-
-/*
-    public String createWorkOrder() {
-
-        Request request = requestRepository.findById(6L).orElse(null);
-        Mechanic mechanic = mechanicRepository.findById(16L).orElse(null);
-
-
-        // Пример создания и добавления autoGoods в workOrder
-        WorkOrder workOrder = new WorkOrder(request, mechanic, WorkOrderStatus.IN_PROGRESS);
-        workOrderRepository.save(workOrder);
-
-
-        AutoGood ag = autoGoodRepository.findById(6L).orElse(null);
-        WorkOrderAutoGood autoGood = new WorkOrderAutoGood(workOrder, ag, 5, new BigDecimal("100.50"));
-
-
-
-        Service s = serviceRepository.findById(53L).orElse(null);
-        WorkOrderService service = new WorkOrderService(workOrder, s, new BigDecimal("200.00"));
-
-
-        workOrder.addService(service);
-        workOrder.addAutoGood(autoGood);
-
-
-        // Теперь сохраняем workOrder (связанно каскадно сохранятся и autoGoods, и services)
-        workOrderRepository.save(workOrder);
-
-        return "work-order";
-    }
- */

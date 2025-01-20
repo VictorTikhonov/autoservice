@@ -47,7 +47,19 @@ public class AutoGood {
 
 
     @Column(name = "expiration_date")
-    @NotNull(message = "Дата не может быть пустой")
+    //@NotNull(message = "Дата не может быть пустой")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate expirationDate;
+
+
+    public int minusQuantity(int value) {
+
+        if (value < 0) {
+            throw new IllegalArgumentException("Количество для уменьшения должно быть положительным");
+        }
+
+        this.quantity = this.quantity - value;
+
+        return this.quantity;
+    }
 }

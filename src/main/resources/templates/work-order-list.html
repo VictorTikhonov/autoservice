@@ -76,6 +76,7 @@
         <th>Дата создания</th>
         <th>Дата окончания работ</th>
         <th>Цена</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -87,14 +88,20 @@
         <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
         <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
         <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
-        <td th:text="${workOrder.price}"></td>
+        <td th:text="${workOrder.calculatePrice()}"></td>
+        <td>
+            <!-- Кнопка "Открыть" -->
+            <form th:action="@{/work-order/details}" method="get" style="display: inline;">
+                <input type="hidden" name="workOrderId" th:value="${workOrder.id}" />
+                <button type="submit">Открыть</button>
+            </form>
+        </td>
     </tr>
     <tr th:if="${#lists.isEmpty(workOrders)}">
         <td colspan="7">Нет заказ-нарядов для отображения</td>
     </tr>
     </tbody>
 </table>
-
 
 
 <!-- Всплывающее уведомление -->
@@ -116,7 +123,6 @@
         }
     });
 </script>
-
 
 
 </body>

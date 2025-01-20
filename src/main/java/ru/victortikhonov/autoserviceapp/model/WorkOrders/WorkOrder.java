@@ -41,8 +41,8 @@ public class WorkOrder {
     private WorkOrderStatus workOrderStatuses;
 
 
-    @Column(name = "price")
-    private BigDecimal price = BigDecimal.ZERO;
+//    @Column(name = "price")
+//    private BigDecimal price = BigDecimal.ZERO;
 
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -102,5 +102,35 @@ public class WorkOrder {
         this.request = request;
         this.mechanic = mechanic;
         this.workOrderStatuses = workOrderStatuses;
+    }
+
+
+    public BigDecimal calculatePrice() {
+        return this.calculateTotalPriceAutoGoods().
+                add(this.calculateTotalPriceServices());
+    }
+
+
+    public BigDecimal calculateTotalPriceAutoGoods()
+    {
+        BigDecimal price = BigDecimal.ZERO;
+
+        for (WorkOrderAutoGood autoGood : this.autoGoods) {
+            price = price.add(autoGood.getPriceOneUnit().multiply(new BigDecimal(autoGood.getQuantity())));
+        }
+
+        return price;
+    }
+
+
+    public BigDecimal calculateTotalPriceServices()
+    {
+        BigDecimal price = BigDecimal.ZERO;
+
+        for (WorkOrderService service : this.services) {
+            price = price.add(service.getPrice());
+        }
+
+        return price;
     }
 }
