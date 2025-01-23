@@ -14,7 +14,9 @@ import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
-import ru.victortikhonov.autoserviceapp.repository.*;
+import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
+import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
+import ru.victortikhonov.autoserviceapp.repository.WorkOrderRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +47,7 @@ public class WorkOrderManagementController {
     @PostMapping("/create")
     public String createWorkOrder(@RequestParam("requestId") Long requestId, Model model,
                                   RedirectAttributes redirectAttributes) {
-        System.out.println();
+
         try {
             Request request = requestRepository.findById(requestId).orElseThrow(
                     () -> new IllegalArgumentException("неверное ID заявки: " + requestId));

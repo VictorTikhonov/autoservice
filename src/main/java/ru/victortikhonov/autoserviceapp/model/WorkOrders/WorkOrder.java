@@ -41,10 +41,6 @@ public class WorkOrder {
     private WorkOrderStatus workOrderStatuses;
 
 
-//    @Column(name = "price")
-//    private BigDecimal price = BigDecimal.ZERO;
-
-
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -69,18 +65,45 @@ public class WorkOrder {
 
 
     public void addAutoGood(WorkOrderAutoGood autoGood) {
-        if (autoGood != null) {
-            autoGood.setWorkOrder(this);
-            autoGoods.add(autoGood);
+
+        if (autoGood == null || autoGood.getAutoGood() == null || autoGood.getQuantity() <= 0) {
+            return;  // Если товар или его количество некорректны, не добавляю
         }
+
+        // Проверяю, существует ли товар уже в списке
+        for (WorkOrderAutoGood existingAutoGood : autoGoods) {
+            if (existingAutoGood.getAutoGood().equals(autoGood.getAutoGood())) {
+
+                // Если товар уже существует, увеличиваю его количество
+                existingAutoGood.setQuantity(existingAutoGood.getQuantity() + autoGood.getQuantity());
+                return;
+            }
+        }
+
+        // Если товара нет в списке, добавляю новый
+        autoGood.setWorkOrder(this);  // Устанавливаем ссылку на текущий заказ
+        autoGoods.add(autoGood);
     }
 
 
     public void addService(WorkOrderService service) {
-        if (service != null) {
-            service.setWorkOrder(this);
-            services.add(service);
+
+        if (service == null || service.getService() == null || service.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            return;
         }
+
+        // Проверяю, существует ли услуга в списке
+        for (WorkOrderService existingService : services) {
+            if (existingService.getService().equals(service.getService())) {
+                // Если услуга уже существует, обновляю цену
+                existingService.setPrice(service.getPrice());
+                return;
+            }
+        }
+
+        // Если услуги нет в списке, добавляю новую
+        service.setWorkOrder(this);  // Устанавливаю ссылку на текущий заказ
+        services.add(service);
     }
 
 
@@ -111,8 +134,8 @@ public class WorkOrder {
     }
 
 
-    public BigDecimal calculateTotalPriceAutoGoods()
-    {
+    public BigDecimal calculateTotalPriceAutoGoods() {
+
         BigDecimal price = BigDecimal.ZERO;
 
         for (WorkOrderAutoGood autoGood : this.autoGoods) {
@@ -123,8 +146,8 @@ public class WorkOrder {
     }
 
 
-    public BigDecimal calculateTotalPriceServices()
-    {
+    public BigDecimal calculateTotalPriceServices() {
+
         BigDecimal price = BigDecimal.ZERO;
 
         for (WorkOrderService service : this.services) {
