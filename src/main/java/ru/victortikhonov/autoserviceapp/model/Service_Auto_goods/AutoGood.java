@@ -62,4 +62,15 @@ public class AutoGood {
 
         return this.quantity;
     }
+
+    public int plusQuantity(int value) {
+
+        if (value < 0) {
+            throw new IllegalArgumentException("Количество для увеличения должно быть положительным");
+        }
+
+        this.quantity = this.quantity + value;
+
+        return this.quantity;
+    }
 }

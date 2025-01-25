@@ -9,6 +9,5 @@ public class ServicePrice {
 
     private Long id;
 
-
     private BigDecimal price;
 }

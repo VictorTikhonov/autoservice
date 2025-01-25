@@ -9,7 +9,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
+import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGoodCategory;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
+import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
 import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
 import ru.victortikhonov.autoserviceapp.service.WorkOrderItemService;
@@ -113,4 +115,48 @@ public class WorkOrderController {
         model.addAttribute("errorMessage", "Заказ-наряд с таким ID не найден");
         return "error-page";
     }
+
+
+    @PostMapping("/delete-auto-good")
+    @Transactional
+    public ResponseEntity<?> deleteAutoGood(@RequestParam Long workOrderId, @RequestParam Long autoGoodId) {
+
+        int code = workOrderItemService.removeAutoGoodFromWorkOrder(workOrderId, autoGoodId);
+
+        if (code == 0) {
+            return ResponseEntity.ok().build(); // Успешное удаление
+        } else {
+            // Обработка ошибок с помощью вспомогательного метода
+            return handleError(code, "Автотовар не найден в указанном заказ-наряде.");
+        }
+    }
+
+
+    @PostMapping("/delete-service")
+    @Transactional
+    public ResponseEntity<?> deleteService(@RequestParam Long workOrderId, @RequestParam Long serviceId) {
+
+        int code = workOrderItemService.removeServiceFromWorkOrder(workOrderId, serviceId);
+
+        if (code == 0) {
+            return ResponseEntity.ok().build(); // Успешное удаление
+        } else {
+            return handleError(code, "Услуга не найдена в указанном заказ-наряде.");
+        }
+    }
+
+
+    private ResponseEntity<?> handleError(int code, String errorMessage) {
+        if (code == -1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(errorMessage);
+        } else if (code == -2) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Заказ-наряд с указанным ID не найден.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Произошла непредвиденная ошибка.");
+        }
+    }
+
 }

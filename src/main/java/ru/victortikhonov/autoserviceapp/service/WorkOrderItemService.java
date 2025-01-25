@@ -1,29 +1,33 @@
 package ru.victortikhonov.autoserviceapp.service;
 
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
-import ru.victortikhonov.autoserviceapp.repository.AutoGoodRepository;
-import ru.victortikhonov.autoserviceapp.repository.ServiceRepository;
-import ru.victortikhonov.autoserviceapp.repository.WorkOrderRepository;
+import ru.victortikhonov.autoserviceapp.repository.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class WorkOrderItemService {
     private final WorkOrderRepository workOrderRepository;
     private final AutoGoodRepository autoGoodRepository;
     private final ServiceRepository serviceRepository;
+    private final WorkOrderAutoGoodRepository workOrderAutoGoodRepository;
+    private final WorkOrderServiceRepository workOrderServiceRepository;
 
 
     public WorkOrderItemService(WorkOrderRepository workOrderRepository,
-                                AutoGoodRepository autoGoodRepository, ServiceRepository serviceRepository) {
+                                AutoGoodRepository autoGoodRepository, ServiceRepository serviceRepository, WorkOrderAutoGoodRepository workOrderAutoGoodRepository, WorkOrderServiceRepository workOrderServiceRepository) {
 
         this.workOrderRepository = workOrderRepository;
         this.autoGoodRepository = autoGoodRepository;
         this.serviceRepository = serviceRepository;
+        this.workOrderAutoGoodRepository = workOrderAutoGoodRepository;
+        this.workOrderServiceRepository = workOrderServiceRepository;
     }
 
 
@@ -77,5 +81,47 @@ public class WorkOrderItemService {
         }
 
         return workOrderRepository.save(workOrder);
+    }
+
+    public int removeAutoGoodFromWorkOrder(Long workOrderId, Long autoGoodId) {
+
+        if (workOrderRepository.findById(workOrderId).isPresent()) {
+            Optional<WorkOrderAutoGood> workOrderAutoGoodOptional = workOrderAutoGoodRepository
+                    .findByWorkOrderIdAndAutoGoodId(workOrderId, autoGoodId);
+
+            if (workOrderAutoGoodOptional.isPresent()) {
+                WorkOrderAutoGood workOrderAutoGood = workOrderAutoGoodOptional.get();
+
+                workOrderAutoGoodRepository.delete(workOrderAutoGood);
+
+                workOrderAutoGood.getAutoGood().plusQuantity(workOrderAutoGood.getQuantity());
+
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            return -2;
+        }
+    }
+
+    public int removeServiceFromWorkOrder(Long workOrderId, Long serviceId) {
+
+        if (workOrderRepository.findById(workOrderId).isPresent()) {
+            Optional<WorkOrderService> workOrderServiceOptional = workOrderServiceRepository
+                    .findByWorkOrderIdAndServiceId(workOrderId, serviceId);
+
+            if (workOrderServiceOptional.isPresent()) {
+                WorkOrderService workOrderService = workOrderServiceOptional.get();
+
+                workOrderServiceRepository.delete(workOrderService);
+
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            return -2;
+        }
     }
 }
