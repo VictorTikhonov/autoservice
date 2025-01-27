@@ -7,15 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGoodCategory;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
 import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
 import ru.victortikhonov.autoserviceapp.service.WorkOrderItemService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,16 +51,19 @@ public class WorkOrderController {
             List<WorkOrderAutoGood> autoGoods = workOrder.getAutoGoods();
             List<WorkOrderService> services = workOrder.getServices();
 
-            // Получаю все доступные автотовары и услуги
-            Iterable<AutoGood> availableAutoGoods = workOrderItemService.getAllAutoGoods();
-            Iterable<Service> availableServices = workOrderItemService.getAllServices();
-
             // Добавляю данные в модель
             model.addAttribute("workOrder", workOrder);
             model.addAttribute("autoGoods", autoGoods);
             model.addAttribute("services", services);
-            model.addAttribute("availableAutoGoods", availableAutoGoods);
-            model.addAttribute("availableServices", availableServices);
+
+            if (workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.IN_PROGRESS)) {
+                // Получаю все доступные автотовары и услуги
+                Iterable<AutoGood> availableAutoGoods = workOrderItemService.getAllAutoGoods();
+                Iterable<Service> availableServices = workOrderItemService.getAllServices();
+
+                model.addAttribute("availableAutoGoods", availableAutoGoods);
+                model.addAttribute("availableServices", availableServices);
+            }
 
             return "work-order-details";
         }
@@ -98,7 +101,7 @@ public class WorkOrderController {
     }
 
     @GetMapping("/complete")
-    public String completeWorkOrder(Long workOrderId, Model model) {
+    public String completeWorkOrder(Long workOrderId, Model model, RedirectAttributes redirectAttributes) {
 
         Optional<WorkOrder> workOrderOptional = workOrderItemService.findWorkOrder(workOrderId);
 
@@ -107,7 +110,12 @@ public class WorkOrderController {
 
             workOrder.setWorkOrderStatuses(WorkOrderStatus.COMPLETED);
 
+            workOrder.setEndDate(LocalDateTime.now());
+
             workOrderItemService.saveWorkOrder(workOrder);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Заказ-наряд №" + workOrder.getId() + " успешно завершен!");
 
             return "redirect:/work-order/list";
         }

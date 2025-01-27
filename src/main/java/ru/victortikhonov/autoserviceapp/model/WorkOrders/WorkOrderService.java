@@ -33,7 +33,7 @@ public class WorkOrderService {
 
 
     @NotNull(message = "Цена не может быть пустой")
-    @DecimalMin(value = "0.01", message = "Цена должна быть больше 0")
+    @DecimalMin(value = "0", message = "Цена должна быть не отрицательной")
     @Column(name = "price")
     private BigDecimal price;
 

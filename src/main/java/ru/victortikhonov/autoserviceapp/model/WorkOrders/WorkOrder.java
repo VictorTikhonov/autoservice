@@ -88,7 +88,7 @@ public class WorkOrder {
 
     public void addService(WorkOrderService service) {
 
-        if (service == null || service.getService() == null || service.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+        if (service == null || service.getService() == null || service.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             return;
         }
 

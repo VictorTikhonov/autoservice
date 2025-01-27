@@ -310,7 +310,7 @@ CREATE INDEX idx_work_order_auto_goods_auto_good_id ON work_order_auto_goods(aut
 CREATE TABLE work_order_services (
                                      work_order_id BIGINT NOT NULL,                       -- ID заказ-наряда, обязательное поле
                                      service_id BIGINT NOT NULL,                          -- ID услуги, обязательное поле
-                                     price DECIMAL(10, 2) NOT NULL CHECK (price > 0),    -- Цена услуги, обязательное поле
+                                     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),    -- Цена услуги, обязательное поле
 
     -- Внешний ключ на таблицу work_orders
                                      CONSTRAINT fk_work_order_services FOREIGN KEY (work_order_id) REFERENCES work_orders(id),

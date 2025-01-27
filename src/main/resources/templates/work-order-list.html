@@ -45,7 +45,7 @@
 <!-- Фильтры -->
 <form th:action="@{/work-order/list}" method="get">
     <fieldset>
-        <legend>Фильтры</legend>
+        <legend>Фильтр по дате создания ЗН</legend>
         <label for="statusFilter">Статус:</label>
         <select id="statusFilter" name="status">
             <option th:each="status : ${statuses}"

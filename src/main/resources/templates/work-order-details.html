@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Детали заказ-наряда</title>
     <style>
-
         h2 {
             font-size: 1.8em;
             font-weight: bold;
@@ -57,15 +56,16 @@
 </div>
 
 
-<h2>Добавление автотоваров и услуг в заказ-наряд</h2>
-<div class="form-section">
+<h2 th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+    Добавление автотоваров и услуг в заказ-наряд</h2>
+<div class="form-section" th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
     <h3>Выбор автотоваров</h3>
     <form id="itemsForm" method="post">
         <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
 
         <!-- Фильтрация автотоваров -->
         <label for="searchAutoGoods">Поиск товара:</label>
-        <input type="text" id="searchAutoGoods" onkeyup="filterTable('autoGoodsTable', 'searchAutoGoods')"
+        <input type="text" id="searchAutoGoods" onkeyup="searchByName('autoGoodsTable', 'searchAutoGoods')"
                placeholder="Введите название товара"/>
 
         <!-- Если автотоваров нет -->
@@ -78,6 +78,7 @@
             <tr>
                 <th>Выбрать</th>
                 <th>Наименование</th>
+                <th>Категория</th>
                 <th>Количество в наличии</th>
                 <th>Цена за штуку</th>
                 <th>Количество для заказа</th>
@@ -90,12 +91,12 @@
                            disabled/>
                 </td>
                 <td th:text="${autoGood.name}"></td>
+                <td th:text="${autoGood.category.name}"></td>
                 <td th:text="${autoGood.quantity}"></td>
                 <td th:text="${autoGood.priceOneUnit}"></td>
                 <td>
                     <input type="number" name="quantities" min="1" th:max="${autoGood.quantity}" class="quantity-input"
                            oninput="enableCheckbox(this); validateInput(this)"/>
-
                 </td>
             </tr>
             </tbody>
@@ -104,7 +105,7 @@
         <h3>Выбор услуг</h3>
         <!-- Фильтрация услуг -->
         <label for="searchServices">Поиск услуги:</label>
-        <input type="text" id="searchServices" onkeyup="filterTable('servicesTable', 'searchServices')"
+        <input type="text" id="searchServices" onkeyup="searchByName('servicesTable', 'searchServices')"
                placeholder="Введите название услуги"/>
 
         <!-- Если услуг нет -->
@@ -117,6 +118,7 @@
             <tr>
                 <th>Выбрать</th>
                 <th>Наименование</th>
+                <th>Категория</th>
                 <th>Цена</th>
             </tr>
             </thead>
@@ -126,13 +128,13 @@
                     <input type="checkbox" name="selectedServices" th:value="${service.id}" class="checkbox" disabled/>
                 </td>
                 <td th:text="${service.name}"></td>
+                <td th:text="${service.category.name}"></td>
                 <td>
                     <input type="number" name="price" min="0" class="price-input" oninput="enableCheckbox(this)"/>
                 </td>
             </tr>
             </tbody>
         </table>
-
 
         <div id="noAutoGoodsOrServiceMessage" style="color: red; display: none;">
             <p>Пожалуйста, выберите хотя бы один автотовар или услугу для добавления</p>
@@ -148,10 +150,7 @@
             <ul id="selectedServicesList"></ul>
         </div>
 
-        <!-- Отображаем кнопку только если статус заказ-наряда "В процессе" -->
-        <button type="button"
-                th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}"
-                onclick="submitSelectedItems()">
+        <button type="button" onclick="submitSelectedItems()">
             Добавить
         </button>
 
@@ -172,8 +171,7 @@
             <th>Количество</th>
             <th>Цена</th>
             <th>Сумма</th>
-            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <span></span>
+            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS and not #lists.isEmpty(autoGoods)}">
             </th>
         </tr>
         </thead>
@@ -185,14 +183,13 @@
             <td th:text="${autoGood.priceOneUnit}"></td>
             <td th:text="${autoGood.calculatePrice()}"></td>
             <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button"
-                        th:onclick="'deleteAutoGood(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ')'">Удалить
+                <button type="button" th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
+                    Удалить
                 </button>
             </td>
-
         </tr>
         <tr th:if="${#lists.isEmpty(autoGoods)}">
-            <td colspan="4">Нет добавленных автотоваров</td>
+            <td colspan="5">Нет добавленных автотоваров</td>
         </tr>
         <tr>
             <td colspan="4"><strong>Итого</strong></td>
@@ -211,24 +208,21 @@
             <th>№</th>
             <th>Название</th>
             <th>Цена</th>
-            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <span></span>
+            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS and not #lists.isEmpty(services)}">
             </th>
-        </tr>
-        </thead>
         <tbody>
-        <tr th:each="service,  iterStat : ${services}">
+        <tr th:each="service, iterStat : ${services}">
             <td th:text="${iterStat.index + 1}"></td>
             <td th:text="${service.service.name}"></td>
             <td th:text="${service.price}"></td>
             <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button"
-                        th:onclick="'deleteService(' + ${workOrder.id} + ',' + ${service.service.id} + ')'">Удалить
+                <button type="button" th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
+                    Удалить
                 </button>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(services)}">
-            <td colspan="3">Нет добавленных услуг</td>
+            <td colspan="4">Нет добавленных услуг</td>
         </tr>
         <tr>
             <td colspan="2"><strong>Итого</strong></td>
@@ -251,62 +245,40 @@
     </a>
 </div>
 
-
 <script>
-
-    function validateInput(input) {
-        let value = parseFloat(input.value); // Текущее значение
-        const max = parseFloat(input.getAttribute('max')); // Максимально допустимое значение
-        const min = parseFloat(input.getAttribute('min')); // Минимально допустимое значение
-
-        // Если значение меньше минимального, устанавливаем минимальное
-        if (value < min) {
-            value = min;
-        }
-
-        // Проверка максимального значения
-        if (max && value > max) {
-            value = max;
-        }
-
-        input.value = value; // Присваиваем обновленное значение
-    }
-
-
     // Автоматическая привязка для всех полей ввода
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('input[type="number"]').forEach((input) => {
             input.addEventListener('input', () => {
                 validateInput(input);
+                enableCheckbox(input);  // Валидация и включение/выключение чекбоксов для каждого поля с числовым вводом
             });
         });
     });
 
 
+    // Валидации значений, вводимых в поля ввода типа number.
+    function validateInput(input) {
+        let value = parseFloat(String(input.value)); // Текущее значение
+        const max = parseFloat(input.getAttribute('max'));
+        const min = parseFloat(input.getAttribute('min'));
 
-    function filterTable(tableId, inputId) {
-        const input = document.getElementById(inputId);
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById(tableId);
-        const rows = table.getElementsByTagName('tr');
+        input.value = Math.max(Math.min(value, isNaN(max) ? Infinity : max), isNaN(min) ? 0 : min);
+    }
 
-        for (let i = 1; i < rows.length; i++) { // Начинаем с 1, чтобы пропустить заголовок
-            const cells = rows[i].getElementsByTagName('td');
-            let rowVisible = false;
+    // Поиск по наименованию
+    function searchByName(tableId, inputId) {
+        const filter = document.getElementById(inputId).value.toLowerCase();
+        const rows = document.getElementById(tableId).getElementsByTagName('tr');
 
-            for (let j = 0; j < cells.length; j++) {
-                const cellText = cells[j].textContent || cells[j].innerText;
-                if (cellText.toLowerCase().includes(filter)) {
-                    rowVisible = true;
-                    break;
-                }
-            }
-
-            rows[i].style.display = rowVisible ? '' : 'none';
+        for (let i = 1; i < rows.length; i++) {
+            const cellText = rows[i].cells[1]?.textContent || '';
+            rows[i].style.display = cellText.toLowerCase().includes(filter) ? '' : 'none';
         }
     }
 
 
+    // Активации/деактивации чекбокса
     function enableCheckbox(inputElement) {
         const checkbox = inputElement.closest('tr').querySelector('input[type="checkbox"]');
 
@@ -321,9 +293,9 @@
 
         // Обновляем список выбранных товаров/услуг
         if (checkbox.name === "selectedAutoGoods") {
-            updateSelectedAutoGoods();
+            updateSelectedItems("AutoGoods");
         } else if (checkbox.name === "selectedServices") {
-            updateSelectedServices();
+            updateSelectedItems("Services");
         }
 
         // Обработчик для снятия галочки
@@ -345,73 +317,41 @@
 
                 // Обновляем список выбранных автотоваров или услуг
                 if (checkbox.name === "selectedAutoGoods") {
-                    updateSelectedAutoGoods();
+                    updateSelectedItems("AutoGoods");
                 } else if (checkbox.name === "selectedServices") {
-                    updateSelectedServices();
+                    updateSelectedItems("Services");
                 }
             }
         });
     }
 
+    // Обновление выбранных товаров или услуг
+    function updateSelectedItems(itemType) {
+        const selectedItemsList = document.getElementById(`selected${itemType}List`);
+        selectedItemsList.innerHTML = '';  // Очищаем список
 
-
-    // Включение/выключение чекбоксов при изменении значения в инпуте
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('input[type="number"]').forEach((input) => {
-            input.addEventListener('input', () => {
-                enableCheckbox(input);  // Валидация для каждого поля с числовым вводом
-            });
-        });
-    });
-
-
-
-    function updateSelectedAutoGoods() {
-        // Обновление выбранных автотоваров
-        const selectedAutoGoodsList = document.getElementById('selectedAutoGoodsList');
-        selectedAutoGoodsList.innerHTML = '';  // Очищаем список
-
-        const checkboxesAutoGoods = document.querySelectorAll('input[name="selectedAutoGoods"]:checked');
-        checkboxesAutoGoods.forEach((checkbox) => {
+        const checkboxes = document.querySelectorAll(`input[name="selected${itemType}"]:checked`);
+        checkboxes.forEach((checkbox) => {
             const row = checkbox.closest('tr');
             const name = row.querySelector('td:nth-child(2)').textContent;
-            const quantityInput = row.querySelector('input[name="quantities"]');
-            let quantity = parseFloat(quantityInput.value);  // Взяли количество из поля
+            let priceOrQuantity;
 
-            const maxQuantity = parseFloat(quantityInput.getAttribute('max'));  // Максимальное количество товара на складе
-
-            // Проверяем, чтобы количество не превышало максимальное
-            if (quantity > maxQuantity) {
-                quantity = maxQuantity;
-                quantityInput.value = quantity; // Обновляем значение в поле ввода
+            if (itemType === "AutoGoods") {
+                // Для автотоваров: извлекаем количество
+                priceOrQuantity = parseFloat(row.querySelector('input[name="quantities"]').value);
+            } else if (itemType === "Services") {
+                // Для услуг: извлекаем цену
+                priceOrQuantity = row.querySelector('input[name="price"]').value;
             }
 
-            // Создаем элемент списка с корректным количеством
             const listItem = document.createElement('li');
-            listItem.textContent = `${name} (Кол-во: ${quantity})`;
-            selectedAutoGoodsList.appendChild(listItem);
+            listItem.textContent = `${name} (${itemType === "AutoGoods" ? "Кол-во" : "Цена"}: ${priceOrQuantity})`;
+            selectedItemsList.appendChild(listItem);
         });
     }
 
 
-
-    function updateSelectedServices() {
-        // Обновление выбранных услуг
-        const selectedServicesList = document.getElementById('selectedServicesList');
-        selectedServicesList.innerHTML = '';  // Очищаем список
-
-        const checkboxesServices = document.querySelectorAll('input[name="selectedServices"]:checked');
-        checkboxesServices.forEach((checkbox) => {
-            const row = checkbox.closest('tr');
-            const name = row.querySelector('td:nth-child(2)').textContent;
-            const price = row.querySelector('input[name="price"]').value;
-            const listItem = document.createElement('li');
-            listItem.textContent = `${name} (Цена: ${price})`;
-            selectedServicesList.appendChild(listItem);
-        });
-    }
-
-
+    // Отправка выбранных автотоваров и услуг
     function submitSelectedItems() {
         saveScrollPosition();
         const autoGoods = [];
@@ -443,7 +383,7 @@
             const serviceId = checkbox.value;
             const price = row.querySelector(".price-input").value;
 
-            if (price > 0) {
+            if (price >= 0) {
                 services.push({
                     id: serviceId,
                     price: price
@@ -455,11 +395,6 @@
         if (autoGoods.length === 0 && services.length === 0) {
             errorMessageAutoGoodsOrService.style.display = 'block'; // Показываем сообщение об ошибке
             return; // Останавливаем выполнение функции
-        }
-
-        // Если оба списка пусты, не отправляем запрос
-        if (autoGoods.length === 0 && services.length === 0) {
-            return;
         }
 
         const workOrderId = document.querySelector('input[name="workOrderId"]').value;
@@ -491,35 +426,55 @@
             });
     }
 
-
+    // Сброс форм
     function resetForms() {
-        // Сбрасываем форму автотоваров
-        document.querySelectorAll("input[name='selectedAutoGoods']:checked").forEach((checkbox) => {
-            checkbox.checked = false;
-            checkbox.disabled = true;
-        });
-        document.querySelectorAll("input[name='quantities']").forEach((input) => {
-            input.value = '';
-        });
-        document.getElementById('selectedAutoGoodsList').innerHTML = '';
+        resetItemForm("selectedAutoGoods", ".quantity-input", "selectedAutoGoodsList");
+        resetItemForm("selectedServices", ".price-input", "selectedServicesList");
+    }
 
-        // Сбрасываем форму услуг
-        document.querySelectorAll("input[name='selectedServices']:checked").forEach((checkbox) => {
+    function resetItemForm(itemName, inputSelector, listId) {
+        document.querySelectorAll(`input[name='${itemName}']:checked`).forEach((checkbox) => {
             checkbox.checked = false;
             checkbox.disabled = true;
         });
-        document.querySelectorAll("input[name='price']").forEach((input) => {
+        document.querySelectorAll(inputSelector).forEach((input) => {
             input.value = '';
         });
-        document.getElementById('selectedServicesList').innerHTML = '';
+        document.getElementById(listId).innerHTML = '';
     }
 
 
+    // Удаление автотоваров/услуг
+    function deleteItem(workOrderId, itemId, itemType) {
+        const url = itemType === 'autoGood'
+            ? `/work-order/details/delete-auto-good?workOrderId=${workOrderId}&autoGoodId=${itemId}`
+            : `/work-order/details/delete-service?workOrderId=${workOrderId}&serviceId=${itemId}`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Перезагружаем страницу, чтобы обновить данные
+                } else {
+                    alert(`Ошибка при удалении ${itemType === 'autoGood' ? 'автотовара' : 'услуги'}`);
+                }
+            })
+            .catch(error => {
+                console.error(`Ошибка при отправке запроса на удаление ${itemType}:`, error);
+            });
+    }
+
+
+    // Сохранение позиции прокрутки
     function saveScrollPosition() {
         sessionStorage.setItem('scrollPosition', window.scrollY);
     }
 
-
+    // Восстановление позиции прокрутки
     function restoreScrollPosition() {
         const scrollPosition = sessionStorage.getItem('scrollPosition');
         if (scrollPosition !== null) {
@@ -528,49 +483,8 @@
         }
     }
 
-    // Функция для удаления автотовара
-    function deleteAutoGood(workOrderId, autoGoodId) {
-        fetch(`/work-order/details/delete-auto-good?workOrderId=${workOrderId}&autoGoodId=${autoGoodId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Заголовок, хотя тело пустое, можно оставить
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    location.reload(); // Перезагружаем страницу, чтобы обновить данные
-                } else {
-                    alert('Ошибка при удалении автотовара');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка при отправке запроса:', error);
-            });
-    }
-
-    // Функция для удаления услуги
-    function deleteService(workOrderId, serviceId) {
-        fetch(`/work-order/details/delete-service?workOrderId=${workOrderId}&serviceId=${serviceId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    location.reload(); // Перезагружаем страницу для обновления данных
-                } else {
-                    alert('Ошибка при удалении услуги');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка при отправке запроса:', error);
-            });
-    }
-
     window.addEventListener('load', restoreScrollPosition);
 </script>
-
 
 </body>
 </html>
