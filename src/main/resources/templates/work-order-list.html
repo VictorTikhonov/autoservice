@@ -35,12 +35,15 @@
     </style>
 </head>
 <body>
+
+
 <h1>Список заказ-нарядов</h1>
 
 
 <div th:if="${dateError}" style="color: red;">
     <p th:text="${dateError}"></p>
 </div>
+
 
 <!-- Фильтры -->
 <form th:action="@{/work-order/list}" method="get">
@@ -65,11 +68,11 @@
     </fieldset>
 </form>
 
+
 <!-- Таблица заказ-нарядов -->
 <table border="1">
     <thead>
     <tr>
-        <th>№</th>
         <th>№ заявки</th>
         <th>Статус</th>
         <th>Авто</th>
@@ -82,7 +85,6 @@
     <tbody>
     <tr th:each="workOrder : ${workOrders}"
         th:classappend="${workOrder.id == newWorkOrderId ? 'highlight' : ''}">
-        <td th:text="${workOrder.id}"></td>
         <td th:text="${workOrder.request.id}"></td>
         <td th:text="${workOrder.workOrderStatuses.description}"></td>
         <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
@@ -98,7 +100,7 @@
         </td>
     </tr>
     <tr th:if="${#lists.isEmpty(workOrders)}">
-        <td colspan="7">Нет заказ-нарядов для отображения</td>
+        <td colspan="6">Заказ-наряды отсутствуют</td>
     </tr>
     </tbody>
 </table>
@@ -108,6 +110,7 @@
 <div id="toast" class="toast" th:if="${success}">
     <span th:text="${success}"></span>
 </div>
+
 
 <script>
     // Показ уведомления, если оно есть

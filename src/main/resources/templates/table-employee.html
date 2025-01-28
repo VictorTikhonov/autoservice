@@ -6,6 +6,7 @@
 </head>
 <body>
 
+
 <div>
     <span>Добавить нового сотрудника: </span>
     <a th:href="@{/employee/create}">
@@ -13,7 +14,9 @@
     </a>
 </div>
 
+
 <h2>Список сотрудников</h2>
+
 
 <!-- Форма фильтрации -->
 <form th:action="@{/employee/list}" method="get">
@@ -27,17 +30,31 @@
     <button type="submit">Применить фильтр</button>
 </form>
 
+
+<!-- Поля для поиска -->
+<div>
+    <label for="searchByFio">Поиск по ФИО:</label>
+    <input type="text" id="searchByFio" onkeyup="searchTable('employeeTable', 'searchByFio', [1, 2, 3])"
+           placeholder="Введите ФИО">
+</div>
+
+<div>
+    <label for="searchByPhone">Поиск по телефону:</label>
+    <input type="text" id="searchByPhone" onkeyup="searchTable('employeeTable', 'searchByPhone', [4])"
+           placeholder="89999999999">
+</div>
+
+
 <!-- Таблица сотрудников -->
-<table border="1">
+<table border="1" id="employeeTable">
     <thead>
     <tr>
-        <th>№</th>
         <th>Фамилия</th>
         <th>Имя</th>
         <th>Отчество</th>
         <th>Телефон</th>
-        <th>Должность</th>
-        <th>Статус</th>
+        <th onclick="sortTable(5)">Должность</th>
+        <th onclick="sortTable(6)">Статус</th>
         <th>Зарплата</th>
         <th>Дата трудоустройства</th>
         <th>Дата увольнения</th>
@@ -46,14 +63,13 @@
     </thead>
     <tbody>
     <tr th:each="employee, stat : ${employees}">
-        <td th:text="${stat.index + 1}"></td>
         <td th:text="${employee.surname}"></td>
         <td th:text="${employee.name}"></td>
         <td th:text="${employee.patronymic ?: '—'}"></td>
         <td th:text="${employee.phoneNumber}"></td>
         <td th:text="${employee.position.positionName}"></td>
         <td th:text="${employee.employmentStatus.description}"></td>
-        <td th:text="${employee.salary} + ' ₽'"></td>
+        <td th:text="${employee.salary}"></td>
         <td th:text="${#temporals.format(employee.hireDate, 'dd-MM-yyyy')}"></td>
         <td th:text="${employee.employmentStatus ==
         T(ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeStatus).DISMISSED
@@ -65,10 +81,79 @@
         </td>
     </tr>
     <tr th:if="${#lists.isEmpty(employees)}">
-        <td colspan="11" style="text-align: center;">Нет данных для отображения</td>
+        <td colspan="9" style="text-align: center;">Нет данных для отображения</td>
     </tr>
     </tbody>
 </table>
+
+
+<script>
+    // Поиск по ФИО или телефону
+    function searchTable(tableId, inputId, columnIndices) {
+        const filter = document.getElementById(inputId).value.toLowerCase();
+        const rows = document.getElementById(tableId).getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            let match = false;
+
+            columnIndices.forEach(index => {
+                const cellContent = rows[i].cells[index]?.textContent.toLowerCase() || '';
+                if (cellContent.includes(filter)) {
+                    match = true;
+                }
+            });
+
+            rows[i].style.display = match ? '' : 'none';
+        }
+    }
+
+
+    // Фильтрация по столбцам
+    let currentSortColumn = null;
+    let currentSortDirection = 'asc';
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById('employeeTable');
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+
+        // Определяю порядок сортировки
+        if (currentSortColumn === columnIndex) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortDirection = 'asc';
+        }
+        currentSortColumn = columnIndex;
+
+        // Сортирую строки
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].textContent.trim();
+            const cellB = rowB.cells[columnIndex].textContent.trim();
+
+            // Проверяю, является ли ячейка числом
+            const numA = parseFloat(cellA);
+            const numB = parseFloat(cellB);
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                // Сортировка чисел
+                return currentSortDirection === 'asc' ? numA - numB : numB - numA;
+            } else {
+                // Сортировка строк
+                return currentSortDirection === 'asc'
+                    ? cellA.localeCompare(cellB)
+                    : cellB.localeCompare(cellA);
+            }
+        });
+
+        // Строки в нужном порядке делаю
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Обновляю индикатор сортировки
+        const headers = table.tHead.rows[0].cells;
+        Array.from(headers).forEach(header => header.classList.remove('sort-asc', 'sort-desc'));
+        headers[columnIndex].classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+</script>
 
 
 </body>

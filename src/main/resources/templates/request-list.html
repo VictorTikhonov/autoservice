@@ -6,7 +6,10 @@
     <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
 </head>
 <body>
+
+
 <h1>Список заявок</h1>
+
 
 <!-- Кнопка для создания новой заявки -->
 <div>
@@ -14,6 +17,7 @@
         <button type="button">Создать заявку</button>
     </a>
 </div>
+
 
 <!-- Фильтры -->
 <form method="get" th:action="@{/request/list}">
@@ -40,6 +44,7 @@
     </fieldset>
 </form>
 
+
 <!-- Таблица заявок -->
 <table>
     <thead>
@@ -64,19 +69,21 @@
         <td>
             <!-- Кнопка "Открыть" -->
             <form th:action="@{/request/check}" method="post" style="display: inline;">
-                <input type="hidden" name="requestId" th:value="${request.id}" />
+                <input type="hidden" name="requestId" th:value="${request.id}"/>
                 <button type="submit">Открыть</button>
             </form>
         </td>
     </tr>
     <tr th:if="${#lists.isEmpty(requests)}">
-        <td colspan="7">Нет заявок для отображения</td>
+        <td colspan="6">Нет заявок для отображения</td>
     </tr>
     </tbody>
 </table>
 
+
 <!-- Скрытый элемент для передачи ошибки -->
-<input type="hidden" id="dateError" th:value="${dateError}" />
+<input type="hidden" id="dateError" th:value="${dateError}"/>
+
 
 <script>
     // Получаю значение ошибки

@@ -1,61 +1,84 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Список услуг</title>
+    <meta charset="UTF-8">
+    <title>Список услуг</title>
 </head>
 <body>
 
+
 <h1>Список услуг</h1>
 
-<!-- Кнопки для создания категории и услуги -->
+
+<!-- Кнопка для создания категории/услуги -->
 <div>
-  <span>Создать услугу/категорию: </span>
-  <a th:href="@{/service/create}">
-    <button type="button">Создать</button>
-  </a>
+    <span>Создать услугу/категорию: </span>
+    <a th:href="@{/service/create}">
+        <button type="button">Создать</button>
+    </a>
 </div>
+
 
 <!-- Фильтрация по категории -->
 <form th:action="@{/service/show-table}" method="get">
-  <label for="category">Выберите категорию:</label>
-  <select id="category" name="categoryId">
-    <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
-    <option th:each="category : ${categories}"
-            th:value="${category.id}"
-            th:text="${category.name}"
-            th:selected="${category.id == selectedCategoryId}"></option>
-  </select>
-  <button type="submit">Фильтровать</button>
+    <label for="category">Выберите категорию:</label>
+    <select id="category" name="categoryId">
+        <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
+        <option th:each="category : ${categories}"
+                th:value="${category.id}"
+                th:text="${category.name}"
+                th:selected="${category.id == selectedCategoryId}"></option>
+    </select>
+    <button type="submit">Фильтровать</button>
 </form>
 
-<!-- Таблица услуг -->
-<table border="1">
-  <thead>
-  <tr>
-    <th>№</th>
-    <th>Название услуги</th>
-    <th>Описание</th>
-    <th>Категория</th>
-  </tr>
-  </thead>
-  <tbody>
-  <!-- Если услуг нет, выводим сообщение -->
-  <tr th:if="${#lists.isEmpty(services)}">
-    <td colspan="4" style="color: red; text-align: center;">
-      Нет услуг в выбранной категории
-    </td>
-  </tr>
 
-  <!-- Отображение услуг -->
-  <tr th:each="service, iterStat : ${services}">
-    <td th:text="${iterStat.index + 1}"></td>
-    <td th:text="${service.name}"></td>
-    <td th:text="${service.description}"></td>
-    <td th:text="${service.category.name}"></td>
-  </tr>
-  </tbody>
+<!--Поле для поиска-->
+<div>
+    <label for="searchInput">Поиск по наименованию:</label>
+    <input type="text" id="searchInput" onkeyup="searchByName('servicesTable', 'searchInput')"
+           placeholder="замена сцепления">
+</div>
+
+
+<!-- Таблица услуг -->
+<table border="1" id="servicesTable">
+    <thead>
+    <tr>
+        <th>Название услуги</th>
+        <th>Описание</th>
+        <th>Категория</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Если услуг нет, выводим сообщение -->
+    <tr th:if="${#lists.isEmpty(services)}">
+        <td colspan="3" style="color: red; text-align: center;">Услуги отсутствуют</td>
+    </tr>
+
+    <!-- Отображение услуг -->
+    <tr th:each="service, iterStat : ${services}">
+        <td th:text="${service.name}"></td>
+        <td th:text="${service.description}"></td>
+        <td th:text="${service.category.name}"></td>
+    </tr>
+    </tbody>
 </table>
+
+
+<script>
+    // Поиск по наименованию
+    function searchByName(tableId, inputId) {
+        const filter = document.getElementById(inputId).value.toLowerCase();
+        const rows = document.getElementById(tableId).getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            const cellText = rows[i].cells[0]?.textContent || '';
+            rows[i].style.display = cellText.toLowerCase().includes(filter) ? '' : 'none';
+        }
+    }
+</script>
+
 
 </body>
 </html>

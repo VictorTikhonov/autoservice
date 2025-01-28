@@ -10,21 +10,23 @@
 
 <!-- Кнопка для создания заказ-наряда или сообщение о невозможности взять заявку -->
 <div>
-    <p th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">Приступить к выполнению заявки:</p>
-    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}" th:action="@{/work-order/create}" method="post">
+    <p th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">Приступить к
+        выполнению заявки:</p>
+    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}"
+          th:action="@{/work-order/create}" method="post">
         <input type="hidden" name="requestId" th:value="${request.id}">
         <button type="submit">Начать работу</button>
     </form>
 
     <p th:unless="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
-        Заявка не доступна для выполнения, так как ее статус: <span th:text="${requestStatus.description}"></span>.</p>
+        Заявка не доступна для выполнения, так как ее статус: <span th:text="${requestStatus.description}"></span>
+    </p>
 </div>
 
 
-
+<!-- Информация о заявке -->
 <h1>Детали заявки</h1>
 
-<!-- Информация о заявке -->
 <div>
     <h2>Статус заявки</h2>
     <p th:text="${requestStatus.description}"></p>
@@ -32,15 +34,20 @@
 
 <div>
     <h2>Оператор</h2>
-    <p><strong>ФИО: </strong> <span th:text="${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></span></p>
+    <p><strong>ФИО: </strong> <span
+            th:text="${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></span>
+    </p>
     <p><strong>Номер телефона: </strong> <span th:text="${request.operator.phoneNumber}"></span></p>
 </div>
 
 <div>
     <h2>Клиент</h2>
-    <p><strong>ФИО: </strong> <span th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span></p>
+    <p><strong>ФИО: </strong> <span
+            th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span>
+    </p>
     <p><strong>Номер телефона: </strong> <span th:text="${request.client.phoneNumber}"></span></p>
-    <p><strong>Email: </strong> <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
+    <p><strong>Email: </strong> <span
+            th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
 </div>
 
 <div>
@@ -61,8 +68,10 @@
     <p th:text="${request.complaints}"></p>
 </div>
 
+
 <!-- Кнопка для возврата -->
 <a href="/request/list">Назад к списку заявок</a>
+
 
 </body>
 </html>

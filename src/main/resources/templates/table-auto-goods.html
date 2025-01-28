@@ -6,7 +6,9 @@
 </head>
 <body>
 
+
 <h1>Список автотоваров</h1>
+
 
 <!-- Кнопка для создания категории/автотовара -->
 <div>
@@ -30,8 +32,17 @@
     <button type="submit">Фильтровать</button>
 </form>
 
+
+<!--Поле для поиска-->
+<div>
+    <label for="searchInput">Поиск по наименованию:</label>
+    <input type="text" id="searchInput" onkeyup="searchByName('autoGoodsTable', 'searchInput')"
+           placeholder="моторное масло 5W-30">
+</div>
+
+
 <!-- Таблица автотоваров -->
-<table border="1">
+<table border="1" id="autoGoodsTable">
     <thead>
     <tr>
         <th>№</th>
@@ -46,7 +57,7 @@
     <!-- Если автотоваров нет, вывожу сообщение -->
     <tr th:if="${#lists.isEmpty(autoGoods)}">
         <td colspan="6" style="color: red; text-align: center;">
-            Нет автотоваров в выбранной категории
+            Автотовары отсутсвуют
         </td>
     </tr>
 
@@ -61,6 +72,21 @@
     </tr>
     </tbody>
 </table>
+
+
+<script>
+    // Поиск по наименованию
+    function searchByName(tableId, inputId) {
+        const filter = document.getElementById(inputId).value.toLowerCase();
+        const rows = document.getElementById(tableId).getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            const cellText = rows[i].cells[1]?.textContent || '';
+            rows[i].style.display = cellText.toLowerCase().includes(filter) ? '' : 'none';
+        }
+    }
+</script>
+
 
 </body>
 </html>

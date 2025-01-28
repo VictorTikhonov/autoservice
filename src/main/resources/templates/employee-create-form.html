@@ -30,6 +30,7 @@
 </head>
 <body>
 
+
 <div>
     <a th:href="@{/employee/list}">
         <button type="button">К списку сотрудников</button>
@@ -38,9 +39,11 @@
 
 <div th:if="${error}" style="color: red;" th:text="${error}"></div>
 
+
 <h2>Создание работника и аккаунта</h2>
 
 <form th:action="@{/employee/create}" th:object="${employee}" method="post">
+
     <!-- Выбор роли -->
     <h2>Информация о сотруднике</h2>
 
@@ -55,31 +58,33 @@
         <div th:if="${errorRole}" style="color: red;" th:text="${errorRole}"></div>
     </div>
 
-    <!-- Поля для работника -->
+    <!-- Поля личной информации работника -->
     <div>
         <label for="surname">Фамилия: </label>
-        <input type="text" id="surname" th:field="*{surname}"/>
+        <input type="text" id="surname" placeholder="Тихонов" th:field="*{surname}"/>
         <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
     </div>
+
     <div>
         <label for="name">Имя: </label>
-        <input type="text" id="name" th:field="*{name}"/>
+        <input type="text" id="name" placeholder="Виктор" th:field="*{name}"/>
         <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
     </div>
+
     <div>
         <label for="patronymic">Отчество: </label>
-        <input type="text" id="patronymic" th:field="*{patronymic}"/>
+        <input type="text" id="patronymic" placeholder="Владимирович" th:field="*{patronymic}"/>
         <div th:if="${#fields.hasErrors('patronymic')}" style="color: red;" th:errors="*{patronymic}"></div>
     </div>
+
     <div>
         <label for="phoneNumber">Телефон: </label>
-        <input type="text" id="phoneNumber" th:field="*{phoneNumber}"
+        <input type="text" id="phoneNumber" th:field="*{phoneNumber}" placeholder="89999999999"
                pattern="[0-9]*" title="Введите только цифры"
                oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
         <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
         <div th:if="${errorPhoneNumber}" style="color: red;" th:text="${errorPhoneNumber}"></div>
     </div>
-
 
     <!-- Список должностей -->
     <div>
@@ -93,18 +98,19 @@
         </select>
     </div>
 
-
-    <!-- Поля для зарплаты и даты трудоустройства, дня рождения -->
+    <!-- Поля для зарплаты и дат трудоустройства, дня рождения -->
     <div>
         <label for="salary">Зарплата: </label>
-        <input type="number" id="salary" th:field="*{salary}" step="0.01"/>
+        <input type="number" id="salary" placeholder="150000" th:field="*{salary}" step="0.01"/>
         <div th:if="${#fields.hasErrors('salary')}" style="color: red;" th:errors="*{salary}"></div>
     </div>
+
     <div>
         <label for="hireDate">Дата трудоустройства: </label>
         <input type="date" id="hireDate" th:field="*{hireDate}"/>
         <div th:if="${#fields.hasErrors('hireDate')}" style="color: red;" th:errors="*{hireDate}"></div>
     </div>
+
     <div>
         <label for="birthDate">Дата рождения: </label>
         <input type="date" id="birthDate" th:field="*{birthDate}"/>
@@ -116,10 +122,11 @@
     <!-- Поля для аккаунта -->
     <div>
         <label for="login">Логин: </label>
-        <input type="text" id="login" th:field="*{account.login}"/>
+        <input type="text" id="login" placeholder="vtikhonov" th:field="*{account.login}"/>
         <div th:if="${#fields.hasErrors('account.login')}" style="color: red;" th:errors="*{account.login}"></div>
         <div th:if="${errorLogin}" style="color: red;" th:text="${errorLogin}"></div>
     </div>
+
     <div>
         <label for="password">Пароль: </label>
         <input type="password" id="password" th:field="*{account.password}"/>
@@ -136,6 +143,7 @@
     <span th:text="${success}"></span>
 </div>
 
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const toast = document.getElementById('toast');
@@ -151,8 +159,7 @@
         const toggleButton = document.getElementById('togglePasswordButton');
         if (passwordField && toggleButton) {
             toggleButton.addEventListener('click', function () {
-                var type = passwordField.type === 'password' ? 'text' : 'password';
-                passwordField.type = type;
+                passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
             });
         }
     });

@@ -27,15 +27,13 @@
         .toast.show {
             opacity: 1;
         }
-
     </style>
-
 </head>
 <body>
 
 <h1>Профиль сотрудника</h1>
 
-<!-- Блок 1: Личная информация -->
+<!-- Личная информация -->
 <div>
     <h2>Личная информация</h2>
     <p><strong>Фамилия:</strong> <span th:text="${employeeProfile.surname}"></span></p>
@@ -45,45 +43,40 @@
     <p><strong>Дата рождения:</strong> <span th:text="${employeeProfile.birthDate}"></span></p>
 </div>
 
-<!-- Блок 2: Информация о трудоустройстве -->
+<!-- Профессиональные сведения -->
 <div>
     <h2>Профессиональные сведения</h2>
     <p><strong>Должность:</strong> <span th:text="${employeeProfile.position.positionName}"></span></p>
     <p><strong>Зарплата:</strong> <span th:text="${employeeProfile.salary}"></span></p>
     <p><strong>Дата трудоустройства:</strong> <span th:text="${employeeProfile.hireDate}"></span></p>
-    <p th:if="${employeeProfile.employmentStatus == 'DISMISSED'}">
-        <strong>Дата увольнения:</strong> <span th:text="${employeeProfile.dismissalDate}"></span>
-    </p>
 </div>
 
-<!-- Блок 3: Учетная запись -->
+<!-- Учетная запись -->
 <div>
     <h2>Учетная запись</h2>
     <p><strong>Логин:</strong> <span th:text="${employeeProfile.account.login}"></span></p>
 </div>
 
-
+<!--Кнопки управления-->
 <div>
-    <button type="button"
-            id="editInfoButton"
+    <button type="button" id="editInfoButton"
             th:onclick="'window.location.href=\'/my-profile/update-info\''">
         Редактировать личную информацию
     </button>
-    <button type="button"
-            id="changePasswordButton"
+
+    <button type="button" id="changePasswordButton"
             th:onclick="'window.location.href=\'/my-profile/update-password\''">
         Сменить пароль
     </button>
-
 </div>
 
 <!-- Всплывающее уведомление -->
 <div id="toast" class="toast" th:if="${success != null}" th:text="${success}"></div>
 
 <script>
-    // Покажем Toast уведомление, если оно есть
+    // Toast уведомление, если оно есть
     document.addEventListener('DOMContentLoaded', function () {
-        var toast = document.getElementById("toast");
+        const toast = document.getElementById("toast");
         if (toast) {
             // Показываем Toast
             toast.classList.add("show");

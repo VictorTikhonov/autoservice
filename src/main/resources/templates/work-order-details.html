@@ -28,13 +28,16 @@
 </head>
 <body>
 
+
 <div>
     <a th:href="@{/work-order/list}">
         <button type="button">К списку заказ-нарядов</button>
     </a>
 </div>
 
+
 <h1>Заказ-наряд № <span th:text="${workOrder.id}"></span></h1>
+
 
 <h2>Общие сведения</h2>
 <div class="form-section">
@@ -58,7 +61,10 @@
 
 <h2 th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
     Добавление автотоваров и услуг в заказ-наряд</h2>
-<div class="form-section" th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+
+
+<div class="form-section"
+     th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
     <h3>Выбор автотоваров</h3>
     <form id="itemsForm" method="post">
         <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
@@ -160,6 +166,7 @@
 
 <h2>Состав заказ-наряда</h2>
 
+
 <!-- Текущие автотовары -->
 <div class="form-section">
     <h3>Автотовары</h3>
@@ -171,8 +178,8 @@
             <th>Количество</th>
             <th>Цена</th>
             <th>Сумма</th>
-            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS and not #lists.isEmpty(autoGoods)}">
-            </th>
+            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS
+            and not #lists.isEmpty(autoGoods)}"></th>
         </tr>
         </thead>
         <tbody>
@@ -183,7 +190,8 @@
             <td th:text="${autoGood.priceOneUnit}"></td>
             <td th:text="${autoGood.calculatePrice()}"></td>
             <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button" th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
+                <button type="button"
+                        th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
                     Удалить
                 </button>
             </td>
@@ -198,6 +206,7 @@
         </tbody>
     </table>
 </div>
+
 
 <!-- Текущие услуги -->
 <div class="form-section">
@@ -216,7 +225,8 @@
             <td th:text="${service.service.name}"></td>
             <td th:text="${service.price}"></td>
             <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button" th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
+                <button type="button"
+                        th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
                     Удалить
                 </button>
             </td>
@@ -232,10 +242,12 @@
     </table>
 </div>
 
+
 <!-- Общая стоимость -->
 <div class="form-section">
     <p><strong>Итоговая сумма:</strong> <span th:text="${workOrder.calculatePrice()}"></span></p>
 </div>
+
 
 <!-- Отображаем кнопку только если статус заказ-наряда "В процессе" -->
 <div>
@@ -244,6 +256,7 @@
         <button type="button">Завершить работу</button>
     </a>
 </div>
+
 
 <script>
     // Автоматическая привязка для всех полей ввода
@@ -485,6 +498,7 @@
 
     window.addEventListener('load', restoreScrollPosition);
 </script>
+
 
 </body>
 </html>
