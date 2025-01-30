@@ -8,12 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGoodCategory;
 import ru.victortikhonov.autoserviceapp.repository.AutoGoodCategoryRepository;
 import ru.victortikhonov.autoserviceapp.repository.AutoGoodRepository;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 @Controller
@@ -84,10 +86,11 @@ public class AutoGoodController {
                     + autoGood.getName().substring(1).toLowerCase());
         }
 
+        // TODO уникальность по имени для автотоваров - ОШИБКА
         if (autoGoodRepository.findByNameAndCategory_Id(autoGood.getName(),
                 autoGood.getCategory().getId()).isPresent()) {
             model.addAttribute("errorAutoGood",
-                    "Автотовар с таким названием уже существует в данной категории");
+                    "Автотовар \"" + autoGood.getName() + "\" уже существует в данной категории");
 
             return "add-auto-good-and-category";
         }
@@ -111,7 +114,7 @@ public class AutoGoodController {
         }
 
         if (autoGoodCategoryRepository.findByName(categoryName).isPresent()) {
-            model.addAttribute("errorCategory", "Категория с таким названием уже существует");
+            model.addAttribute("errorCategory", "Категория \"" + categoryName + "\" уже существует");
             model.addAttribute("categoryName", categoryName);
             return "add-auto-good-and-category";
         }
@@ -125,7 +128,7 @@ public class AutoGoodController {
     }
 
 
-    @GetMapping("/show-table")
+    @GetMapping("/list")
     public String showTableAutoGoods(Model model, @RequestParam(required = false) Long categoryId,
                                      SessionStatus sessionStatus) {
 
@@ -135,9 +138,9 @@ public class AutoGoodController {
         Iterable<AutoGoodCategory> categories = autoGoodCategoryRepository.findAll();
 
         if (categoryId != null) {
-            autoGoods = autoGoodRepository.findByCategoryId(categoryId);
+            autoGoods = autoGoodRepository.findByCategoryIdAndRelevanceTrue(categoryId);
         } else {
-            autoGoods = autoGoodRepository.findAll();
+            autoGoods = autoGoodRepository.findByRelevanceTrue();
         }
 
         model.addAttribute("autoGoods", autoGoods);
@@ -145,5 +148,25 @@ public class AutoGoodController {
         model.addAttribute("selectedCategoryId", categoryId);
 
         return "table-auto-goods";
+    }
+
+
+    @PostMapping("/delete")
+    public String deleteAutoGood(@RequestParam("id") Long autoGoodId, RedirectAttributes redirectAttributes) {
+
+        Optional<AutoGood> autoGoodOptional = autoGoodRepository.findById(autoGoodId);
+
+        if (autoGoodOptional.isPresent()) {
+            AutoGood autoGood = autoGoodOptional.get();
+
+            autoGood.setRelevance(false);
+            autoGoodRepository.save(autoGood);
+
+            redirectAttributes.addFlashAttribute("success", "Автотовар \"" + autoGood.getName() + "\" удален");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Автотовар не найден");
+        }
+
+        return "redirect:/auto-good/list";
     }
 }

@@ -10,6 +10,10 @@
 <h1>Список услуг</h1>
 
 
+<!-- Подключаю всплывающее уведомление -->
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+
 <!-- Кнопка для создания категории/услуги -->
 <div>
     <span>Создать услугу/категорию: </span>
@@ -20,7 +24,7 @@
 
 
 <!-- Фильтрация по категории -->
-<form th:action="@{/service/show-table}" method="get">
+<form th:action="@{/service/list}" method="get">
     <label for="category">Выберите категорию:</label>
     <select id="category" name="categoryId">
         <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
@@ -48,12 +52,13 @@
         <th>Название услуги</th>
         <th>Описание</th>
         <th>Категория</th>
+        <th>Удаление</th>
     </tr>
     </thead>
     <tbody>
     <!-- Если услуг нет, выводим сообщение -->
     <tr th:if="${#lists.isEmpty(services)}">
-        <td colspan="3" style="color: red; text-align: center;">Услуги отсутствуют</td>
+        <td colspan="4" style="color: red; text-align: center;">Услуги отсутствуют</td>
     </tr>
 
     <!-- Отображение услуг -->
@@ -61,6 +66,12 @@
         <td th:text="${service.name}"></td>
         <td th:text="${service.description}"></td>
         <td th:text="${service.category.name}"></td>
+        <td>
+            <form th:action="@{/service/delete}" method="post">
+                <input type="hidden" name="id" th:value="${service.id}">
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

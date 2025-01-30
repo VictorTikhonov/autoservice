@@ -24,22 +24,19 @@ public class RequestController {
     private final RequestService requestService;
 
 
-
-
     public RequestController(RequestService requestService) {
 
         this.requestService = requestService;
     }
 
 
-
     @GetMapping("/create")
     public String registerForm(Model model) {
 
         model.addAttribute("requestForm", new RequestForm());
+
         return "request-form";
     }
-
 
 
     @PostMapping("/create")
@@ -60,7 +57,6 @@ public class RequestController {
     }
 
 
-
     @PostMapping("/create/search-client")
     public String searchClient(@ModelAttribute("requestForm") RequestForm requestForm,
                                Model model, Errors errors) {
@@ -76,13 +72,12 @@ public class RequestController {
 
         // Ищю клиента по номеру
         requestService.findClientByPhoneNumber(phoneNumber).ifPresentOrElse(
-                        requestForm::setClient,  // Если клиент найден
-                        () -> model.addAttribute("clientNotFound", true)  // Если клиент не найден
-                );
+                requestForm::setClient,  // Если клиент найден
+                () -> model.addAttribute("clientNotFound", true)  // Если клиент не найден
+        );
 
         return "request-form";
     }
-
 
 
     @GetMapping("/list")
@@ -91,15 +86,14 @@ public class RequestController {
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                Model model) {
 
-        // Устанавливаю сегодняшнюю дату если она не установлена
-        // и, если endDate имеет значение более чем сегодняшняя дата
+        // Устанавливаю сегодняшнюю дату если она не установлена и,
+        // если endDate имеет значение более? чем сегодняшняя дата
         if (startDate == null) {
             startDate = LocalDate.now();
         }
         if (endDate == null || endDate.isAfter(LocalDate.now())) {
             endDate = LocalDate.now();
         }
-
 
         // Проверка на правильность дат
         if (startDate.isAfter(endDate)) {
@@ -129,7 +123,6 @@ public class RequestController {
 
         return "request-list";
     }
-
 
 
     @PostMapping("/check")

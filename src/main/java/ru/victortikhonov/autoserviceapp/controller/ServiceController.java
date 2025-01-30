@@ -8,12 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.repository.ServiceCategoryRepository;
 import ru.victortikhonov.autoserviceapp.repository.ServiceRepository;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 @RequestMapping("/service")
@@ -87,7 +89,7 @@ public class ServiceController {
         if (serviceRepository.findByNameAndCategory_Id(service.getName(),
                 service.getCategory().getId()).isPresent()) {
             model.addAttribute("errorService",
-                    "Услуга с таким названием уже существует в данной категории");
+                    "Услуга \"" + service.getName() + "\" с таким названием уже существует в данной категории");
 
             return "add-service-and-category";
         }
@@ -111,7 +113,7 @@ public class ServiceController {
         }
 
         if (serviceCategoryRepository.findByName(categoryName).isPresent()) {
-            model.addAttribute("errorCategory", "Категория с таким названием уже существует");
+            model.addAttribute("errorCategory", "Категория \"" + categoryName + "\" уже существует");
             model.addAttribute("categoryName", categoryName);
             return "add-service-and-category";
         }
@@ -125,7 +127,7 @@ public class ServiceController {
     }
 
 
-    @GetMapping("/show-table")
+    @GetMapping("/list")
     public String showTableServices(Model model, @RequestParam(required = false) Long categoryId,
                                     SessionStatus sessionStatus) {
 
@@ -135,9 +137,9 @@ public class ServiceController {
         Iterable<ServiceCategory> categories = serviceCategoryRepository.findAll();
 
         if (categoryId != null) {
-            services = serviceRepository.findByCategoryId(categoryId);
+            services = serviceRepository.findByCategoryIdAndRelevanceTrue(categoryId);
         } else {
-            services = serviceRepository.findAll();
+            services = serviceRepository.findByRelevanceTrue();
         }
 
         model.addAttribute("services", services);
@@ -145,5 +147,25 @@ public class ServiceController {
         model.addAttribute("selectedCategoryId", categoryId);
 
         return "table-services";
+    }
+
+
+    @PostMapping("/delete")
+    public String deleteService(@RequestParam("id") Long serviceId, RedirectAttributes redirectAttributes) {
+
+        Optional<Service> serviceOptional = serviceRepository.findById(serviceId);
+
+        if (serviceOptional.isPresent()) {
+            Service service = serviceOptional.get();
+
+            service.setRelevance(false);
+            serviceRepository.save(service);
+
+            redirectAttributes.addFlashAttribute("success", "Услуга \"" + service.getName() + "\" удалена");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Услуга не найдена");
+        }
+
+        return "redirect:/service/list";
     }
 }

@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface AutoGoodRepository  extends CrudRepository<AutoGood, Long> {
     Optional<AutoGood> findByNameAndCategory_Id(String name, Long categoryId);
-    Iterable<AutoGood> findByCategoryId(Long categoryId);
+
+    Iterable<AutoGood> findByCategoryIdAndRelevanceTrue(Long categoryId);
+
+    Iterable<AutoGood> findByRelevanceTrue();
 }

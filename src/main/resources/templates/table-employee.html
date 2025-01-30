@@ -22,7 +22,7 @@
 <form th:action="@{/employee/list}" method="get">
     <label for="statusFilter">Фильтр по статусу:</label>
     <select id="statusFilter" name="status">
-        <option value="" th:selected="${filterStatus == null}">Все</option>
+        <option value="" th:selected="${filterStatus == null}">Работающие</option>
         <option value="ACTIVE" th:selected="${filterStatus?.name() == 'ACTIVE'}">Активен</option>
         <option value="INACTIVE" th:selected="${filterStatus?.name() == 'INACTIVE'}">Не активен</option>
         <option value="DISMISSED" th:selected="${filterStatus?.name() == 'DISMISSED'}">Уволен</option>

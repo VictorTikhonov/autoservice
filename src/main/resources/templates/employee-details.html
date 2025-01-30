@@ -3,30 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Данные сотрудника</title>
-    <style>
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #2e7d32;
-            color: #f1f1f1;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            z-index: 1000;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            min-width: 250px;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-    </style>
 </head>
 <body>
 
@@ -39,6 +15,11 @@
 
 
 <h1>Информация о сотруднике</h1>
+
+
+<!-- Подключаю всплывающее уведомление -->
+<div th:replace="~{fragments/toast :: toast}"></div>
+
 
 <form id="employeeForm" th:action="@{/employee/profile/update}" method="post" th:object="${selectedEmployee}">
     <input type="hidden" name="id" th:value="${selectedEmployee.id}"/>
@@ -146,25 +127,7 @@
 </form>
 
 
-<!-- Всплывающее уведомление -->
-<div id="toast" class="toast" th:if="${success != null}">
-    <span th:text="${success}"></span>
-</div>
-
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // Показ уведомления и его скрытие через 2 секунды
-        const toast = document.getElementById('toast');
-        if (toast) {
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000); // 2 секунды
-        }
-
         // Функция переключения режима редактирования
         function toggleEditMode(editMode) {
             const inputs = document.querySelectorAll('.editable');
@@ -177,7 +140,6 @@
 
         // Сделать функции доступными в глобальной области видимости
         window.toggleEditMode = toggleEditMode;
-    });
 </script>
 
 

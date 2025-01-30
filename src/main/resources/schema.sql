@@ -14,11 +14,6 @@ DROP INDEX IF EXISTS idx_auto_goods_category_id;
 DROP INDEX IF EXISTS idx_services_category_id;
 
 
-
-
-
-
-
 -- Вставка данных в таблицы
 INSERT INTO positions (position_name)
 VALUES ('оператор');
@@ -35,7 +30,7 @@ VALUES ((SELECT id FROM accounts WHERE login = '1'), -- Используем ID учётной за
         'Виктор', -- Имя
         'Владимирович', -- Отчество
         '88888888888', -- Номер телефона
-         50000, -- Зарплата
+        50000, -- Зарплата
         '2022-01-01', -- Дата трудоустройства
         '1990-05-10', -- Дата рождения
         'OPERATOR' -- Роль сотрудника
@@ -43,16 +38,13 @@ VALUES ((SELECT id FROM accounts WHERE login = '1'), -- Используем ID учётной за
 
 -- Вставка записей в таблицу positions
 INSERT INTO positions (position_name)
-VALUES
-    ('Старший оператор'),   -- 1
-    ('Помощник оператора'), -- 2
-    ('Стажер-оператор'), -- 3
-    ('Главный механик'),   -- 4
-    ('Механик первой категории'), -- 5
-    ('Стажёр-механик');   -- 6
-
-
-
+VALUES ('Старший оператор'),         -- 1
+       ('Помощник оператора'),       -- 2
+       ('Стажер-оператор'),          -- 3
+       ('Главный механик'),          -- 4
+       ('Механик первой категории'), -- 5
+       ('Стажёр-механик');
+-- 6
 
 
 -- Создание таблицы Клиенты
@@ -173,12 +165,13 @@ CREATE TABLE categories_auto_goods
 -- Создание таблицы Авотовары
 CREATE TABLE auto_goods
 (
-    id             BIGSERIAL PRIMARY KEY,   -- ID автотовара, автоинкремент
-    category_id    BIGINT         NOT NULL, -- ID категории
-    name           VARCHAR(35)    NOT NULL, -- Наименование автотовара
-    quantity       INT            NOT NULL, -- Количество
-    price_one_unit DECIMAL(10, 2) NOT NULL, -- Цена за 1 штуку
-    expiration_date DATE,                   -- Срок годности
+    id              BIGSERIAL PRIMARY KEY,   -- ID автотовара, автоинкремент
+    category_id     BIGINT         NOT NULL, -- ID категории
+    name            VARCHAR(35)    NOT NULL, -- Наименование автотовара
+    quantity        INT            NOT NULL, -- Количество
+    price_one_unit  DECIMAL(10, 2) NOT NULL, -- Цена за 1 штуку
+    expiration_date DATE,                    -- Срок годности
+    relevance       BOOLEAN DEFAULT TRUE,    -- Релевантность (логическое удаление)
 
     -- Внешний ключ на таблицу categories_auto_goods
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories_auto_goods (id),
@@ -192,54 +185,31 @@ CREATE TABLE auto_goods
 CREATE INDEX idx_auto_goods_category_id ON auto_goods (category_id);
 
 
-
 -- Создание таблицы Категории услуг
-CREATE TABLE categories_services (
-                                     id BIGSERIAL PRIMARY KEY,               -- ID категории услуги, автоинкремент
-                                     name VARCHAR(35) NOT NULL               -- Наименование категории услуги
+CREATE TABLE categories_services
+(
+    id   BIGSERIAL PRIMARY KEY, -- ID категории услуги, автоинкремент
+    name VARCHAR(35) NOT NULL   -- Наименование категории услуги
 );
-
 
 
 -- Создание таблицы Услуги
-CREATE TABLE services (
-                          id BIGSERIAL PRIMARY KEY,        -- ID услуги, автоинкремент
-                          name VARCHAR(35) NOT NULL,       -- Наименование услуги
-                          description TEXT,                -- Описание услуги
-                          category_id BIGINT NOT NULL,     -- ID категории услуги
+CREATE TABLE services
+(
+    id          BIGSERIAL PRIMARY KEY, -- ID услуги, автоинкремент
+    name        VARCHAR(35) NOT NULL,  -- Наименование услуги
+    description TEXT,                  -- Описание услуги
+    category_id BIGINT      NOT NULL,  -- ID категории услуги
+    relevance   BOOLEAN DEFAULT TRUE,  -- Релевантность (логическое удаление)
 
     -- Внешний ключ на таблицу categories_of_services
-                          CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories_services(id),
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories_services (id),
 
     -- Уникальность пары: категория + услуга
-                          CONSTRAINT unique_service_name_per_category UNIQUE (name, category_id)
+    CONSTRAINT unique_service_name_per_category UNIQUE (name, category_id)
 );
 -- Добавление индекса на category_id
-CREATE INDEX idx_services_category_id ON services(category_id);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE INDEX idx_services_category_id ON services (category_id);
 
 
 -- Удаление индексов
@@ -249,12 +219,18 @@ DROP INDEX IF EXISTS idx_work_order_auto_goods_auto_good_id;
 DROP INDEX IF EXISTS idx_work_order_auto_goods_work_order_id;
 
 -- Удаление внешних ключей
-ALTER TABLE work_order_services DROP CONSTRAINT IF EXISTS fk_service;
-ALTER TABLE work_order_services DROP CONSTRAINT IF EXISTS fk_work_order_services;
-ALTER TABLE work_order_auto_goods DROP CONSTRAINT IF EXISTS fk_auto_good;
-ALTER TABLE work_order_auto_goods DROP CONSTRAINT IF EXISTS fk_work_order_auto_goods;
-ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS fk_mechanic;
-ALTER TABLE work_orders DROP CONSTRAINT IF EXISTS fk_request;
+ALTER TABLE work_order_services
+    DROP CONSTRAINT IF EXISTS fk_service;
+ALTER TABLE work_order_services
+    DROP CONSTRAINT IF EXISTS fk_work_order_services;
+ALTER TABLE work_order_auto_goods
+    DROP CONSTRAINT IF EXISTS fk_auto_good;
+ALTER TABLE work_order_auto_goods
+    DROP CONSTRAINT IF EXISTS fk_work_order_auto_goods;
+ALTER TABLE work_orders
+    DROP CONSTRAINT IF EXISTS fk_mechanic;
+ALTER TABLE work_orders
+    DROP CONSTRAINT IF EXISTS fk_request;
 
 -- Удаление таблиц
 DROP TABLE IF EXISTS work_order_services CASCADE;
@@ -262,64 +238,62 @@ DROP TABLE IF EXISTS work_order_auto_goods CASCADE;
 DROP TABLE IF EXISTS work_orders CASCADE;
 
 
-
-
 -- Создание таблицы work_orders (Заказ-наряды)
-CREATE TABLE work_orders (
-                             id BIGSERIAL PRIMARY KEY,                         -- ID заказ-наряда, автоинкремент
-                             request_id BIGINT NOT NULL,                       -- ID заявки, обязательное поле
-                             mechanic_id BIGINT NOT NULL,                      -- ID механика, обязательное поле
-                             work_order_status VARCHAR(20) NOT NULL,           -- Статус заказ-наряда, обязательное поле
+CREATE TABLE work_orders
+(
+    id                BIGSERIAL PRIMARY KEY,               -- ID заказ-наряда, автоинкремент
+    request_id        BIGINT      NOT NULL,                -- ID заявки, обязательное поле
+    mechanic_id       BIGINT      NOT NULL,                -- ID механика, обязательное поле
+    work_order_status VARCHAR(20) NOT NULL,                -- Статус заказ-наряда, обязательное поле
 --                              price DECIMAL(10, 2) NOT NULL DEFAULT 0,          -- Цена работ, обязательное поле с начальным значением 0
-                             start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- Дата начала работ, может быть пустым
-                             end_date TIMESTAMP,                               -- Дата окончания работ, может быть пустым
+    start_date        TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата начала работ, может быть пустым
+    end_date          TIMESTAMP,                           -- Дата окончания работ, может быть пустым
 
     -- Внешние ключи
-                             CONSTRAINT fk_request FOREIGN KEY (request_id) REFERENCES requests(id),
-                             CONSTRAINT fk_mechanic FOREIGN KEY (mechanic_id) REFERENCES employees(id),
+    CONSTRAINT fk_request FOREIGN KEY (request_id) REFERENCES requests (id),
+    CONSTRAINT fk_mechanic FOREIGN KEY (mechanic_id) REFERENCES employees (id),
 
     -- Ограничение на статус заказ-наряда
-                             CONSTRAINT chk_status CHECK (work_order_status IN ('В процессе', 'Завершен', 'Отменен'))
+    CONSTRAINT chk_status CHECK (work_order_status IN ('В процессе', 'Завершен', 'Отменен'))
 );
-
 
 
 -- Создание таблицы work_order_services (Заказ_наряд_Автотовары)
-CREATE TABLE work_order_auto_goods (
-                                       work_order_id BIGINT NOT NULL,                                      -- ID заказ-наряда, обязательное поле
-                                       auto_good_id BIGINT NOT NULL,                                       -- ID автотовара, обязательное поле
-                                       quantity INT NOT NULL CHECK (quantity > 0),                         -- Количество автотовара, обязательное поле
-                                       price_one_unit DECIMAL(10, 2) NOT NULL CHECK (price_one_unit  > 0), -- Цена за 1 штуку, обязательное поле
+CREATE TABLE work_order_auto_goods
+(
+    work_order_id  BIGINT         NOT NULL,                            -- ID заказ-наряда, обязательное поле
+    auto_good_id   BIGINT         NOT NULL,                            -- ID автотовара, обязательное поле
+    quantity       INT            NOT NULL CHECK (quantity > 0),       -- Количество автотовара, обязательное поле
+    price_one_unit DECIMAL(10, 2) NOT NULL CHECK (price_one_unit > 0), -- Цена за 1 штуку, обязательное поле
 
     -- Внешний ключ на таблицу work_orders
-                                       CONSTRAINT fk_work_order_auto_goods FOREIGN KEY (work_order_id) REFERENCES work_orders(id),
+    CONSTRAINT fk_work_order_auto_goods FOREIGN KEY (work_order_id) REFERENCES work_orders (id),
     -- Внешний ключ на таблицу auto_goods
-                                       CONSTRAINT fk_auto_good FOREIGN KEY (auto_good_id) REFERENCES auto_goods(id),
+    CONSTRAINT fk_auto_good FOREIGN KEY (auto_good_id) REFERENCES auto_goods (id),
 
     -- Составной первичный ключ
-                                       CONSTRAINT pk_work_order_auto_goods PRIMARY KEY (work_order_id, auto_good_id)
+    CONSTRAINT pk_work_order_auto_goods PRIMARY KEY (work_order_id, auto_good_id)
 );
 -- Индексы для работы с полями work_order_id и auto_good_id
-CREATE INDEX idx_work_order_auto_goods_work_order_id ON work_order_auto_goods(work_order_id);
-CREATE INDEX idx_work_order_auto_goods_auto_good_id ON work_order_auto_goods(auto_good_id);
-
-
+CREATE INDEX idx_work_order_auto_goods_work_order_id ON work_order_auto_goods (work_order_id);
+CREATE INDEX idx_work_order_auto_goods_auto_good_id ON work_order_auto_goods (auto_good_id);
 
 
 -- Создание таблицы work_order_services (Заказ_наряд_Услуги)
-CREATE TABLE work_order_services (
-                                     work_order_id BIGINT NOT NULL,                       -- ID заказ-наряда, обязательное поле
-                                     service_id BIGINT NOT NULL,                          -- ID услуги, обязательное поле
-                                     price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),    -- Цена услуги, обязательное поле
+CREATE TABLE work_order_services
+(
+    work_order_id BIGINT         NOT NULL,                    -- ID заказ-наряда, обязательное поле
+    service_id    BIGINT         NOT NULL,                    -- ID услуги, обязательное поле
+    price         DECIMAL(10, 2) NOT NULL CHECK (price >= 0), -- Цена услуги, обязательное поле
 
     -- Внешний ключ на таблицу work_orders
-                                     CONSTRAINT fk_work_order_services FOREIGN KEY (work_order_id) REFERENCES work_orders(id),
+    CONSTRAINT fk_work_order_services FOREIGN KEY (work_order_id) REFERENCES work_orders (id),
     -- Внешний ключ на таблицу services
-                                     CONSTRAINT fk_service FOREIGN KEY (service_id) REFERENCES services(id),
+    CONSTRAINT fk_service FOREIGN KEY (service_id) REFERENCES services (id),
 
     -- Составной первичный ключ
-                                     CONSTRAINT pk_work_order_services PRIMARY KEY (work_order_id, service_id)
+    CONSTRAINT pk_work_order_services PRIMARY KEY (work_order_id, service_id)
 );
 -- Индексы для работы с полями work_order_id и service_id
-CREATE INDEX idx_work_order_services_work_order_id ON work_order_services(work_order_id);
-CREATE INDEX idx_work_order_services_service_id ON work_order_services(service_id);
+CREATE INDEX idx_work_order_services_work_order_id ON work_order_services (work_order_id);
+CREATE INDEX idx_work_order_services_service_id ON work_order_services (service_id);

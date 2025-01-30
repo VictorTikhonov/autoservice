@@ -10,6 +10,10 @@
 <h1>Список автотоваров</h1>
 
 
+<!-- Подключаю всплывающее уведомление -->
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+
 <!-- Кнопка для создания категории/автотовара -->
 <div>
     <span>Создать автотовар/категорию: </span>
@@ -20,7 +24,7 @@
 
 
 <!-- Фильтрация по категории -->
-<form th:action="@{/auto-good/show-table}" method="get">
+<form th:action="@{/auto-good/list}" method="get">
     <label for="category">Выберите категорию:</label>
     <select id="category" name="categoryId">
         <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
@@ -51,12 +55,13 @@
         <th>Цена</th>
         <th>Срок годности</th>
         <th>Категория</th>
+        <th>Удаление</th>
     </tr>
     </thead>
     <tbody>
     <!-- Если автотоваров нет, вывожу сообщение -->
     <tr th:if="${#lists.isEmpty(autoGoods)}">
-        <td colspan="6" style="color: red; text-align: center;">
+        <td colspan="7" style="color: red; text-align: center;">
             Автотовары отсутсвуют
         </td>
     </tr>
@@ -69,6 +74,12 @@
         <td th:text="${autoGood.priceOneUnit}"></td>
         <td th:text="${autoGood.expirationDate}"></td>
         <td th:text="${autoGood.category.name}"></td>
+        <td>
+            <form th:action="@{/auto-good/delete}" method="post">
+                <input type="hidden" name="id" th:value="${autoGood.id}">
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

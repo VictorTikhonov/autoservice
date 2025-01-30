@@ -52,6 +52,10 @@ public class AutoGood {
     private LocalDate expirationDate;
 
 
+    @Column(name = "relevance")
+    private Boolean relevance = true;
+
+
     public int minusQuantity(int value) {
 
         if (value < 0) {

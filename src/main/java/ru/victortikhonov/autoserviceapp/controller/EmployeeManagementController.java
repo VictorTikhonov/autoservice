@@ -27,6 +27,7 @@ public class EmployeeManagementController {
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
 
+
     public EmployeeManagementController(PositionRepository positionRepository, EmployeeRepository employeeRepository) {
 
         this.positionRepository = positionRepository;
@@ -40,13 +41,11 @@ public class EmployeeManagementController {
 
         sessionStatus.setComplete();
 
-        Iterable<Employee> employees;
-
-        if (status != null) {
-            employees = employeeRepository.findByEmploymentStatus(status);
-        } else {
-            employees = employeeRepository.findAll();
-        }
+        // Если status равен null, задаю значения по умолчанию
+        List<EmployeeStatus> defaultStatuses = List.of(EmployeeStatus.ACTIVE, EmployeeStatus.INACTIVE);
+        Iterable<Employee> employees = (status != null)
+                ? employeeRepository.findByEmploymentStatus(status)
+                : employeeRepository.findByEmploymentStatusIn(defaultStatuses);
 
         model.addAttribute("employees", employees);
         model.addAttribute("filterStatus", status);

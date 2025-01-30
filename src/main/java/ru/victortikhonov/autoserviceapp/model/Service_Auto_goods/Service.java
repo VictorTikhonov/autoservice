@@ -35,6 +35,11 @@ public class Service {
     @Column(name = "description")
     private String description;
 
+
+    @Column(name = "relevance")
+    private Boolean relevance = true;
+
+
     public Service() {
     }
 }
