@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
@@ -15,6 +16,7 @@ import ru.victortikhonov.autoserviceapp.service.RequestService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/request")
@@ -41,21 +43,24 @@ public class RequestController {
 
     @PostMapping("/create")
     public String createRequest(@Valid @ModelAttribute("requestForm") RequestForm requestForm,
-                                Errors errors, SessionStatus sessionStatus) {
+                                Errors errors, SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
 
         if (errors.hasErrors()) {
             return "request-form";
         }
 
-        // Ошибок нет, сохраняю заявку
-        requestService.save(requestForm);
+        // Ошибок нет, создаю и сохраняю заявку
+        Long requestId = requestService.createRequest(requestForm);
 
         // Завершаю сессию для requestForm
         sessionStatus.setComplete();
 
+        redirectAttributes.addFlashAttribute("success",
+                "Заявка №" + requestId + " успешно создана!");
+
+        // TODO или оставить на этой странице
         return "redirect:/request/list";
     }
-
 
     @PostMapping("/create/search-client")
     public String searchClient(@ModelAttribute("requestForm") RequestForm requestForm,
@@ -126,21 +131,37 @@ public class RequestController {
 
 
     @PostMapping("/check")
-    public String checkRequest(@RequestParam Long requestId, Model model) {
+    public String checkRequest(@RequestParam("requestId") Long requestId, Model model) {
 
         // Получаю заявку
         requestService.findRequestById(requestId).ifPresent(request -> {
 
-            // Форматирование
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            String formattedDate = request.getSubmissionDate() != null ?
-                    request.getSubmissionDate().format(formatter) : "Дата отсутствует";
-
             model.addAttribute("request", request);
-            model.addAttribute("formattedDate", formattedDate);
             model.addAttribute("requestStatus", request.getRequestStatus());
         });
 
         return "request-details";
+    }
+
+
+    @PostMapping("/cancel")
+    public String cancelRequest(@RequestParam("requestId") Long requestId, Model model, RedirectAttributes redirectAttributes) {
+
+        Optional<Request> requestOptional = requestService.findRequestById(requestId);
+
+        if (requestOptional.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка №" + requestId + " не найдена");
+            return "redirect:/request/list";
+        }
+
+        Request request = requestOptional.get();
+
+        if (requestService.cancelRequest(request)) {
+            redirectAttributes.addFlashAttribute("success", "Заявка №" + requestId + " успешно отклонена!");
+        } else {
+            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка №" + requestId + " не может быть отменена из-за статуса");
+        }
+
+        return "redirect:/request/list";
     }
 }

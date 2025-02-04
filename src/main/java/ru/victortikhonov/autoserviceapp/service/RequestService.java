@@ -3,17 +3,23 @@ package ru.victortikhonov.autoserviceapp.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
-import ru.victortikhonov.autoserviceapp.model.Request.*;
+import ru.victortikhonov.autoserviceapp.model.Request.Request;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
-import ru.victortikhonov.autoserviceapp.repository.*;
+import ru.victortikhonov.autoserviceapp.repository.CarRepository;
+import ru.victortikhonov.autoserviceapp.repository.ClientRepository;
+import ru.victortikhonov.autoserviceapp.repository.OperatorRepository;
+import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class RequestService {
     private final CarRepository carRepository;
     private final ClientRepository clientRepository;
@@ -37,8 +43,7 @@ public class RequestService {
     }
 
 
-    @Transactional
-    public void save(RequestForm requestForm) {
+    public Long createRequest(RequestForm requestForm) {
 
         Car car = findOrCreateCar(requestForm.getCar());
         Client client = findOrCreateClient(requestForm.getClient());
@@ -56,16 +61,20 @@ public class RequestService {
         Operator operator = operatorRepository.findById(10L)
                 .orElseThrow(() -> new EntityNotFoundException("Оператор не найден (10)"));
 
-        requestRepository.save(new Request(
+        Request request = new Request(
                 client,
                 car,
                 operator,
                 RequestStatus.OPEN,
-                requestForm.getComplaint()));
+                requestForm.getComplaint());
+
+        requestRepository.save(request);
+
+        return request.getId();
     }
 
 
-    public Car findOrCreateCar(Car carRequest) {
+    private Car findOrCreateCar(Car carRequest) {
 
         List<Car> cars = carRepository.findByVin(carRequest.getVin());
 
@@ -79,17 +88,15 @@ public class RequestService {
     }
 
 
-    //    public Client findOrCreateClient(Client clientRequest) {
-//
-//        Client client = clientRepository.findByPhoneNumber(clientRequest.getPhoneNumber()).orElse(null);
-//
-//        if (client == null) {
-//            return clientRepository.save(clientRequest);
-//        }
-//
-//        return client;
-//    }
-    public Client findOrCreateClient(Client clientRequest) {
+    private Client findOrCreateClient(Client clientRequest) {
+
+        if (clientRequest == null) {
+            throw new IllegalArgumentException("Клиент не может быть null");
+        }
+
+        if (clientRequest.getPhoneNumber() == null || clientRequest.getPhoneNumber().isBlank()) {
+            throw new IllegalArgumentException("Номер телефона клиента обязателен");
+        }
 
         return clientRepository.findByPhoneNumber(clientRequest.getPhoneNumber())
                 .orElseGet(() -> clientRepository.save(clientRequest));
@@ -97,6 +104,14 @@ public class RequestService {
 
 
     public List<Request> findRequests(RequestStatus status, LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null || endDate == null || status == null) {
+            throw new IllegalArgumentException("Все параметры должны быть переданы");
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Дата начала не может быть позже даты конца");
+        }
 
         return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate);
     }
@@ -107,4 +122,28 @@ public class RequestService {
         return requestRepository.findById(id);
     }
 
+
+//    public Request saveRequest(Request request) {
+//
+//        if (request == null) {
+//            throw new IllegalArgumentException("Заявка не может быть null");
+//        }
+//
+//        if (request.getClient() == null || request.getCar() == null) {
+//            throw new IllegalArgumentException("Заявка должна содержать клиента и машину");
+//        }
+//
+//        return requestRepository.save(request);
+//    }
+
+    public boolean cancelRequest(Request request) {
+
+        if (request.getRequestStatus().equals(RequestStatus.OPEN) || request.getRequestStatus().equals(RequestStatus.IN_PROGRESS)) {
+            request.setRequestStatus(RequestStatus.REJECTED);
+            requestRepository.save(request);
+            return true;
+        }
+
+        return false;
+    }
 }

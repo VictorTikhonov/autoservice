@@ -3,9 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Список заказ-нарядов</title>
-    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+    <link rel="stylesheet">
+    <style>
+        /* Стили для подсветки нового заказ-наряда */
+        .highlight {
+            background-color: yellow;
+        }
+
+        .canceled-in-progress {
+            background-color: #ec5353;
+        }
+
+    </style>
 </head>
 <body>
+
+
+<div th:if="${cancellationNotice}" style="color: #ec5353;">
+    <p th:utext="${cancellationNotice}"></p>
+</div>
 
 
 <h1>Список заказ-нарядов</h1>
@@ -60,7 +76,10 @@
     </thead>
     <tbody>
     <tr th:each="workOrder : ${workOrders}"
-        th:classappend="${workOrder.id == newWorkOrderId ? 'highlight' : ''}">
+        th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
+                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS)
+                     ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
+
         <td th:text="${workOrder.id}"></td>
         <td th:text="${workOrder.request.id}"></td>
         <td th:text="${workOrder.workOrderStatuses.description}"></td>
@@ -71,7 +90,7 @@
         <td>
             <!-- Кнопка "Открыть" -->
             <form th:action="@{/work-order/details}" method="get" style="display: inline;">
-                <input type="hidden" name="workOrderId" th:value="${workOrder.id}" />
+                <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
                 <button type="submit">Открыть</button>
             </form>
         </td>

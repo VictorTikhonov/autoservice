@@ -8,20 +8,31 @@
 <body>
 
 
-<!-- Кнопка для создания заказ-наряда или сообщение о невозможности взять заявку -->
 <div>
-    <p th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">Приступить к
-        выполнению заявки:</p>
-    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}"
-          th:action="@{/work-order/create}" method="post">
-        <input type="hidden" name="requestId" th:value="${request.id}">
-        <button type="submit">Начать работу</button>
-    </form>
+    <a href="/request/list">
+        <button type="button">Список заявок</button>
+    </a>
+</div><br/><br/>
 
-    <p th:unless="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
-        Заявка не доступна для выполнения, так как ее статус: <span th:text="${requestStatus.description}"></span>
-    </p>
+
+<div>
+    <form th:action="@{/request/cancel}" method="post"
+          th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN or
+      requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
+        <input type="hidden" name="requestId" th:value="${request.id}"/>
+        <button type="submit">Отменить заявку</button>
+    </form>
 </div>
+
+
+<div th:if="${request.workOrder != null}">
+    <form th:action="@{/work-order/details}" method="get" target="_blank">
+        <input type="hidden" name="workOrderId" th:value="${request.workOrder.id}" />
+        <input type="hidden" name="viewMode" value="true" />
+        <button type="submit">Открыть заказ-наряд</button>
+    </form>
+</div>
+
 
 
 <!-- Информация о заявке -->
@@ -46,13 +57,12 @@
             th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span>
     </p>
     <p><strong>Номер телефона: </strong> <span th:text="${request.client.phoneNumber}"></span></p>
-    <p><strong>Email: </strong> <span
-            th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
+    <p><strong>Email: </strong> <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
 </div>
 
 <div>
     <h2>Дата создания</h2>
-    <p th:text="${formattedDate}"></p>
+    <p><span th:text=" ${#temporals.format(request.submissionDate, 'dd.MM.yyyy')}"></span></p>
 </div>
 
 <div>
@@ -69,8 +79,16 @@
 </div>
 
 
-<!-- Кнопка для возврата -->
-<a href="/request/list">Назад к списку заявок</a>
+<!-- Кнопка для создания заказ-наряда или сообщение о невозможности взять заявку -->
+<div>
+    <p style="display: inline; margin-right: 10px;" th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
+        Приступить к выполнению заявки:</p>
+    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}"
+          th:action="@{/work-order/create}" method="post" style="display: inline;">
+        <input type="hidden" name="requestId" th:value="${request.id}">
+        <button type="submit">Начать работу</button>
+    </form>
+</div>
 
 
 </body>

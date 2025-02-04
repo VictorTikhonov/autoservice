@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
 import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
@@ -20,6 +21,8 @@ import ru.victortikhonov.autoserviceapp.repository.WorkOrderRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/work-order")
@@ -53,14 +56,15 @@ public class WorkOrderManagementController {
                     () -> new IllegalArgumentException("неверное ID заявки: " + requestId));
 
             WorkOrder workOrder = new WorkOrder(request, this.mechanic, WorkOrderStatus.IN_PROGRESS);
-
             this.workOrderRepository.save(workOrder);
 
-            // TODO расскоментить!
-            //request.setRequestStatus(RequestStatus.IN_PROGRESS);
+            request.setRequestStatus(RequestStatus.IN_PROGRESS);
+            request.setWorkOrder(workOrder);
+            requestRepository.save(request);
 
             redirectAttributes.addFlashAttribute("success",
                     "Заказ-наряд №" + workOrder.getId() + " успешно создан!");
+
             return "redirect:/work-order/list?newWorkOrderId=" + workOrder.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Не удалось начать работу по заявке: " + e.getMessage());
@@ -118,6 +122,22 @@ public class WorkOrderManagementController {
 
             filteredWorkOrders = workOrderRepository.
                     findByMechanicIdAndStatusAndDate(this.mechanic.getId(), status, startDateTime, endDateTime);
+        }
+
+        List<Long> canceledWorkOrdersInProgress = workOrderRepository.findRejectedRequestsWithInProgressWorkOrders(
+                RequestStatus.REJECTED, WorkOrderStatus.IN_PROGRESS);
+
+        if (!canceledWorkOrdersInProgress.isEmpty()) {
+            // Преобразуем список Long в строку, разделенную запятыми
+            String ids = canceledWorkOrdersInProgress.stream()
+                    .map(String::valueOf)  // Преобразуем Long в String
+                    .collect(Collectors.joining(", "));  // Объединяем в строку с разделителем ", "
+
+            String cancellationNotice = "Некоторые заказ-наряды были отменены. " +
+                    "Пожалуйста, внесите информацию о выполненных работах, использованных автотоварах и завершите соответствующий(-ие) заказ-наряд(-ы)." +
+                    "<br/>Номер(-а) заказ-нарядов: " + ids;
+
+            model.addAttribute("cancellationNotice", cancellationNotice);
         }
 
         model.addAttribute("workOrders", filteredWorkOrders);

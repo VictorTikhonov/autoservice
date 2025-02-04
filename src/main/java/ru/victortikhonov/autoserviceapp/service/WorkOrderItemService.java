@@ -3,6 +3,8 @@ package ru.victortikhonov.autoserviceapp.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import ru.victortikhonov.autoserviceapp.model.Request.Request;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
 import ru.victortikhonov.autoserviceapp.repository.*;
@@ -18,16 +20,18 @@ public class WorkOrderItemService {
     private final ServiceRepository serviceRepository;
     private final WorkOrderAutoGoodRepository workOrderAutoGoodRepository;
     private final WorkOrderServiceRepository workOrderServiceRepository;
+    private final RequestRepository requestRepository;
 
 
     public WorkOrderItemService(WorkOrderRepository workOrderRepository,
-                                AutoGoodRepository autoGoodRepository, ServiceRepository serviceRepository, WorkOrderAutoGoodRepository workOrderAutoGoodRepository, WorkOrderServiceRepository workOrderServiceRepository) {
+                                AutoGoodRepository autoGoodRepository, ServiceRepository serviceRepository, WorkOrderAutoGoodRepository workOrderAutoGoodRepository, WorkOrderServiceRepository workOrderServiceRepository, RequestRepository requestRepository) {
 
         this.workOrderRepository = workOrderRepository;
         this.autoGoodRepository = autoGoodRepository;
         this.serviceRepository = serviceRepository;
         this.workOrderAutoGoodRepository = workOrderAutoGoodRepository;
         this.workOrderServiceRepository = workOrderServiceRepository;
+        this.requestRepository = requestRepository;
     }
 
 
@@ -47,6 +51,15 @@ public class WorkOrderItemService {
 
 
     public WorkOrder saveWorkOrder(WorkOrder workOrder) {
+
+        Request request = workOrder.getRequest();
+
+        if (!request.getRequestStatus().equals(RequestStatus.REJECTED)) {
+            request.setRequestStatus(RequestStatus.COMPLETED);
+        }
+
+        requestRepository.save(request);
+
         return workOrderRepository.save(workOrder);
     }
 

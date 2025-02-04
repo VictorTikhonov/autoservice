@@ -3,6 +3,7 @@ package ru.victortikhonov.autoserviceapp.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
 
@@ -25,4 +26,12 @@ public interface WorkOrderRepository extends CrudRepository<WorkOrder, Long> {
     Iterable<WorkOrder> findByMechanicIdAndDateRange(@Param("mechanicId") Long mechanicId,
                                                      @Param("startDate") LocalDateTime startDate,
                                                      @Param("endDate") LocalDateTime endDate);
+
+
+    @Query("SELECT w.id FROM WorkOrder w JOIN w.request r WHERE r.requestStatus = :rejectedStatus " +
+            "AND w.workOrderStatuses = :inProgressStatus")
+    List<Long> findRejectedRequestsWithInProgressWorkOrders(@Param("rejectedStatus") RequestStatus rejectedStatus,
+                                                            @Param("inProgressStatus") WorkOrderStatus inProgressStatus);
+
+
 }

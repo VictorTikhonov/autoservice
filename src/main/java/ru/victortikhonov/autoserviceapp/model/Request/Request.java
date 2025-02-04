@@ -5,13 +5,17 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import lombok.ToString;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
+import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "requests")
 @Data
+@ToString(exclude = "workOrder")
 public class Request {
 
     @Id
@@ -51,6 +55,10 @@ public class Request {
     @Column(name = "complaints")
     @NotBlank(message = "Поле жалоб не может быть пустым")
     private String complaints;
+
+
+    @OneToOne(mappedBy = "request")
+    private WorkOrder workOrder;
 
 
     public Request() {

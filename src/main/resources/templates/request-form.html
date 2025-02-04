@@ -8,15 +8,14 @@
 <body>
 
 
-<h1>Оформление заявки на ремонт автомобиля</h1><br/>
-
-
-<!-- Кнопка для создания новой заявки -->
 <div>
     <a href="/request/list">
         <button type="button">Список заявок</button>
     </a>
 </div>
+
+
+<h1>Оформление заявки на ремонт автомобиля</h1><br/>
 
 
 <form th:object="${requestForm}" method="post">
@@ -62,14 +61,14 @@
         <input
                 type="text" id="stateNumber" placeholder="А001АА163"
                 th:field="*{car.stateNumber}"
-                oninput="this.value = this.value.toUpperCase()"/>
+                oninput="transformVin(this)"/>
         <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
 
         <label for="vin">VIN номер: </label>
         <input
                 type="text" id="vin" placeholder="XW8ZZZ61ZLG028617"
                 th:field="*{car.vin}"
-                oninput="this.value = this.value.toUpperCase()"/>
+                oninput="transformVin(this)"/>
         <span th:if="${#fields.hasErrors('car.vin')}" th:errors="*{car.vin}"></span><br/>
 
         <label for="brand">Марка автомобиля: </label>
@@ -107,6 +106,20 @@
     </script>
 </div>
 
+
+<script>
+    function transformVin(input) {
+
+        // Сохраняю позицию курсора
+        const cursorPosition = input.selectionStart;
+
+        // Преобразую введённое значение в верхний регистр
+        input.value = input.value.toUpperCase();
+
+        // Восстанавливаю позицию курсора
+        input.setSelectionRange(cursorPosition, cursorPosition);
+    }
+</script>
 
 </body>
 </html>

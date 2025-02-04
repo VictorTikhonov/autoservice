@@ -29,7 +29,7 @@
 <body>
 
 
-<div>
+<div th:if="${not viewMode}">
     <a th:href="@{/work-order/list}">
         <button type="button">К списку заказ-нарядов</button>
     </a>
@@ -41,8 +41,14 @@
 
 <h2>Общие сведения</h2>
 <div class="form-section">
+    <h3 th:if="${viewMode}">Механик</h3>
+    <p th:if="${viewMode}"><strong>ФИО:</strong> <span
+            th:text="${workOrder.mechanic.surname} + ' ' + ${workOrder.mechanic.name} +
+             ' ' + ${workOrder.mechanic.patronymic}"></span></p>
+    <p th:if="${viewMode}"><strong>Номер телефона:</strong> <span th:text="${workOrder.mechanic.phoneNumber}"></span></p>
+
     <h3>Клиент</h3>
-    <p><strong>ФИО клиента:</strong> <span
+    <p><strong>ФИО:</strong> <span
             th:text="${workOrder.request.client.surname} + ' ' + ${workOrder.request.client.name} +
              ' ' + ${workOrder.request.client.patronymic}"></span></p>
     <p><strong>Номер телефона:</strong> <span th:text="${workOrder.request.client.phoneNumber}"></span></p>
@@ -56,15 +62,21 @@
     <h3>Заказ-наряд</h3>
     <p><strong>Статус:</strong> <span th:text="${workOrder.workOrderStatuses.description}"></span></p>
     <p><strong>Жалобы:</strong> <span th:text="${workOrder.request.complaints}"></span></p>
+    <p><strong>Дата начала работ:</strong>
+        <span th:text=" ${#temporals.format(workOrder.startDate, 'dd.MM.yyyy HH:mm')}"></span>
+    </p>
+    <p><strong>Дата окончания работ:</strong>
+        <span th:text="${workOrder.endDate != null} ? ${#temporals.format(workOrder.endDate, 'dd.MM.yyyy HH:mm')} : 'отсутствует'"></span>
+    </p>
 </div>
 
 
-<h2 th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+<h2 th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode} ">
     Добавление автотоваров и услуг в заказ-наряд</h2>
 
 
 <div class="form-section"
-     th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+     th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
     <h3>Выбор автотоваров</h3>
     <form id="itemsForm" method="post">
         <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
@@ -252,7 +264,7 @@
 <!-- Отображаем кнопку только если статус заказ-наряда "В процессе" -->
 <div>
     <a th:href="@{/work-order/details/complete(workOrderId=${workOrder.id})}"
-       th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+       th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
         <button type="button">Завершить работу</button>
     </a>
 </div>

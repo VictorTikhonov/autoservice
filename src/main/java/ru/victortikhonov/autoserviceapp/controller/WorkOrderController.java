@@ -1,7 +1,6 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
 
-import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
+import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
 import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
@@ -38,7 +38,9 @@ public class WorkOrderController {
 
 
     @GetMapping
-    public String checkWorkOrder(@RequestParam Long workOrderId, Model model) {
+    public String checkWorkOrder(@RequestParam Long workOrderId,
+                                 @RequestParam(required = false, defaultValue = "false") boolean viewMode,
+                                 Model model) {
 
         // Получаю заказ-наряд по ID
         Optional<WorkOrder> workOrderOptional = workOrderItemService.findWorkOrder(workOrderId);
@@ -55,6 +57,7 @@ public class WorkOrderController {
             model.addAttribute("workOrder", workOrder);
             model.addAttribute("autoGoods", autoGoods);
             model.addAttribute("services", services);
+            model.addAttribute("viewMode", viewMode);
 
             if (workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.IN_PROGRESS)) {
                 // Получаю все доступные автотовары и услуги
@@ -76,7 +79,6 @@ public class WorkOrderController {
 
     @PostMapping("/add-items")
     @ResponseBody
-    @Transactional
     public ResponseEntity<?> addItemsWorkOrder(@RequestBody WorkOrderItemsDTO workOrderItems) {
 
         Optional<WorkOrder> workOrderOptional = workOrderItemService.findWorkOrder(workOrderItems.getWorkOrderId());
@@ -100,22 +102,32 @@ public class WorkOrderController {
                 .body("Заказ с ID " + workOrderItems.getWorkOrderId() + " не найден");
     }
 
+
     @GetMapping("/complete")
     public String completeWorkOrder(Long workOrderId, Model model, RedirectAttributes redirectAttributes) {
 
         Optional<WorkOrder> workOrderOptional = workOrderItemService.findWorkOrder(workOrderId);
 
         if (workOrderOptional.isPresent()) {
-            WorkOrder workOrder = workOrderOptional.get();
 
-            workOrder.setWorkOrderStatuses(WorkOrderStatus.COMPLETED);
+            WorkOrder workOrder = workOrderOptional.get();
 
             workOrder.setEndDate(LocalDateTime.now());
 
-            workOrderItemService.saveWorkOrder(workOrder);
+            if (workOrder.getRequest().getRequestStatus().equals(RequestStatus.REJECTED)) {
+                workOrder.setWorkOrderStatuses(WorkOrderStatus.CANCELED);
 
-            redirectAttributes.addFlashAttribute("success",
-                    "Заказ-наряд №" + workOrder.getId() + " успешно завершен!");
+                redirectAttributes.addFlashAttribute("success",
+                        "Заказ-наряд №" + workOrder.getId() + " закрыт со статусом \"" +
+                        workOrder.getWorkOrderStatuses().getDescription() + "\"");
+            } else {
+                workOrder.setWorkOrderStatuses(WorkOrderStatus.COMPLETED);
+
+                redirectAttributes.addFlashAttribute("success",
+                        "Заказ-наряд №" + workOrder.getId() + " успешно завершен!");
+            }
+
+            workOrderItemService.saveWorkOrder(workOrder);
 
             return "redirect:/work-order/list";
         }
@@ -126,7 +138,6 @@ public class WorkOrderController {
 
 
     @PostMapping("/delete-auto-good")
-    @Transactional
     public ResponseEntity<?> deleteAutoGood(@RequestParam Long workOrderId, @RequestParam Long autoGoodId) {
 
         int code = workOrderItemService.removeAutoGoodFromWorkOrder(workOrderId, autoGoodId);
@@ -141,7 +152,6 @@ public class WorkOrderController {
 
 
     @PostMapping("/delete-service")
-    @Transactional
     public ResponseEntity<?> deleteService(@RequestParam Long workOrderId, @RequestParam Long serviceId) {
 
         int code = workOrderItemService.removeServiceFromWorkOrder(workOrderId, serviceId);
