@@ -132,23 +132,35 @@ public class AutoGoodController {
 
 
     @GetMapping("/list")
-    public String showTableAutoGoods(Model model, @RequestParam(required = false) Long categoryId,
+    public String showTableAutoGoods(Model model,
+                                     @RequestParam(required = false) Long categoryId,
+                                     @RequestParam(required = false) String searchQuery,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size,
                                      SessionStatus sessionStatus) {
 
         sessionStatus.setComplete();
 
-        Iterable<AutoGood> autoGoods;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AutoGood> autoGoods;
+
         Iterable<AutoGoodCategory> categories = autoGoodCategoryRepository.findAll();
 
-        if (categoryId != null) {
-            autoGoods = autoGoodRepository.findByCategoryIdAndRelevanceTrue(categoryId);
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            autoGoods = autoGoodRepository.findByNameContainingIgnoreCaseAndRelevanceTrue(searchQuery, pageable);
+        } else if (categoryId != null) {
+            autoGoods = autoGoodRepository.findByCategoryIdAndRelevanceTrue(categoryId, pageable);
         } else {
-            autoGoods = autoGoodRepository.findByRelevanceTrue();
+            autoGoods = autoGoodRepository.findByRelevanceTrue(pageable);
         }
 
         model.addAttribute("autoGoods", autoGoods);
         model.addAttribute("categories", categories);
         model.addAttribute("selectedCategoryId", categoryId);
+        model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", Math.max(1, autoGoods.getTotalPages()));
+        model.addAttribute("totalItems", autoGoods.getTotalElements());
 
         return "table-auto-goods";
     }

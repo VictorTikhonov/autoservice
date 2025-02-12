@@ -1,0 +1,94 @@
+/* Общие стили для таблицы и пагинации */
+
+/* Контейнер, который включает таблицу и пагинацию */
+.table-container {
+    display: flex;
+    flex-direction: column;
+    height: 500px; /* Устанавливаем фиксированную высоту для контейнера */
+    min-height: 500px; /* Минимальная высота */
+    width: 1500px;
+}
+
+/* Блок с таблицей, который может прокручиваться */
+.table-wrapper {
+    flex-grow: 1; /* Таблица займет все доступное пространство */
+    overflow-y: auto; /* Если таблица длинная, появляется прокрутка */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Пагинация */
+.pagination-container {
+    text-align: center; /* Центрирование по горизонтали */
+    margin-top: 20px; /* Отступ сверху */
+    padding-bottom: 10px; /* Отступ снизу */
+    width: 100%; /* Занимаем всю ширину доступного пространства */
+    display: flex;
+    justify-content: center; /* Центрирование блока внутри родителя */
+}
+
+/* Общий стиль для стрелок пагинации */
+.pagination-arrow a {
+    display: inline-block;
+    width: 50px;
+    text-align: center;
+    cursor: pointer;
+    transition: opacity 0.3s ease; /* Плавное изменение прозрачности */
+    text-decoration: none; /* Убираем подчеркивание для всех стрелок */
+}
+
+/* Неактивные стрелки */
+.pagination-arrow a.disabled {
+    pointer-events: none; /* Отключаем кликабельность */
+    opacity: 0.5; /* Делаем стрелку полупрозрачной */
+    cursor: default; /* Убираем указатель руки */
+}
+
+/* Пагинация */
+.pagination-arrow {
+    display: inline-block;
+    width: 50px; /* Фиксированная ширина для стрелок */
+    text-align: center;
+    cursor: pointer;
+}
+
+.pagination span {
+    margin: 0 5px;
+}
+
+/* Стиль для пагинации */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pagination-arrow a:disabled,
+.pagination-arrow a[aria-disabled="true"] {
+    color: black;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* Убираем подчеркивание при наведении */
+.pagination-arrow a:hover {
+    text-decoration: none;
+}
+
+.pagination-arrow span {
+    color: black;
+    font-size: 18px;
+}

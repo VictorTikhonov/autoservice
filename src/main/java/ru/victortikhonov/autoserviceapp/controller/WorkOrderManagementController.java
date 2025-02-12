@@ -2,6 +2,10 @@ package ru.victortikhonov.autoserviceapp.controller;
 
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -79,8 +83,9 @@ public class WorkOrderManagementController {
                                      @RequestParam(required = false) Long newWorkOrderId,
                                      @RequestParam(required = false) WorkOrderStatus status,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-
+                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
 
         // Добавляю id нового ЗН,чтобы подсветить его
         if (newWorkOrderId != null) {
@@ -97,7 +102,6 @@ public class WorkOrderManagementController {
 
         // Проверка на правильность дат
         if (startDate.isAfter(endDate)) {
-
             // Добавляю сообщение об ошибке в модель
             model.addAttribute("dateError", "Дата начала не может быть позже даты окончания.");
             model.addAttribute("startDate", startDate);
@@ -106,23 +110,28 @@ public class WorkOrderManagementController {
             return "work-order-list";
         }
 
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-
         // Поиск ЗН в соответствии с фильтрами
-        Iterable<WorkOrder> filteredWorkOrders;
-        if (status == WorkOrderStatus.ALL) {
-            filteredWorkOrders = workOrderRepository.
-                    findByMechanicIdAndDateRange(mechanic.getId(), startDateTime, endDateTime);
-        } else {
-            // Статус по умолчанию
-            if (status == null) {
-                status = WorkOrderStatus.IN_PROGRESS;
-            }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        Page<WorkOrder> workOrders = searchWorkOrders(status, pageable, startDate, endDate);
 
-            filteredWorkOrders = workOrderRepository.
-                    findByMechanicIdAndStatusAndDate(this.mechanic.getId(), status, startDateTime, endDateTime);
-        }
+        // Проверка отмененных заказ-нарядов
+        checkForCanceledWorkOrders(model);
+
+        model.addAttribute("workOrders", workOrders);
+        model.addAttribute("statuses", WorkOrderStatus.values());
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("newWorkOrderId", newWorkOrderId);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", Math.max(1, workOrders.getTotalPages()));
+        model.addAttribute("totalItems", workOrders.getTotalElements());
+
+        return "work-order-list";
+    }
+
+
+    private void checkForCanceledWorkOrders(Model model) {
 
         List<Long> canceledWorkOrdersInProgress = workOrderRepository.findRejectedRequestsWithInProgressWorkOrders(
                 RequestStatus.REJECTED, WorkOrderStatus.IN_PROGRESS);
@@ -130,7 +139,7 @@ public class WorkOrderManagementController {
         if (!canceledWorkOrdersInProgress.isEmpty()) {
             // Преобразуем список Long в строку, разделенную запятыми
             String ids = canceledWorkOrdersInProgress.stream()
-                    .map(String::valueOf)  // Преобразуем Long в String
+                    .map(String::valueOf)  // Преобразую Long в String
                     .collect(Collectors.joining(", "));  // Объединяем в строку с разделителем ", "
 
             String cancellationNotice = "Некоторые заказ-наряды были отменены. " +
@@ -139,14 +148,25 @@ public class WorkOrderManagementController {
 
             model.addAttribute("cancellationNotice", cancellationNotice);
         }
+    }
 
-        model.addAttribute("workOrders", filteredWorkOrders);
-        model.addAttribute("statuses", WorkOrderStatus.values());
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        model.addAttribute("selectedStatus", status);
-        model.addAttribute("newWorkOrderId", newWorkOrderId);
 
-        return "work-order-list";
+    private Page<WorkOrder> searchWorkOrders(WorkOrderStatus status, Pageable pageable,
+                                             LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        if (status == WorkOrderStatus.ALL) {
+            return workOrderRepository.
+                    findByMechanicIdAndDateRange(mechanic.getId(), startDateTime, endDateTime, pageable);
+        } else {
+            // Статус по умолчанию
+            if (status == null) {
+                status = WorkOrderStatus.IN_PROGRESS;
+            }
+
+            return workOrderRepository.
+                    findByMechanicIdAndStatusAndDate(this.mechanic.getId(), status, startDateTime, endDateTime, pageable);
+        }
     }
 }

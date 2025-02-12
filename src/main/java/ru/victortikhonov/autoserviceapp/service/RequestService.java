@@ -2,6 +2,8 @@ package ru.victortikhonov.autoserviceapp.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
@@ -103,7 +105,7 @@ public class RequestService {
     }
 
 
-    public List<Request> findRequests(RequestStatus status, LocalDate startDate, LocalDate endDate) {
+    public Page<Request> findRequests(RequestStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
         if (startDate == null || endDate == null || status == null) {
             throw new IllegalArgumentException("Все параметры должны быть переданы");
@@ -113,7 +115,7 @@ public class RequestService {
             throw new IllegalArgumentException("Дата начала не может быть позже даты конца");
         }
 
-        return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate);
+        return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate, pageable);
     }
 
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Список сотрудников</title>
+    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
 </head>
 <body>
 
@@ -15,7 +16,7 @@
 </div>
 
 
-<h2>Список сотрудников</h2>
+<h1>Список сотрудников</h1>
 
 
 <!-- Форма фильтрации -->
@@ -31,130 +32,189 @@
 </form>
 
 
-<!-- Поля для поиска -->
+<!-- Поле для поиска по ФИО -->
 <div>
     <label for="searchByFio">Поиск по ФИО:</label>
-    <input type="text" id="searchByFio" onkeyup="searchTable('employeeTable', 'searchByFio', [0, 1, 2])"
-           placeholder="Введите ФИО">
+    <input type="text" id="searchByFio" onkeyup="searchTable()" placeholder="Введите ФИО">
 </div>
 
+
+<!-- Поле для поиска по номеру телефона -->
 <div>
     <label for="searchByPhone">Поиск по телефону:</label>
-    <input type="text" id="searchByPhone" onkeyup="searchTable('employeeTable', 'searchByPhone', [3])"
-           placeholder="89999999999">
+    <input type="text" id="searchByPhone" onkeyup="searchTable()" placeholder="89999999999">
 </div>
 
 
-<!-- Таблица сотрудников -->
-<table border="1" id="employeeTable">
-    <thead>
-    <tr>
-        <th>Фамилия</th>
-        <th>Имя</th>
-        <th>Отчество</th>
-        <th>Телефон</th>
-        <th onclick="sortTable(5)">Должность</th>
-        <th onclick="sortTable(6)">Статус</th>
-        <th>Зарплата</th>
-        <th>Дата трудоустройства</th>
-        <th>Дата увольнения</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="employee, stat : ${employees}">
-        <td th:text="${employee.surname}"></td>
-        <td th:text="${employee.name}"></td>
-        <td th:text="${employee.patronymic ?: '—'}"></td>
-        <td th:text="${employee.phoneNumber}"></td>
-        <td th:text="${employee.position.positionName}"></td>
-        <td th:text="${employee.employmentStatus.description}"></td>
-        <td th:text="${employee.salary}"></td>
-        <td th:text="${#temporals.format(employee.hireDate, 'dd-MM-yyyy')}"></td>
-        <td th:text="${employee.employmentStatus ==
+<!-- Контейнер для таблицы и пагинации -->
+<div class="table-container">
+    <!-- Обертка для таблицы -->
+    <div class="table-wrapper">
+        <!-- Таблица сотрудников -->
+        <table id="employeeTable">
+            <thead>
+            <tr>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Отчество</th>
+                <th>Телефон</th>
+                <th>Должность</th>
+                <th>Статус</th>
+                <th>Зарплата</th>
+                <th>Дата трудоустройства</th>
+                <th>Дата увольнения</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee, stat : ${employees}">
+                <td th:text="${employee.surname}"></td>
+                <td th:text="${employee.name}"></td>
+                <td th:text="${employee.patronymic ?: '—'}"></td>
+                <td th:text="${employee.phoneNumber}"></td>
+                <td th:text="${employee.position.positionName}"></td>
+                <td th:text="${employee.employmentStatus.description}"></td>
+                <td th:text="${employee.salary}"></td>
+                <td th:text="${#temporals.format(employee.hireDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${employee.employmentStatus ==
         T(ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeStatus).DISMISSED
         ? #temporals.format(employee.dismissalDate, 'dd-MM-yyyy') : '—'}"></td>
-        <td>
-            <a th:href="@{/employee/profile/{id}(id=${employee.id})}">
-                <button type="button">Открыть</button>
-            </a>
-        </td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(employees)}">
-        <td colspan="9" style="text-align: center;">Нет данных для отображения</td>
-    </tr>
-    </tbody>
-</table>
+                <td>
+                    <a th:href="@{/employee/profile/{id}(id=${employee.id})}">
+                        <button type="button">Открыть</button>
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(employees)}">
+                <td colspan="9" style="text-align: center;">Нет данных для отображения</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination-container">
+        <div class="pagination">
+            <!-- Стрелка назад -->
+            <span class="pagination-arrow">
+            <a id="prevPage" href="#" onclick="changePage(currentPage - 1)" aria-disabled="false">«««</a>
+            <span id="prevPageDisabled" style="display: none;">«««</span>
+        </span>
+
+            <span id="currentPageNumber">1</span> из <span id="totalPages">1</span>
+
+            <!-- Стрелка вперед -->
+            <span class="pagination-arrow">
+            <a id="nextPage" href="#" onclick="changePage(currentPage + 1)" aria-disabled="false">»»»</a>
+            <span id="nextPageDisabled" style="display: none;">»»»</span>
+        </span>
+        </div>
+    </div>
+</div>
 
 
 <script>
-    // Поиск по ФИО или телефону
-    function searchTable(tableId, inputId, columnIndices) {
-        const filter = document.getElementById(inputId).value.toLowerCase();
-        const rows = document.getElementById(tableId).getElementsByTagName('tr');
+    let currentPage = 0;
+    const rowsPerPage = 5;
+    let totalRows = 0;
+    let filteredRows = [];
+    document.addEventListener('DOMContentLoaded', initializePagination);
 
-        for (let i = 1; i < rows.length; i++) {
-            let match = false;
 
-            columnIndices.forEach(index => {
-                const cellContent = rows[i].cells[index]?.textContent.toLowerCase() || '';
-                if (cellContent.includes(filter)) {
-                    match = true;
-                }
-            });
+    function initializePagination() {
+        const rows = document.querySelectorAll('#employeeTable tbody tr');
+        filteredRows = Array.from(rows); // Сохраняем все строки в массив
+        totalRows = filteredRows.length; // Считаем все строки
+        updatePagination(totalRows); // Обновляем пагинацию сразу при инициализации
+    }
 
-            rows[i].style.display = match ? '' : 'none';
+
+    function updateTableDisplay() {
+        const startIndex = currentPage * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+        filteredRows.forEach((row, index) => {
+            if (index >= startIndex && index < endIndex) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('currentPageNumber').innerText = currentPage + 1;
+    }
+
+
+    function changePage(page) {
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        if (page >= 0 && page < totalPages) {
+            currentPage = page;
+            updateTableDisplay();
+            updatePaginationButtons(totalPages);
         }
     }
 
 
-    // Фильтрация по столбцам
-    let currentSortColumn = null;
-    let currentSortDirection = 'asc';
+    function updatePaginationButtons(totalPages) {
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const prevPageDisabled = document.getElementById('prevPageDisabled');
+        const nextPageDisabled = document.getElementById('nextPageDisabled');
 
-    function sortTable(columnIndex) {
-        const table = document.getElementById('employeeTable');
-        const tbody = table.tBodies[0];
-        const rows = Array.from(tbody.rows);
-
-        // Определяю порядок сортировки
-        if (currentSortColumn === columnIndex) {
-            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        // Стрелка назад
+        if (currentPage > 0) {
+            prevPage.style.display = 'inline';  // Показываем активную стрелку
+            prevPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
         } else {
-            currentSortDirection = 'asc';
+            prevPage.style.display = 'none';  // Скрываем активную стрелку
+            prevPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
         }
-        currentSortColumn = columnIndex;
 
-        // Сортирую строки
-        rows.sort((rowA, rowB) => {
-            const cellA = rowA.cells[columnIndex].textContent.trim();
-            const cellB = rowB.cells[columnIndex].textContent.trim();
+        // Стрелка вперед
+        if (currentPage < totalPages - 1) {
+            nextPage.style.display = 'inline';  // Показываем активную стрелку
+            nextPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
+        } else {
+            nextPage.style.display = 'none';  // Скрываем активную стрелку
+            nextPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
+        }
+    }
 
-            // Проверяю, является ли ячейка числом
-            const numA = parseFloat(cellA);
-            const numB = parseFloat(cellB);
 
-            if (!isNaN(numA) && !isNaN(numB)) {
-                // Сортировка чисел
-                return currentSortDirection === 'asc' ? numA - numB : numB - numA;
+    function searchTable() {
+        const searchByFio = document.getElementById('searchByFio').value.toLowerCase();
+        const searchByPhone = document.getElementById('searchByPhone').value.toLowerCase();
+        const rows = document.querySelectorAll('#employeeTable tbody tr');
+        filteredRows = [];  // Очищаем массив отфильтрованных строк
+
+        rows.forEach(row => {
+            const fioContent = `${row.cells[0].textContent.toLowerCase()} ${row.cells[1].textContent.toLowerCase()} ${row.cells[2].textContent.toLowerCase()}`;
+            const phoneContent = row.cells[3].textContent.trim();
+
+            if ((fioContent.includes(searchByFio) || !searchByFio) && (phoneContent.startsWith(searchByPhone) || !searchByPhone)) {
+                filteredRows.push(row);  // Добавляю строку в массив отфильтрованных
             } else {
-                // Сортировка строк
-                return currentSortDirection === 'asc'
-                    ? cellA.localeCompare(cellB)
-                    : cellB.localeCompare(cellA);
+                row.style.display = 'none';
             }
         });
 
-        // Строки в нужном порядке делаю
-        rows.forEach(row => tbody.appendChild(row));
+        totalRows = filteredRows.length; // Пересчитываем количество строк после фильтрации
+        currentPage = 0;  // Возвращаюсь на первую страницу при изменении поиска
+        updatePagination(totalRows); // Обновляем пагинацию после изменения фильтра
+    }
 
-        // Обновляю индикатор сортировки
-        const headers = table.tHead.rows[0].cells;
-        Array.from(headers).forEach(header => header.classList.remove('sort-asc', 'sort-desc'));
-        headers[columnIndex].classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+
+    function updatePagination(totalRows) {
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        document.getElementById('totalPages').innerText = totalPages;
+        updateTableDisplay();
+        updatePaginationButtons(totalPages);
     }
 </script>
 
 
 </body>
 </html>
+
+
+

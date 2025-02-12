@@ -3,15 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Список автотоваров</title>
+    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
 </head>
 <body>
-
-
-<h1>Список автотоваров</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
-<div th:replace="~{fragments/toast :: toast}"></div>
 
 
 <!-- Кнопка для создания категории/автотовара -->
@@ -21,6 +15,13 @@
         <button type="button">Создать</button>
     </a>
 </div>
+
+
+<h1>Список автотоваров</h1>
+
+
+<!-- Подключаю всплывающее уведомление -->
+<div th:replace="~{fragments/toast :: toast}"></div>
 
 
 <!-- Фильтрация по категории -->
@@ -37,64 +38,89 @@
 </form>
 
 
-<!--Поле для поиска-->
-<div>
+<!-- Форма поиска -->
+<form th:action="@{/auto-good/list}" method="get">
     <label for="searchInput">Поиск по наименованию:</label>
-    <input type="text" id="searchInput" onkeyup="searchByName('autoGoodsTable', 'searchInput')"
-           placeholder="моторное масло 5W-30">
+    <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}" placeholder="моторное масло 5W-30">
+    <button type="submit">Искать</button>
+    <button type="button" onclick="clearSearch()">Очистить</button>
+</form>
+
+
+<!-- Контейнер для таблицы и пагинации -->
+<div class="table-container">
+    <!-- Обертка для таблицы -->
+    <div class="table-wrapper">
+        <!-- Таблица автотоваров -->
+        <table id="autoGoodsTable">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Название автотовара</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Срок годности</th>
+                <th>Категория</th>
+                <th>Удаление</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Если автотоваров нет, вывожу сообщение -->
+            <tr th:if="${autoGoods.isEmpty()}">
+                <td colspan="7" style="color: red; text-align: center;">Автотовары отсутствуют</td>
+            </tr>
+
+            <!-- Отображение автотоваров -->
+            <tr th:each="autoGood, iterStat : ${autoGoods}">
+                <td th:text="${iterStat.index + 1}"></td>
+                <td th:text="${autoGood.name}"></td>
+                <td th:text="${autoGood.quantity}"></td>
+                <td th:text="${autoGood.priceOneUnit}"></td>
+                <td th:text="${autoGood.expirationDate}"></td>
+                <td th:text="${autoGood.category.name}"></td>
+                <td>
+                    <form th:action="@{/auto-good/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${autoGood.id}">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination-container">
+        <div class="pagination">
+            <!-- Стрелка назад всегда видна, но не кликабельная на первой странице -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/auto-good/list(page=${currentPage - 1}, size=${size}, categoryId=${selectedCategoryId}, searchQuery=${searchQuery})}">
+                «««
+            </a>
+            <span th:if="${currentPage == 0}">«««</span>
+        </span>
+
+            <!-- Текущая страница и общее количество страниц -->
+            <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+
+            <!-- Стрелка вперед всегда видна, но не кликабельная на последней странице -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/auto-good/list(page=${currentPage + 1}, size=${size}, categoryId=${selectedCategoryId}, searchQuery=${searchQuery})}">
+                »»»
+            </a>
+            <span th:if="${currentPage == totalPages - 1}">»»»</span>
+        </span>
+        </div>
+    </div>
 </div>
 
 
-<!-- Таблица автотоваров -->
-<table border="1" id="autoGoodsTable">
-    <thead>
-    <tr>
-        <th>№</th>
-        <th>Название автотовара</th>
-        <th>Количество</th>
-        <th>Цена</th>
-        <th>Срок годности</th>
-        <th>Категория</th>
-        <th>Удаление</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Если автотоваров нет, вывожу сообщение -->
-    <tr th:if="${#lists.isEmpty(autoGoods)}">
-        <td colspan="7" style="color: red; text-align: center;">
-            Автотовары отсутсвуют
-        </td>
-    </tr>
-
-    <!-- Отображение автотоваров -->
-    <tr th:each="autoGood, iterStat : ${autoGoods}">
-        <td th:text="${iterStat.index + 1}"></td>
-        <td th:text="${autoGood.name}"></td>
-        <td th:text="${autoGood.quantity}"></td>
-        <td th:text="${autoGood.priceOneUnit}"></td>
-        <td th:text="${autoGood.expirationDate}"></td>
-        <td th:text="${autoGood.category.name}"></td>
-        <td>
-            <form th:action="@{/auto-good/delete}" method="post">
-                <input type="hidden" name="id" th:value="${autoGood.id}">
-                <button type="submit">Удалить</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-
 <script>
-    // Поиск по наименованию
-    function searchByName(tableId, inputId) {
-        const filter = document.getElementById(inputId).value.toLowerCase();
-        const rows = document.getElementById(tableId).getElementsByTagName('tr');
-
-        for (let i = 1; i < rows.length; i++) {
-            const cellText = rows[i].cells[1]?.textContent || '';
-            rows[i].style.display = cellText.toLowerCase().includes(filter) ? '' : 'none';
-        }
+    function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        window.location.href = "/auto-good/list";
     }
 </script>
 

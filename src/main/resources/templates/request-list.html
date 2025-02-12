@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Список заявок</title>
-    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
 </head>
 <body>
+
 
 <!-- Кнопка для создания новой заявки -->
 <div>
@@ -16,6 +17,7 @@
 
 
 <h1>Список заявок</h1>
+
 
 <!-- Подключаю всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
@@ -29,10 +31,22 @@
         <!-- Фильтр по статусу -->
         <label for="statusFilter">Статус:</label>
         <select id="statusFilter" name="status">
-            <option value="OPEN" th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">В ожидании</option>
-            <option value="IN_PROGRESS" th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">Исполняется</option>
-            <option value="COMPLETED" th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).COMPLETED}">Завершена</option>
-            <option value="REJECTED" th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED}">Отклонена</option>
+            <option value="OPEN"
+                    th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">В
+                ожидании
+            </option>
+            <option value="IN_PROGRESS"
+                    th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
+                Исполняется
+            </option>
+            <option value="COMPLETED"
+                    th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).COMPLETED}">
+                Завершена
+            </option>
+            <option value="REJECTED"
+                    th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED}">
+                Отклонена
+            </option>
         </select>
 
         <!-- Фильтр по дате -->
@@ -47,40 +61,87 @@
 </form>
 
 
-<!-- Таблица заявок -->
-<table border="1">
-    <thead>
-    <tr>
-        <th>Номер</th>
-        <th>Дата создания</th>
-        <th>Статус</th>
-        <th>Автомобиль</th>
-        <th>Госномер</th>
-        <th>VIN</th>
-        <th>Действие</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="request : ${requests}">
-        <td th:text="${request.id}"></td>
-        <td th:text="${request.submissionDate}"></td>
-        <td th:text="${request.requestStatus.description}"></td>
-        <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
-        <td th:text="${request.car.stateNumber}"></td>
-        <td th:text="${request.car.vin}"></td>
-        <td>
-            <!-- Кнопка "Открыть" -->
-            <form th:action="@{/request/check}" method="post" style="display: inline;">
-                <input type="hidden" name="requestId" th:value="${request.id}"/>
-                <button type="submit">Открыть</button>
-            </form>
-        </td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(requests)}">
-        <td colspan="7">Нет заявок для отображения</td>
-    </tr>
-    </tbody>
-</table>
+<!-- Форма поиска по номеру телефона-->
+<!--<form th:action="@{/request/list}" method="get">-->
+<!--    <label for="searchInput">Поиск по номеру телефона:</label>-->
+<!--    <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}" placeholder="замена сцепления">-->
+<!--    <button type="submit">Искать</button>-->
+<!--    <button type="button" onclick="clearSearch()">Очистить</button>-->
+<!--</form>-->
+
+
+<!-- Контейнер для таблицы и пагинации -->
+<div class="table-container">
+    <!-- Обертка для таблицы -->
+    <div class="table-wrapper">
+        <!-- Таблица заявок -->
+        <table>
+            <thead>
+            <tr>
+                <th>Номер</th>
+                <th>Дата создания</th>
+                <th>Статус</th>
+                <th>Автомобиль</th>
+                <th>Госномер</th>
+                <th>VIN</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="request : ${requests}">
+                <td th:text="${request.id}"></td>
+                <td th:text="${request.submissionDate}"></td>
+                <td th:text="${request.requestStatus.description}"></td>
+                <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
+                <td th:text="${request.car.stateNumber}"></td>
+                <td th:text="${request.car.vin}"></td>
+                <td>
+                    <!-- Кнопка "Открыть" -->
+                    <form th:action="@{/request/check}" method="post" style="display: inline;">
+                        <input type="hidden" name="requestId" th:value="${request.id}"/>
+                        <button type="submit">Открыть</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${requests.isEmpty()}">
+                <td colspan="7">Заявки отсутствуют</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination-container">
+        <div class="pagination">
+            <!-- Стрелка назад (не кликабельная на первой странице) -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/request/list(page=${currentPage - 1}, size=${size},
+                                        status=${status},
+                                        startDate=${startDate},
+                                        endDate=${endDate})}">
+                «««
+            </a>
+            <span th:if="${currentPage == 0}">«««</span>
+        </span>
+
+            <!-- Текущая страница и общее количество страниц -->
+            <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+
+            <!-- Стрелка вперед (не кликабельная на последней странице) -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/request/list(page=${currentPage + 1}, size=${size},
+                                        status=${status},
+                                        startDate=${startDate},
+                                        endDate=${endDate})}">
+                »»»
+            </a>
+            <span th:if="${currentPage == totalPages - 1}">»»»</span>
+        </span>
+        </div>
+    </div>
+</div>
 
 
 <!-- Скрытый элемент для передачи ошибки -->
@@ -96,6 +157,7 @@
         alert(errorMessage);
     }
 </script>
+
 
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Список заказ-нарядов</title>
-    <link rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
     <style>
         /* Стили для подсветки нового заказ-наряда */
         .highlight {
@@ -13,7 +13,6 @@
         .canceled-in-progress {
             background-color: #ec5353;
         }
-
     </style>
 </head>
 <body>
@@ -60,47 +59,78 @@
 </form>
 
 
-<!-- Таблица заказ-нарядов -->
-<table border="1">
-    <thead>
-    <tr>
-        <th>№ ЗН</th>
-        <th>№ заявки</th>
-        <th>Статус</th>
-        <th>Авто</th>
-        <th>Дата создания</th>
-        <th>Дата окончания работ</th>
-        <th>Цена</th>
-        <th>Действие</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="workOrder : ${workOrders}"
-        th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
+<!-- Контейнер для таблицы и пагинации -->
+<div class="table-container">
+    <!-- Обертка для таблицы -->
+    <div class="table-wrapper">
+        <!-- Таблица заказ-нарядов -->
+        <table border="1">
+            <thead>
+            <tr>
+                <th>№ ЗН</th>
+                <th>№ заявки</th>
+                <th>Статус</th>
+                <th>Авто</th>
+                <th>Дата создания</th>
+                <th>Дата окончания работ</th>
+                <th>Цена</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="workOrder : ${workOrders}"
+                th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
                      and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS)
                      ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
 
-        <td th:text="${workOrder.id}"></td>
-        <td th:text="${workOrder.request.id}"></td>
-        <td th:text="${workOrder.workOrderStatuses.description}"></td>
-        <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
-        <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
-        <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
-        <td th:text="${workOrder.calculatePrice()}"></td>
-        <td>
-            <!-- Кнопка "Открыть" -->
-            <form th:action="@{/work-order/details}" method="get" style="display: inline;">
-                <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
-                <button type="submit">Открыть</button>
-            </form>
-        </td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(workOrders)}">
-        <td colspan="8">Заказ-наряды отсутствуют</td>
-    </tr>
-    </tbody>
-</table>
+                <td th:text="${workOrder.id}"></td>
+                <td th:text="${workOrder.request.id}"></td>
+                <td th:text="${workOrder.workOrderStatuses.description}"></td>
+                <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
+                <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
+                <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
+                <td th:text="${workOrder.calculatePrice()}"></td>
+                <td>
+                    <!-- Кнопка "Открыть" -->
+                    <form th:action="@{/work-order/details}" method="get" style="display: inline;">
+                        <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
+                        <button type="submit">Открыть</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${workOrders.isEmpty()}">
+                <td colspan="8">Заказ-наряды отсутствуют</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
+    <!-- Пагинация -->
+    <div class="pagination-container">
+        <div class="pagination">
+            <!-- Стрелка "назад" -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/work-order/list(page=${currentPage - 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}">
+                «««
+            </a>
+            <span th:if="${currentPage == 0}">«««</span>
+        </span>
+
+            <!-- Текущая страница и общее количество страниц -->
+            <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+
+            <!-- Стрелка "вперед" -->
+            <span class="pagination-arrow">
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/work-order/list(page=${currentPage + 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}">
+                »»»
+            </a>
+            <span th:if="${currentPage >= totalPages - 1}">»»»</span>
+        </span>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

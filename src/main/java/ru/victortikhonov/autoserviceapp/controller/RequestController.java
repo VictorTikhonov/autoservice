@@ -1,6 +1,9 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +17,6 @@ import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.service.RequestService;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -89,6 +90,8 @@ public class RequestController {
     public String listRequests(@RequestParam(required = false) RequestStatus status,
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size,
                                Model model) {
 
         // Устанавливаю сегодняшнюю дату если она не установлена и,
@@ -117,14 +120,18 @@ public class RequestController {
         }
 
         // Получаю отфильтрованные заявки
-        List<Request> filteredRequests =
-                requestService.findRequests(status, startDate, endDate.plusDays(1));
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Request> requests =
+                requestService.findRequests(status, startDate, endDate.plusDays(1), pageable);
 
         // Добавляю в модель
-        model.addAttribute("requests", filteredRequests);
+        model.addAttribute("requests", requests);
         model.addAttribute("status", status);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", Math.max(1, requests.getTotalPages()));
+        model.addAttribute("totalItems", requests.getTotalElements());
 
         return "request-list";
     }
@@ -145,7 +152,7 @@ public class RequestController {
 
 
     @PostMapping("/cancel")
-    public String cancelRequest(@RequestParam("requestId") Long requestId, Model model, RedirectAttributes redirectAttributes) {
+    public String cancelRequest(@RequestParam("requestId") Long requestId, RedirectAttributes redirectAttributes) {
 
         Optional<Request> requestOptional = requestService.findRequestById(requestId);
 

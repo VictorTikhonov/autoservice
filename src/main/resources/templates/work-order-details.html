@@ -23,7 +23,6 @@
         .error-row {
             background-color: #ffcccc; /* Светло-красный цвет */
         }
-
     </style>
 </head>
 <body>
@@ -61,13 +60,13 @@
 
     <h3>Заказ-наряд</h3>
     <p><strong>Статус:</strong> <span th:text="${workOrder.workOrderStatuses.description}"></span></p>
-    <p><strong>Жалобы:</strong> <span th:text="${workOrder.request.complaints}"></span></p>
     <p><strong>Дата начала работ:</strong>
         <span th:text=" ${#temporals.format(workOrder.startDate, 'dd.MM.yyyy HH:mm')}"></span>
     </p>
     <p><strong>Дата окончания работ:</strong>
         <span th:text="${workOrder.endDate != null} ? ${#temporals.format(workOrder.endDate, 'dd.MM.yyyy HH:mm')} : 'отсутствует'"></span>
     </p>
+    <p><strong>Жалобы:</strong> <span th:text="${workOrder.request.complaints}"></span></p>
 </div>
 
 
