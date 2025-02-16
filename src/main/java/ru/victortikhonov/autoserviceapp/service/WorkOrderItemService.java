@@ -41,12 +41,12 @@ public class WorkOrderItemService {
 
 
     public Iterable<AutoGood> getAllAutoGoods() {
-        return autoGoodRepository.findAll();
+        return autoGoodRepository.findByRelevanceTrue();
     }
 
 
     public Iterable<ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service> getAllServices() {
-        return serviceRepository.findAll();
+        return serviceRepository.findByRelevanceTrue();
     }
 
 
