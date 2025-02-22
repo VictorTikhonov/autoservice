@@ -8,10 +8,35 @@ DROP TABLE IF EXISTS
     services,
     categories_services,
     auto_goods,
-    categories_auto_goods
+    categories_auto_goods,
+    work_order_services,
+    work_order_auto_goods,
+    work_orders
     CASCADE;
+
+
+-- Удаление индексов
 DROP INDEX IF EXISTS idx_auto_goods_category_id;
 DROP INDEX IF EXISTS idx_services_category_id;
+DROP INDEX IF EXISTS idx_work_order_services_service_id;
+DROP INDEX IF EXISTS idx_work_order_services_work_order_id;
+DROP INDEX IF EXISTS idx_work_order_auto_goods_auto_good_id;
+DROP INDEX IF EXISTS idx_work_order_auto_goods_work_order_id;
+
+-- Удаление внешних ключей
+ALTER TABLE work_order_services
+    DROP CONSTRAINT IF EXISTS fk_service;
+ALTER TABLE work_order_services
+    DROP CONSTRAINT IF EXISTS fk_work_order_services;
+ALTER TABLE work_order_auto_goods
+    DROP CONSTRAINT IF EXISTS fk_auto_good;
+ALTER TABLE work_order_auto_goods
+    DROP CONSTRAINT IF EXISTS fk_work_order_auto_goods;
+ALTER TABLE work_orders
+    DROP CONSTRAINT IF EXISTS fk_mechanic;
+ALTER TABLE work_orders
+    DROP CONSTRAINT IF EXISTS fk_request;
+
 
 
 -- Вставка данных в таблицы
@@ -43,8 +68,17 @@ VALUES ('Старший оператор'),         -- 1
        ('Стажер-оператор'),          -- 3
        ('Главный механик'),          -- 4
        ('Механик первой категории'), -- 5
-       ('Стажёр-механик');
--- 6
+       ('Стажёр-механик');           -- 6
+
+
+
+
+
+
+
+
+
+
 
 
 -- Создание таблицы Клиенты
@@ -212,30 +246,7 @@ CREATE TABLE services
 CREATE INDEX idx_services_category_id ON services (category_id);
 
 
--- Удаление индексов
-DROP INDEX IF EXISTS idx_work_order_services_service_id;
-DROP INDEX IF EXISTS idx_work_order_services_work_order_id;
-DROP INDEX IF EXISTS idx_work_order_auto_goods_auto_good_id;
-DROP INDEX IF EXISTS idx_work_order_auto_goods_work_order_id;
 
--- Удаление внешних ключей
-ALTER TABLE work_order_services
-    DROP CONSTRAINT IF EXISTS fk_service;
-ALTER TABLE work_order_services
-    DROP CONSTRAINT IF EXISTS fk_work_order_services;
-ALTER TABLE work_order_auto_goods
-    DROP CONSTRAINT IF EXISTS fk_auto_good;
-ALTER TABLE work_order_auto_goods
-    DROP CONSTRAINT IF EXISTS fk_work_order_auto_goods;
-ALTER TABLE work_orders
-    DROP CONSTRAINT IF EXISTS fk_mechanic;
-ALTER TABLE work_orders
-    DROP CONSTRAINT IF EXISTS fk_request;
-
--- Удаление таблиц
-DROP TABLE IF EXISTS work_order_services CASCADE;
-DROP TABLE IF EXISTS work_order_auto_goods CASCADE;
-DROP TABLE IF EXISTS work_orders CASCADE;
 
 
 -- Создание таблицы work_orders (Заказ-наряды)

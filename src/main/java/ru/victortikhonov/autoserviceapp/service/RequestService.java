@@ -148,4 +148,16 @@ public class RequestService {
 
         return false;
     }
+
+    public Page<Request> findRequestsByIdAndPhone(Long searchId, String searchPhone, Pageable pageable) {
+        return requestRepository.findByIdAndClientPhoneNumber(searchId, searchPhone, pageable);
+    }
+
+    public Page<Request> findRequestsById(Long searchId, Pageable pageable) {
+        return requestRepository.findById(searchId, pageable);
+    }
+
+    public Page<Request> findRequestsByPhone(String searchPhone, Pageable pageable) {
+        return requestRepository.findByClientPhoneNumber(searchPhone, pageable);
+    }
 }

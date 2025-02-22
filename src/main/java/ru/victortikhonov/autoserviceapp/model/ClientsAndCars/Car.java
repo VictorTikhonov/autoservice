@@ -2,10 +2,7 @@ package ru.victortikhonov.autoserviceapp.model.ClientsAndCars;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -46,6 +43,7 @@ public class Car {
 
 
     @PastOrPresent(message = "Год выпуска не может быть больше текущего")
+    @NotNull(message = "Год выпуска не может быть пустым")
     @Column(name = "year_of_manufacture")
     private Year yearOfManufacture;
 }

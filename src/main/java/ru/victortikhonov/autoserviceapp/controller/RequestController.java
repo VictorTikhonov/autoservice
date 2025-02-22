@@ -63,6 +63,7 @@ public class RequestController {
         return "redirect:/request/list";
     }
 
+
     @PostMapping("/create/search-client")
     public String searchClient(@ModelAttribute("requestForm") RequestForm requestForm,
                                Model model, Errors errors) {
@@ -92,6 +93,8 @@ public class RequestController {
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
+                               @RequestParam(required = false) Long searchId,
+                               @RequestParam(required = false) String searchPhone,
                                Model model) {
 
         // Устанавливаю сегодняшнюю дату если она не установлена и,
@@ -119,10 +122,18 @@ public class RequestController {
             status = RequestStatus.OPEN;
         }
 
-        // Получаю отфильтрованные заявки
+        // Формирую фильтрацию
         Pageable pageable = PageRequest.of(page, size);
-        Page<Request> requests =
-                requestService.findRequests(status, startDate, endDate.plusDays(1), pageable);
+        Page<Request> requests;
+        if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
+            requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
+        } else if (searchId != null) {
+            requests = requestService.findRequestsById(searchId, pageable);
+        } else if (searchPhone != null && !searchPhone.isEmpty()) {
+            requests = requestService.findRequestsByPhone(searchPhone, pageable);
+        } else {
+            requests = requestService.findRequests(status, startDate, endDate.plusDays(1), pageable);
+        }
 
         // Добавляю в модель
         model.addAttribute("requests", requests);
@@ -132,6 +143,8 @@ public class RequestController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", Math.max(1, requests.getTotalPages()));
         model.addAttribute("totalItems", requests.getTotalElements());
+        model.addAttribute("searchId", searchId);
+        model.addAttribute("searchPhone", searchPhone);
 
         return "request-list";
     }

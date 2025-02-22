@@ -61,13 +61,29 @@
 </form>
 
 
-<!-- Форма поиска по номеру телефона-->
-<!--<form th:action="@{/request/list}" method="get">-->
-<!--    <label for="searchInput">Поиск по номеру телефона:</label>-->
-<!--    <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}" placeholder="замена сцепления">-->
-<!--    <button type="submit">Искать</button>-->
-<!--    <button type="button" onclick="clearSearch()">Очистить</button>-->
-<!--</form>-->
+<form method="get" th:action="@{/request/list}">
+    <fieldset>
+        <legend>Поиск заявок</legend>
+
+        <!-- Поиск по номеру заявки -->
+        <label for="searchId">Номер заявки:</label>
+        <input type="text" id="searchId" name="searchId" th:value="${searchId}" placeholder="1"
+               pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"/>
+        <br>
+
+        <!-- Поиск по номеру телефона клиента -->
+        <label for="searchPhone">Телефон клиента:</label>
+        <input type="text" id="searchPhone" name="searchPhone" th:value="${searchPhone}"
+               placeholder="89999999999"  pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"/>
+        <br>
+
+        <!-- Кнопка поиска -->
+        <button type="submit">Искать</button>
+
+        <!-- Очистка полей -->
+        <button type="button" onclick="clearSearch()">Очистить</button>
+    </fieldset>
+</form>
 
 
 <!-- Контейнер для таблицы и пагинации -->
@@ -79,6 +95,7 @@
             <thead>
             <tr>
                 <th>Номер</th>
+                <th>Телефон клиента</th>
                 <th>Дата создания</th>
                 <th>Статус</th>
                 <th>Автомобиль</th>
@@ -90,6 +107,7 @@
             <tbody>
             <tr th:each="request : ${requests}">
                 <td th:text="${request.id}"></td>
+                <td th:text="${request.client.phoneNumber}"></td>
                 <td th:text="${request.submissionDate}"></td>
                 <td th:text="${request.requestStatus.description}"></td>
                 <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
@@ -104,7 +122,7 @@
                 </td>
             </tr>
             <tr th:if="${requests.isEmpty()}">
-                <td colspan="7">Заявки отсутствуют</td>
+                <td colspan="8">Заявки отсутствуют</td>
             </tr>
             </tbody>
         </table>
@@ -156,6 +174,13 @@
     if (errorMessage) {
         alert(errorMessage);
     }
+
+    function clearSearch() {
+        document.getElementById("searchId").value = '';
+        document.getElementById("searchPhone").value = '';
+        window.location.href = "/request/list";
+    }
+
 </script>
 
 
