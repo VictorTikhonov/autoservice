@@ -6,17 +6,21 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import lombok.ToString;
+import ru.victortikhonov.autoserviceapp.Task;
+import ru.victortikhonov.autoserviceapp.TaskStatus;
 import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
 @Data
 @ToString(exclude = "workOrder")
-public class Request {
+public class Request implements Task{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +53,7 @@ public class Request {
 
     @Column(name = "submission_date", updatable = false, insertable = false)
     @Setter(AccessLevel.NONE)
-    private LocalDate submissionDate;
+    private LocalDateTime submissionDate;
 
 
     @Column(name = "complaints")
@@ -71,5 +75,15 @@ public class Request {
         this.operator = operator;
         this.requestStatus = requestStatus;
         this.complaints = complaints;
+    }
+
+    @Override
+    public TaskStatus getStatus() {
+        return this.requestStatus;
+    }
+
+    @Override
+    public Employee getEmployee() {
+        return this.operator;
     }
 }

@@ -14,6 +14,10 @@ import java.util.List;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
 
+    @Query("SELECT wo FROM WorkOrder wo WHERE wo.startDate BETWEEN :startDate AND :endDate")
+    Iterable<WorkOrder> findWorkOrdersByDate(@Param("startDate") LocalDateTime startDate,
+                                             @Param("endDate") LocalDateTime endDate);
+
     @Query("SELECT w FROM WorkOrder w WHERE w.mechanic.id = :mechanicId " +
             "AND w.workOrderStatuses = :status " +
             "AND w.startDate BETWEEN :startDate AND :endDate")

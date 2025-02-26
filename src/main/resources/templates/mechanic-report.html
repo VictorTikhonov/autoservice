@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет по заказ-нарядам механиков</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        #chart-container {
+            width: 80%;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+        #report-table {
+            width: 80%;
+            max-width: 1000px;
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        #report-table th, #report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #report-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .dismissed {
+            background-color: #d3d3d3; /* Серый цвет для уволенных */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Отчет по заказ-нарядам</h1>
+
+<h2>Выберите период</h2>
+<form action="/report/mechanic" method="get">
+    <label for="startDate">Начальная дата:</label>
+    <input type="date" id="startDate" name="startDate"
+           th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}" required>
+
+    <label for="endDate">Конечная дата:</label>
+    <input type="date" id="endDate" name="endDate"
+           th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}" required>
+    <button type="submit">Сформировать отчет</button>
+</form>
+
+
+<!-- Отображение сообщения об ошибке -->
+<div th:if="${errorMessage}" style="color: red; margin-top: 10px;">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+
+<div th:unless="${errorMessage}">
+    <h2>Общая информация</h2>
+    <p>Период: <span th:text="${formattedDate}"></span></p>
+    <p>Всего заказ-нарядов: <span th:text="${totalWorkOrdersCount}"></span></p>
+    <p>Количесвто заявок без заказ-наряда: <span th:text="${totalOpen}"></span></p>
+
+    <!-- Диаграмма с количеством заказ-нарядов по статусам -->
+    <h2>Статистика по заказ-нарядам</h2>
+
+    <h2>Объяснение цветов</h2>
+    <ul style="line-height: 1.6; padding: 0; display: flex; flex-direction: column; align-items: flex-start;">
+        <li style="margin-bottom: 10px; display: flex; align-items: center;">
+            <span style="background-color: #ff9800; width: 15px; height: 15px; border-radius: 50%; margin-right: 10px;"></span>
+            — В процессе
+        </li>
+        <li style="margin-bottom: 10px; display: flex; align-items: center;">
+            <span style="background-color: #4caf50; width: 15px; height: 15px; border-radius: 50%; margin-right: 10px;"></span>
+            — Завершено
+        </li>
+        <li style="display: flex; align-items: center;">
+            <span style="background-color: #f44336; width: 15px; height: 15px; border-radius: 50%; margin-right: 10px;"></span>
+            — Отменено
+        </li>
+    </ul>
+
+
+    <div id="status-chart-container" style="width: 80%; max-width: 800px; margin: auto;">
+        <canvas id="statusChart" style="height: 400px;"></canvas>
+    </div>
+
+
+    <!-- График количества заявок, обработанных каждым оператором за указанный период -->
+    <h2>График количества заказ-нарядов, обработанных каждым механиком за указанный период:</h2>
+
+
+    <h2>Объяснение цветов</h2>
+    <ul style="line-height: 1.6; padding: 0; display: flex; flex-direction: column; align-items: flex-start;">
+        <li style="margin-bottom: 10px; display: flex; align-items: center;">
+            <span style="background-color: rgba(54, 162, 235, 0.6); width: 15px; height: 15px; border-radius: 50%; margin-right: 10px;"></span>
+            — Работающие механики
+        </li>
+        <li style="display: flex; align-items: center;">
+            <span style="background-color: rgba(169, 169, 169, 0.6); width: 15px; height: 15px; border-radius: 50%; margin-right: 10px;"></span>
+            — Уволенные механики
+        </li>
+    </ul>
+
+    <div id="chart-container">
+        <canvas id="mechanicChart"></canvas>
+    </div>
+
+    <h2>Таблица с количеством заявок, обработанных каждым оператором:</h2>
+
+    <table id="report-table">
+        <thead>
+        <tr>
+            <th>ФИО</th>
+            <th>Телефон</th>
+            <th>Количество заявок</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="entry : ${mechanicWorkOrderCounts}"
+            th:classappend="${entry.key.contains('(У)') ? ' dismissed' : ''}">
+            <td th:text="${entry.key.split('\n')[0]}"></td>
+            <td th:text="${entry.key.split('\n')[1]}"></td>
+            <td th:text="${entry.value}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<!--Круговая диаграмма-->
+<script>
+    var ctxStatus = document.getElementById('statusChart').getContext('2d');
+
+    // Данные для диаграммы
+    var chartData = [
+        { label: 'Исполняется', value: [[${totalInProgress}]], color: '#ff9800' },
+        { label: 'Завершено', value: [[${totalCompleted}]], color: '#4caf50' },
+        { label: 'Отменено', value: [[${totalCanceled}]], color: '#f44336' }
+    ];
+
+    // Фильтруем данные для диаграммы, исключая нулевые значения
+    var filteredData = chartData.filter(item => item.value > 0);
+
+    var labels = filteredData.map(item => item.label);
+    var data = filteredData.map(item => item.value);
+    var backgroundColors = filteredData.map(item => item.color);
+
+    var statusChart = new Chart(ctxStatus, {
+        type: 'pie', // Тип диаграммы: круговая
+        data: {
+            labels: labels, // Метки
+            datasets: [{
+                label: 'Статистика по заказ-нарядам',
+                data: data, // Значения
+                backgroundColor: backgroundColors, // Обновленные цвета для сегментов
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false, // Отключаем легенду
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            let label = tooltipItem.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += tooltipItem.raw; // Показать количество заявок
+                            return label;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: 'white', // Белый цвет для текста
+                    font: {
+                        weight: 'bold',  // Жирный шрифт
+                        size: 16         // Размер шрифта
+                    },
+                    formatter: function (value, context) {
+                        return value; // Показываем количество заявок в сегменте
+                    },
+                    padding: 5, // Отступ от текста
+                    borderRadius: 5
+                }
+            }
+        },
+        plugins: [ChartDataLabels] // Добавляем плагин для отображения данных в сегментах
+    });
+</script>
+
+
+<script th:inline="javascript">
+    let mechanicData = /*[[${mechanicWorkOrderCounts}]]*/ {};
+    console.log("Данные для диаграммы:", mechanicData); // Проверка в консоли
+
+    if (Object.keys(mechanicData).length === 0) {
+        document.getElementById("chart-container").style.display = "none";
+    } else {
+        let labels = [];
+        let data = [];
+        let backgroundColors = []; // Массив для цветов
+
+        for (let mechanic in mechanicData) {
+            if (mechanicData[mechanic] > 0) {
+                let mechanicInfo = mechanic.split("\n");
+                let fullName = mechanicInfo[0];
+                let phone = mechanicInfo[1];
+                let nameParts = fullName.split(" ");
+                let formattedName = nameParts[0] + " " + nameParts[1].charAt(0) + ".";
+
+                if (nameParts.length > 2 && !nameParts[2].startsWith("(")) {
+                    formattedName += " " + nameParts[2].charAt(0) + "."; // Фамилия, имя, инициал отчества
+                }
+
+                if (mechanic.includes("(У)")) {
+                    formattedName += " (У)"; // Добавляем "(У)" для уволенных
+                }
+
+                // Добавляем телефон на следующую строку
+                let label = formattedName + "\n" + phone;
+                let mechanicInfo2 = label.split("\n");
+                labels.push(mechanicInfo2);
+                data.push(mechanicData[mechanic]);
+
+                // Проверяем, содержит ли имя "(У)" - если да, то цвет для уволенных механиков
+                if (mechanic.includes("(У)")) {
+                    backgroundColors.push('rgba(169, 169, 169, 0.6)'); // Цвет для уволенных (серый)
+                } else {
+                    backgroundColors.push('rgba(54, 162, 235, 0.6)'); // Цвет для работающих
+                }
+            }
+        }
+
+        let maxRequests = Math.max(...data); // Определяем максимальное количество заказ-нарядов
+        let stepSize = Math.ceil(maxRequests / 10); // Делаем шаг 10% от максимума
+
+        let ctx = document.getElementById("mechanicChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество заказ-нарядов',
+                    data: data,
+                    backgroundColor: backgroundColors, // Применяем цвета для каждого столбца
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: stepSize || 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                },
+                // Включаем отображение текста в столбцах
+                annotation: {
+                    annotations: data.map((value, index) => ({
+                        type: 'label',
+                        xValue: index,
+                        yValue: value,
+                        backgroundColor: 'transparent',
+                        content: [value],
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: "'Arial', sans-serif",
+                            color: 'white' // Белый цвет текста
+                        },
+                        padding: 6,
+                        yAdjust: -10 // Регулировка позиции текста по оси Y
+                    }))
+                }
+            }
+        });
+    }
+</script>
+
+
+</body>
+</html>

@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.victortikhonov.autoserviceapp.Task;
+import ru.victortikhonov.autoserviceapp.TaskStatus;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 
@@ -18,7 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "work_orders")
 @Data
-public class WorkOrder {
+public class WorkOrder implements Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -155,5 +158,15 @@ public class WorkOrder {
         }
 
         return price;
+    }
+
+    @Override
+    public TaskStatus getStatus() {
+        return this.workOrderStatuses;
+    }
+
+    @Override
+    public Employee getEmployee() {
+        return this.mechanic;
     }
 }

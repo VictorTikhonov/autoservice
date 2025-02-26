@@ -17,6 +17,7 @@ import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.service.RequestService;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Controller
@@ -97,8 +98,7 @@ public class RequestController {
                                @RequestParam(required = false) String searchPhone,
                                Model model) {
 
-        // Устанавливаю сегодняшнюю дату если она не установлена и,
-        // если endDate имеет значение более? чем сегодняшняя дата
+        // Устанавливаю сегодняшнюю дату если она не установлена
         if (startDate == null) {
             startDate = LocalDate.now();
         }
@@ -132,7 +132,7 @@ public class RequestController {
         } else if (searchPhone != null && !searchPhone.isEmpty()) {
             requests = requestService.findRequestsByPhone(searchPhone, pageable);
         } else {
-            requests = requestService.findRequests(status, startDate, endDate.plusDays(1), pageable);
+            requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable);
         }
 
         // Добавляю в модель

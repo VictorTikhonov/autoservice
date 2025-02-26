@@ -17,6 +17,7 @@ import ru.victortikhonov.autoserviceapp.repository.OperatorRepository;
 import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,7 +106,7 @@ public class RequestService {
     }
 
 
-    public Page<Request> findRequests(RequestStatus status, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<Request> findRequests(RequestStatus status, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
 
         if (startDate == null || endDate == null || status == null) {
             throw new IllegalArgumentException("Все параметры должны быть переданы");

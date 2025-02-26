@@ -96,7 +96,7 @@
             <tr>
                 <th>Номер</th>
                 <th>Телефон клиента</th>
-                <th>Дата создания</th>
+                <th>Дата и время создания</th>
                 <th>Статус</th>
                 <th>Автомобиль</th>
                 <th>Госномер</th>
@@ -108,7 +108,7 @@
             <tr th:each="request : ${requests}">
                 <td th:text="${request.id}"></td>
                 <td th:text="${request.client.phoneNumber}"></td>
-                <td th:text="${request.submissionDate}"></td>
+                <td th:text="${#temporals.format(request.submissionDate, 'yyyy-MM-dd HH:mm')}"></td>
                 <td th:text="${request.requestStatus.description}"></td>
                 <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
                 <td th:text="${request.car.stateNumber}"></td>

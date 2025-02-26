@@ -1,7 +1,9 @@
 package ru.victortikhonov.autoserviceapp.model.WorkOrders;
 
 
-public enum WorkOrderStatus {
+import ru.victortikhonov.autoserviceapp.TaskStatus;
+
+public enum WorkOrderStatus implements TaskStatus {
     ALL("Все"),
     IN_PROGRESS("В процессе"), // Работы начались, но еще не завершены
     COMPLETED("Завершен"),     // Работы успешно завершены
@@ -15,6 +17,7 @@ public enum WorkOrderStatus {
     }
 
 
+    @Override
     public String getDescription() {
         return description;
     }

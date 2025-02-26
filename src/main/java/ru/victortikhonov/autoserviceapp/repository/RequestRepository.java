@@ -9,6 +9,7 @@ import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
@@ -17,8 +18,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query("SELECT r FROM Request r WHERE r.requestStatus = :status " +
             "AND r.submissionDate BETWEEN :startDate AND :endDate")
     Page<Request> findRequestsByStatusAndDate(@Param("status") RequestStatus status,
-                                              @Param("startDate") LocalDate startDate,
-                                              @Param("endDate") LocalDate endDate,
+                                              @Param("startDate") LocalDateTime startDate,
+                                              @Param("endDate") LocalDateTime endDate,
                                               Pageable pageable);
 
     Page<Request> findById(Long searchId, Pageable pageable);
@@ -28,7 +29,13 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     Page<Request> findByClientPhoneNumber(String searchPhone, Pageable pageable);
 
     @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate")
-    Iterable<Request> findRequestsByDate(@Param("startDate") LocalDate startDate,
-                                         @Param("endDate") LocalDate endDate);
+    Iterable<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
+                                         @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COUNT(r) FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate " +
+            "AND r.requestStatus = :status")
+    long countRequestsByDateAndStatus(@Param("startDate") LocalDateTime startDate,
+                                      @Param("endDate") LocalDateTime endDate,
+                                      @Param("status") RequestStatus status);
 
 }
