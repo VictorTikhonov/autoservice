@@ -112,14 +112,21 @@ public class WorkOrderController {
 
             WorkOrder workOrder = workOrderOptional.get();
 
-            workOrder.setEndDate(LocalDateTime.now());
+            if (!workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.CANCELED) &&
+                    workOrder.getServices().isEmpty()) {
+                redirectAttributes.addFlashAttribute("missingServiceError",
+                        "Необходимо выбрать хотя бы одну услугу");
+                return "redirect:/work-order/details?workOrderId=" + workOrderId + "#missingServiceError";
+            }
 
+
+            workOrder.setEndDate(LocalDateTime.now());
             if (workOrder.getRequest().getRequestStatus().equals(RequestStatus.REJECTED)) {
                 workOrder.setWorkOrderStatuses(WorkOrderStatus.CANCELED);
 
                 redirectAttributes.addFlashAttribute("success",
                         "Заказ-наряд №" + workOrder.getId() + " закрыт со статусом \"" +
-                        workOrder.getWorkOrderStatuses().getDescription() + "\"");
+                                workOrder.getWorkOrderStatuses().getDescription() + "\"");
             } else {
                 workOrder.setWorkOrderStatuses(WorkOrderStatus.COMPLETED);
 

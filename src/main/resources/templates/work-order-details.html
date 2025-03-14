@@ -327,10 +327,12 @@
 
 <!-- Отображаем кнопку только если статус заказ-наряда "В процессе" -->
 <div>
-    <a th:href="@{/work-order/details/complete(workOrderId=${workOrder.id})}"
-       th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
-        <button type="button">Завершить работу</button>
-    </a>
+    <button type="button" th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}"
+            th:onclick="|window.location='@{/work-order/details/complete(workOrderId=${workOrder.id})}'|">
+        Завершить работу
+    </button>
+    <br>
+    <span id="missingServiceError" th:if="${missingServiceError}" th:text="${missingServiceError}" style="color: red;"></span>
 </div>
 
 </body>
