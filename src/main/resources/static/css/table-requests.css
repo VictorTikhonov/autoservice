@@ -1,0 +1,41 @@
+@import url("common.css");
+
+.container {
+    max-width: 80%;
+    border: 1px solid #ddd; /* Легкая граница */
+    border-radius: 10px; /* Скругленные углы */
+    background-color: white; /* Белый фон формы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
+
+th:nth-child(1), td:nth-child(1) {
+    width: 5%; /* 5% ширины для столбца № */
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 15%; /* 15% для столбца Телефон клиента */
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 20%; /* 20% для столбца Дата и время создания */
+}
+
+th:nth-child(4), td:nth-child(4) {
+    width: 10%; /* 10% для столбца Статус */
+}
+
+th:nth-child(5), td:nth-child(5) {
+    width: 15%; /* 15% для столбца Автомобиль */
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 15%; /* 15% для столбца Госномер */
+}
+
+th:nth-child(7), td:nth-child(7) {
+    width: 10%; /* 10% для столбца VIN */
+}
+
+th:nth-child(8), td:nth-child(8) {
+    width: 10%; /* 10% для столбца Действие */
+}

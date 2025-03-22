@@ -114,7 +114,7 @@ public class RequestController {
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
 
-            return "request-list";
+            return "table-requests";
         }
 
         // Если статус не установлен то по умолч. ставлю "В ожидании"
@@ -146,7 +146,7 @@ public class RequestController {
         model.addAttribute("searchId", searchId);
         model.addAttribute("searchPhone", searchPhone);
 
-        return "request-list";
+        return "table-requests";
     }
 
 

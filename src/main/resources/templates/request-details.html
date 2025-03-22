@@ -3,93 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <title>Детали заявки</title>
-    <link rel="stylesheet" th:href="@{/styles/stylesDesign.css}">
+    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/request-details.css}">
 </head>
 <body>
 
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <div class="d-flex justify-content-between mb-1">
+            <!-- Кнопка "Список заявок" -->
+            <button type="button" onclick="window.location.href='/request/list'"
+                    class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
+                <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+                Список заявок
+            </button>
 
-<div>
-    <a href="/request/list">
-        <button type="button">Список заявок</button>
-    </a>
-</div><br/><br/>
+            <!-- Кнопка отмены заявки -->
+            <form th:action="@{/request/cancel}" method="post"
+                  th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN or
+                          requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
+                <input type="hidden" name="requestId" th:value="${request.id}"/>
+                <button type="submit" class="btn btn-danger d-flex align-items-center justify-content-center float-end"
+                        style="width: 170px;">
+                    <img src="/icons/x-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                     Отменить
+                </button>
+            </form>
+        </div>
+
+        <h1 class="mb-4 text-center">Детали заявки</h1>
+
+        <!-- Кнопка открытия заказ-наряда -->
+        <div class="mb-3 text-center" th:if="${request.workOrder != null}">
+            <form th:action="@{/work-order/details}" method="get" target="_blank">
+                <input type="hidden" name="workOrderId" th:value="${request.workOrder.id}"/>
+                <input type="hidden" name="viewMode" value="true"/>
+                <button type="submit" class="btn btn-secondary text-white d-flex align-items-center justify-content-center"
+                        style="width: 170px;">
+                    <img src="/icons/file.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Открыть ЗН
+                </button>
+            </form>
+        </div>
 
 
-<div>
-    <form th:action="@{/request/cancel}" method="post"
-          th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN or
-      requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
-        <input type="hidden" name="requestId" th:value="${request.id}"/>
-        <button type="submit">Отменить заявку</button>
-    </form>
+        <!-- Разделение на две колонки -->
+        <div class="row">
+            <!-- Левая колонка -->
+            <div class="col-md-6">
+                <div class="info-block">
+                    <h2>Общая информация</h2>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Статус заявки: </strong>
+                        <span th:text="${requestStatus.description}"></span></p>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Дата создания: </strong>
+                        <span th:text="${#temporals.format(request.submissionDate, 'dd.MM.yyyy')}"></span></p>
+                </div>
+
+                <div class="info-block">
+                    <h2>Оператор</h2>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>ФИО: </strong>
+                        <span th:text="${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></span></p>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Номер телефона: </strong>
+                        <span th:text="${request.operator.phoneNumber}"></span></p>
+                </div>
+
+                <div class="info-block">
+                    <h2>Клиент</h2>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>ФИО: </strong>
+                        <span th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span>
+                    </p>
+
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Номер телефона: </strong>
+                        <span th:text="${request.client.phoneNumber}"></span></p>
+
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Email: </strong>
+                        <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Правая колонка -->
+            <div class="col-md-6">
+                <div class="info-block">
+                    <h2>Автомобиль</h2>
+                    <p class="border rounded p-2 bg-white shadow-sm">
+                        <strong>Марка: </strong> <span th:text="${request.car.brand}"></span></p>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Модель: </strong>
+                        <span th:text="${request.car.model}"></span></p>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>Госномер: </strong>
+                        <span th:text="${#strings.substring(request.car.stateNumber, 0, 1) + ' ' + #strings.substring(request.car.stateNumber, 1, 4) + ' '
+                     + #strings.substring(request.car.stateNumber, 4, 6) + ' (' + #strings.substring(request.car.stateNumber, 6)} + ')'"></span></p>
+                    <p class="border rounded p-2 bg-white shadow-sm"><strong>VIN номер: </strong>
+                        <span th:text="${request.car.vin}"></span></p>
+                </div>
+
+                <div class="info-block">
+                    <h2>Жалобы</h2>
+                    <p class="border rounded p-2 bg-white shadow-sm" th:text="${request.complaints}"></p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Кнопка для создания заказ-наряда -->
+        <div class="d-flex justify-content-center mt-3">
+            <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}"
+                  th:action="@{/work-order/create}" method="post" style="display: inline;">
+                <input type="hidden" name="requestId" th:value="${request.id}">
+                <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center" style="width: 170px;">
+                    <img src="/icons/tools.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Начать работу
+                </button>
+            </form>
+        </div>
+
+
+    </div>
 </div>
-
-
-<div th:if="${request.workOrder != null}">
-    <form th:action="@{/work-order/details}" method="get" target="_blank">
-        <input type="hidden" name="workOrderId" th:value="${request.workOrder.id}" />
-        <input type="hidden" name="viewMode" value="true" />
-        <button type="submit">Открыть заказ-наряд</button>
-    </form>
-</div>
-
-
-
-<!-- Информация о заявке -->
-<h1>Детали заявки</h1>
-
-<div>
-    <h2>Статус заявки</h2>
-    <p th:text="${requestStatus.description}"></p>
-</div>
-
-<div>
-    <h2>Оператор</h2>
-    <p><strong>ФИО: </strong> <span
-            th:text="${request.operator.surname} + ' ' + ${request.operator.name} + ' ' + ${request.operator.patronymic}"></span>
-    </p>
-    <p><strong>Номер телефона: </strong> <span th:text="${request.operator.phoneNumber}"></span></p>
-</div>
-
-<div>
-    <h2>Клиент</h2>
-    <p><strong>ФИО: </strong> <span
-            th:text="${request.client.surname} + ' ' + ${request.client.name} + ' ' + ${request.client.patronymic}"></span>
-    </p>
-    <p><strong>Номер телефона: </strong> <span th:text="${request.client.phoneNumber}"></span></p>
-    <p><strong>Email: </strong> <span th:text="${#strings.isEmpty(request.client.email) ? 'отсутствует' : request.client.email}"></span></p>
-</div>
-
-<div>
-    <h2>Дата создания</h2>
-    <p><span th:text=" ${#temporals.format(request.submissionDate, 'dd.MM.yyyy')}"></span></p>
-</div>
-
-<div>
-    <h2>Машина</h2>
-    <p><strong>Марка: </strong> <span th:text="${request.car.brand}"></span></p>
-    <p><strong>Модель:</strong> <span th:text="${request.car.model}"></span></p>
-    <p><strong>Госномер:</strong> <span th:text="${request.car.stateNumber}"></span></p>
-    <p><strong>VIN номер:</strong> <span th:text="${request.car.vin}"></span></p>
-</div>
-
-<div>
-    <h2>Жалобы</h2>
-    <p th:text="${request.complaints}"></p>
-</div>
-
-
-<!-- Кнопка для создания заказ-наряда или сообщение о невозможности взять заявку -->
-<div>
-    <p style="display: inline; margin-right: 10px;" th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
-        Приступить к выполнению заявки:</p>
-    <form th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}"
-          th:action="@{/work-order/create}" method="post" style="display: inline;">
-        <input type="hidden" name="requestId" th:value="${request.id}">
-        <button type="submit">Начать работу</button>
-    </form>
-</div>
-
 
 </body>
 </html>

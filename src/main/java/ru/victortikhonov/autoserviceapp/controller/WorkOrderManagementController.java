@@ -107,7 +107,7 @@ public class WorkOrderManagementController {
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
 
-            return "work-order-list";
+            return "table-work-orders";
         }
 
         // Поиск ЗН в соответствии с фильтрами
@@ -127,7 +127,7 @@ public class WorkOrderManagementController {
         model.addAttribute("totalPages", Math.max(1, workOrders.getTotalPages()));
         model.addAttribute("totalItems", workOrders.getTotalElements());
 
-        return "work-order-list";
+        return "table-work-orders";
     }
 
 

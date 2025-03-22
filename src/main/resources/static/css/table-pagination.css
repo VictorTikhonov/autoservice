@@ -4,68 +4,81 @@
 .table-container {
     display: flex;
     flex-direction: column;
-    height: 500px; /* Устанавливаем фиксированную высоту для контейнера */
-    min-height: 500px; /* Минимальная высота */
-    width: 1500px;
+    min-height: 750px; /* Минимальная высота */
+    background-color: white; /* Белый фон */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень */
 }
 
 /* Блок с таблицей, который может прокручиваться */
 .table-wrapper {
     flex-grow: 1; /* Таблица займет все доступное пространство */
-    overflow-y: auto; /* Если таблица длинная, появляется прокрутка */
+    overflow-y: auto; /* Прокрутка для длинных таблиц */
+    margin-bottom: 20px;
 }
 
+/* Таблица */
 table {
     width: 100%;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid black;
+    border-collapse: collapse; /* Убирает двойные границы между ячейками */
+    margin-bottom: 20px; /* Отступ снизу */
 }
 
 th, td {
-    padding: 8px;
-    text-align: left;
+    border: 1px solid #B0C4DE !important; /* Явные красные границы между ячейками */
+    padding: 12px 16px;
+    text-align: center; /* Центрирование текста в ячейках */
+}
+
+/* Стиль для заголовков */
+th {
+    background-color: #cfe2ff; /* Цвет фона для шапки */
+    font-weight: bold;
+    color: #343a40;
+    font-size: 1.1em; /* Увеличение размера шрифта в шапке */
+    text-align: center !important; /* Явное центрирование текста */
+}
+
+/* Стиль для строк таблицы */
+tr:nth-child(even) {
+    background-color: #f8f9fa; /* Светлый цвет для четных строк */
+}
+
+tr:nth-child(odd) {
+    background-color: #e1e5e8; /* Темно-светлый цвет для нечетных строк */
 }
 
 /* Пагинация */
 .pagination-container {
     text-align: center; /* Центрирование по горизонтали */
-    margin-top: 20px; /* Отступ сверху */
     padding-bottom: 10px; /* Отступ снизу */
     width: 100%; /* Занимаем всю ширину доступного пространства */
     display: flex;
     justify-content: center; /* Центрирование блока внутри родителя */
+    align-items: center; /* Выравнивание по вертикали */
+    height: 50px; /* Фиксированная высота для контейнера пагинации */
 }
 
-/* Общий стиль для стрелок пагинации */
-.pagination-arrow a {
-    display: inline-block;
-    width: 50px;
-    text-align: center;
-    cursor: pointer;
-    transition: opacity 0.3s ease; /* Плавное изменение прозрачности */
-    text-decoration: none; /* Убираем подчеркивание для всех стрелок */
-}
-
-/* Неактивные стрелки */
-.pagination-arrow a.disabled {
-    pointer-events: none; /* Отключаем кликабельность */
-    cursor: default; /* Убираем указатель руки */
-    color: black;
-}
-
-/* Пагинация */
+/* Стиль для стрелок пагинации */
 .pagination-arrow {
-    display: inline-block;
-    width: 50px; /* Фиксированная ширина для стрелок */
-    text-align: center;
+    display: inline-flex; /* Используем flex для выравнивания иконок */
+    align-items: center; /* Выравнивание по вертикали */
+    justify-content: center; /* Выравнивание по горизонтали */
+    width: 40px; /* Фиксированная ширина */
+    height: 40px; /* Фиксированная высота */
     cursor: pointer;
+    margin: 0 5px; /* Отступ между стрелками и числами */
 }
 
+/* Стиль для чисел пагинации */
 .pagination span {
-    margin: 0 5px;
+    font-size: 16px;
+    color: #343a40;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 5px; /* Отступ между числами */
 }
 
 /* Стиль для пагинации */
@@ -74,21 +87,7 @@ th, td {
     align-items: center;
     justify-content: center;
     gap: 10px;
-}
-
-.pagination-arrow a:disabled,
-.pagination-arrow a[aria-disabled="true"] {
-    color: black;
-    text-decoration: none;
-    cursor: default;
-}
-
-/* Убираем подчеркивание при наведении */
-.pagination-arrow a:hover {
-    text-decoration: none;
-}
-
-.pagination-arrow span {
-    color: black;
-    font-size: 18px;
+    list-style-type: none; /* Убираем маркеры списка */
+    padding-left: 0;
+    margin: 0; /* Убираем внешние отступы */
 }

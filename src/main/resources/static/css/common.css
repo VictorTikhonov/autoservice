@@ -1,0 +1,33 @@
+body {
+    background-color: #d0d0d0;
+    font-size: 16px;
+}
+
+/* Стили для прямоугольников */
+.info-block {
+    background-color: #eeeeee;
+    border: 1px solid #ddd; /* Граница */
+    border-radius: 8px; /* Скругленные углы */
+    padding: 20px; /* Внутренние отступы */
+    margin-bottom: 20px; /* Отступ между блоками */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень */
+}
+
+legend {
+    font-weight: 600; /* Полужирное начертание */
+    color: #343a40; /* Цвет текста */
+}
+
+.btn-orange {
+    background-color: #fd7e14; /* Оранжевый цвет */
+    border-color: #fd7e14; /* Оранжевая граница */
+}
+
+.btn-orange:hover {
+    background-color: #e96d00; /* Темный оттенок оранжевого при наведении */
+    border-color: #e96d00;
+}
+
+.btn img {
+    filter: invert(1); /* Сделает иконку белой, если она тёмная */
+}

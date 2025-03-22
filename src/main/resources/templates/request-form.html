@@ -3,120 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <title>Создание заявки</title>
-    <link rel="stylesheet">
+    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/request-form-css.css}">
 </head>
 <body>
 
-
-<div>
-    <a href="/request/list">
-        <button type="button">Список заявок</button>
-    </a>
-</div>
-
-
-<h1>Оформление заявки на ремонт автомобиля</h1><br/>
-
-
-<form th:object="${requestForm}" method="post">
-
-    <!-- Информация о клиенте -->
-    <fieldset>
-        <legend>Информация о клиенте</legend>
-
-        <label for="surname">Фамилия: </label>
-        <input type="text" id="surname" placeholder="Тихонов" th:field="*{client.surname}"/>
-        <span th:if="${#fields.hasErrors('client.surname')}" th:errors="*{client.surname}"></span><br/>
-
-        <label for="name">Имя: </label>
-        <input type="text" id="name" placeholder="Виктор" th:field="*{client.name}"/>
-        <span th:if="${#fields.hasErrors('client.name')}" th:errors="*{client.name}"></span><br/>
-
-        <label for="patronymic">Отчество: </label>
-        <input type="text" id="patronymic" placeholder="Владимирович" th:field="*{client.patronymic}"/>
-        <span th:if="${#fields.hasErrors('client.patronymic')}" th:errors="*{client.patronymic}"></span><br/>
-
-        <label for="phoneNumber">Номер телефона: </label>
-        <input type="text" id="phoneNumber" placeholder="89999999999" th:field="*{client.phoneNumber}"
-               pattern="[0-9]*" title="Введите только цифры"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
-        <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"></span><br/>
-
-        <label for="email">Email: </label>
-        <input type="text" id="email" placeholder="pochta@mail.ru" th:field="*{client.email}"/>
-        <span th:if="${#fields.hasErrors('client.email')}" th:errors="*{client.email}"></span><br/><br/><br/>
-
-        <label for="searchClientButton">Поиск клиента по номеру телефона: </label>
-        <button id="searchClientButton" type="submit" formaction="/request/create/search-client">
-            Поиск
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <button type="button" onclick="window.location.href='/request/list'"
+                class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
+            <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Список заявок
         </button>
-    </fieldset><br/>
+
+        <h1 class="mb-4 text-center">Оформление заявки на ремонт автомобиля</h1>
+
+        <form th:object="${requestForm}" method="post">
+
+            <!-- Информация о клиенте -->
+            <div class="info-block">
+                <fieldset>
+                    <legend class="font-weight-bold d-flex align-items-center">
+                        <img src="/icons/person.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Информация о клиенте
+                    </legend>
 
 
-    <!-- Информация об автомобиле -->
-    <fieldset>
-        <legend>Информация об автомобиле</legend>
+                    <div class="mb-3 d-flex">
+                        <div class="me-3 w-32">
+                            <label for="surname" class="form-label">Фамилия:</label>
+                            <input type="text" id="surname" class="form-control" placeholder="Тихонов"
+                                   th:field="*{client.surname}"
+                                   th:classappend="${#fields.hasErrors('client.surname') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('client.surname')}" class="invalid-feedback">
+                                <span th:errors="*{client.surname}"></span>
+                            </div>
+                        </div>
 
-        <label for="stateNumber">Госномер: </label>
-        <input
-                type="text" id="stateNumber" placeholder="А001АА163"
-                th:field="*{car.stateNumber}"
-                oninput="transformVin(this)"/>
-        <span th:if="${#fields.hasErrors('car.stateNumber')}" th:errors="*{car.stateNumber}"></span><br/>
+                        <div class="me-3 w-32">
+                            <label for="name" class="form-label">Имя:</label>
+                            <input type="text" id="name" class="form-control" placeholder="Виктор"
+                                   th:field="*{client.name}"
+                                   th:classappend="${#fields.hasErrors('client.name') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('client.name')}" class="invalid-feedback">
+                                <span th:errors="*{client.name}"></span>
+                            </div>
+                        </div>
 
-        <label for="vin">VIN номер: </label>
-        <input
-                type="text" id="vin" placeholder="XW8ZZZ61ZLG028617"
-                th:field="*{car.vin}"
-                oninput="transformVin(this)"/>
-        <span th:if="${#fields.hasErrors('car.vin')}" th:errors="*{car.vin}"></span><br/>
+                        <div class="w-32">
+                            <label for="patronymic" class="form-label">Отчество:</label>
+                            <input type="text" id="patronymic" class="form-control" placeholder="Владимирович"
+                                   th:field="*{client.patronymic}"
+                                   th:classappend="${#fields.hasErrors('client.patronymic') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('client.patronymic')}" class="invalid-feedback">
+                                <span th:errors="*{client.patronymic}"></span>
+                            </div>
+                        </div>
+                    </div>
 
-        <label for="brand">Марка автомобиля: </label>
-        <input type="text" id="brand" placeholder="Lada" th:field="*{car.brand}"/>
-        <span th:if="${#fields.hasErrors('car.brand')}" th:errors="*{car.brand}"></span><br/>
+                    <!-- Номер телефона -->
+                    <div class="mb-3 d-flex align-items-end">
+                        <div class="me-3 w-32">
+                            <label for="phoneNumber" class="form-label">Номер телефона:</label>
+                            <input type="text" id="phoneNumber" class="form-control" placeholder="89999999999"
+                                   th:field="*{client.phoneNumber}"
+                                   pattern="[0-9]*" title="Введите только цифры"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   th:classappend="${#fields.hasErrors('client.phoneNumber') ? ' is-invalid' : ''}"/>
+                            <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"
+                                  class="invalid-feedback"></span>
+                        </div>
 
-        <label for="model">Модель автомобиля: </label>
-        <input type="text" id="model" placeholder="Vesta" th:field="*{car.model}"/>
-        <span th:if="${#fields.hasErrors('car.model')}" th:errors="*{car.model}"></span><br/>
+                        <button id="searchClientButton" type="submit" formaction="/request/create/search-client"
+                                class="btn btn-orange text-white d-flex align-items-center justify-content-center" style="width: 120px;">
+                            <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Поиск
+                        </button>
+                    </div>
 
-        <label for="yearOfManufacture">Год выпуска: </label>
-        <input type="number" id="yearOfManufacture" placeholder="2020" th:field="*{car.yearOfManufacture}" min="1900"/>
-        <span th:if="${#fields.hasErrors('car.yearOfManufacture')}" th:errors="*{car.yearOfManufacture}"></span><br/>
-    </fieldset><br/>
+                    <!-- Email -->
+                    <div class="mb-3 w-32">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="text" id="email" class="form-control" placeholder="pochta@mail.ru"
+                               th:field="*{client.email}"
+                               th:classappend="${#fields.hasErrors('client.email') ? ' is-invalid' : ''}"/>
+                        <div th:if="${#fields.hasErrors('client.email')}" class="invalid-feedback">
+                            <span th:errors="*{client.email}"></span>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+
+            <!-- Информация об автомобиле -->
+            <div class="info-block">
+                <fieldset>
+                    <legend class="font-weight-bold d-flex align-items-center">
+                        <img src="/icons/car-front-fill.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Информация об автомобиле
+                    </legend>
 
 
-    <!-- Поле для жалобы -->
-    <label for="complaint">Жалоба: </label>
-    <textarea id="complaint" placeholder="Проблемы с переключением передач, часто заедает коробка передач"
-              th:field="*{complaint}"></textarea>
-    <span th:if="${#fields.hasErrors('complaint')}" th:errors="*{complaint}"></span><br/>
+                    <div class="mb-3 d-flex">
+                        <div class="me-3 w-32">
+                            <label for="brand" class="form-label">Марка автомобиля:</label>
+                            <input type="text" id="brand" class="form-control" placeholder="Lada"
+                                   th:field="*{car.brand}"
+                                   th:classappend="${#fields.hasErrors('car.brand') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('car.brand')}" class="invalid-feedback">
+                                <span th:errors="*{car.brand}"></span>
+                            </div>
+                        </div>
 
+                        <div class="me-3 w-32">
+                            <label for="model" class="form-label">Модель автомобиля:</label>
+                            <input type="text" id="model" class="form-control" placeholder="Vesta"
+                                   th:field="*{car.model}"
+                                   th:classappend="${#fields.hasErrors('car.model') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('car.model')}" class="invalid-feedback">
+                                <span th:errors="*{car.model}"></span>
+                            </div>
+                        </div>
 
-    <!-- Кнопка для отправки формы на создание -->
-    <button type="submit" formaction="/request/create">
-        Создать
-    </button>
-</form>
+                        <div class="w-32">
+                            <label for="yearOfManufacture" class="form-label">Год выпуска:</label>
+                            <input type="number" id="yearOfManufacture" class="form-control" placeholder="2020"
+                                   th:field="*{car.yearOfManufacture}" min="1900"
+                                   th:classappend="${#fields.hasErrors('car.yearOfManufacture') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('car.yearOfManufacture')}" class="invalid-feedback">
+                                <span th:errors="*{car.yearOfManufacture}"></span>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="mb-3 d-flex">
+                        <div class="me-3 w-32">
+                            <label for="stateNumber" class="form-label">Госномер:</label>
+                            <input type="text" id="stateNumber" class="form-control" placeholder="А001АА163"
+                                   th:field="*{car.stateNumber}" oninput="transformVin(this)"
+                                   th:classappend="${#fields.hasErrors('car.stateNumber') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('car.stateNumber')}" class="invalid-feedback">
+                                <span th:errors="*{car.stateNumber}"></span>
+                            </div>
+                        </div>
 
-<!-- Уведомление, если клиент не найден -->
-<div th:if="${clientNotFound}">
-    <script type="text/javascript">
-        alert('Клиент с таким номером телефона не найден');
-    </script>
+                        <div class="w-32">
+                            <label for="vin" class="form-label">VIN номер:</label>
+                            <input type="text" id="vin" class="form-control" placeholder="XW8ZZZ61ZLG028617"
+                                   th:field="*{car.vin}" oninput="transformVin(this)"
+                                   th:classappend="${#fields.hasErrors('car.vin') ? ' is-invalid' : ''}"/>
+                            <div th:if="${#fields.hasErrors('car.vin')}" class="invalid-feedback">
+                                <span th:errors="*{car.vin}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 w-64">
+                        <label for="complaint" class="form-label">Жалоба:</label>
+                        <textarea id="complaint" class="form-control"
+                                  placeholder="Проблемы с переключением передач, часто заедает коробка передач"
+                                  th:field="*{complaint}"
+                                  th:classappend="${#fields.hasErrors('complaint') ? ' is-invalid' : ''}"></textarea>
+                        <div th:if="${#fields.hasErrors('complaint')}" class="invalid-feedback">
+                            <span th:errors="*{complaint}"></span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <button type="submit" formaction="/request/create"
+                        class="btn btn-success d-flex align-items-center justify-content-center" style="width: 120px;">
+                    <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Создать
+                </button>
+            </div>
+        </form>
+
+        <!-- Уведомление, если клиент не найден -->
+        <div th:if="${clientNotFound}">
+            <script type="text/javascript">
+                alert('Клиент с таким номером телефона не найден');
+            </script>
+        </div>
+    </div>
 </div>
 
+<script src="/static/js/bootstrap.bundle.min.js"></script>
 
 <script>
     function transformVin(input) {
-
-        // Сохраняю позицию курсора
         const cursorPosition = input.selectionStart;
-
-        // Преобразую введённое значение в верхний регистр
         input.value = input.value.toUpperCase();
-
-        // Восстанавливаю позицию курсора
         input.setSelectionRange(cursorPosition, cursorPosition);
     }
 </script>
