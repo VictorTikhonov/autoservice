@@ -2,119 +2,147 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Добавление услуги и категории</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/common.css}" rel="stylesheet">
     <style>
-        /* Стиль для всплывающего уведомления */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #2e7d32;
-            color: #f1f1f1;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            z-index: 1000;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            min-width: 250px;
-            max-width: 400px;
-            text-align: center;
+        .container {
+            max-width: 50%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
-
-        .toast.show {
-            opacity: 1;
+        textarea {
+            min-height: 100px;
         }
     </style>
 </head>
 <body>
 
-
-<h1>Добавить услугу и категорию</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
+<!-- Всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <!-- Кнопка возврата -->
+        <button type="button" onclick="window.location.href='/service/list'"
+                class="btn btn-primary d-flex align-items-center justify-content-center">
+            <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Услуги
+        </button>
 
-<div>
-    <a th:href="@{/service/list}">
-        <button type="button">К списку услуг</button>
-    </a>
-</div>
+        <h1 class="mb-4 text-center">Добавление услуги и категории</h1>
 
+        <div class="row">
+            <!-- Форма добавления категории -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0 text-center">Добавить категорию</h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorCategory}" class="alert alert-danger" role="alert">
+                            <p class="mb-0" th:text="${errorCategory}"></p>
+                        </div>
 
-<!-- Форма добавления категории услуги -->
-<h2>Добавить категорию услуг</h2>
+                        <form th:action="@{/service/create}" method="post">
+                            <input type="hidden" name="action" value="addCategory"/>
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Наименование категории:</label>
+                                <input type="text" class="form-control" id="categoryName" name="categoryName"
+                                       maxlength="35" required
+                                       placeholder="Трансмиссия" th:value="${categoryName}">
+                            </div>
+                            <div class="d-grid">
+                                <div class="text-center">
+                                    <button type="submit"
+                                            class="btn btn-success d-flex align-items-center justify-content-center mx-auto">
+                                        <img src="/icons/save.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                        Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-<div th:if="${errorCategory}" style="color: red;">
-    <p th:text="${errorCategory}"></p>
-</div>
+            <!-- Форма добавления услуги -->
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h5 mb-0 text-center">Добавить услугу</h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorService}" class="alert alert-danger" role="alert">
+                            <p class="mb-0" th:text="${errorService}"></p>
+                        </div>
 
-<form th:action="@{/service/create}" method="post">
-    <input type="hidden" name="action" value="addCategory"/>
-    <div>
-        <label for="categoryName">Наименование категории:</label>
-        <input type="text" id="categoryName" name="categoryName" maxlength="35"
-               placeholder="трансмиссия" required th:value="${categoryName}">
-    </div>
-    <div>
-        <button type="submit">Добавить категорию</button>
-    </div>
-</form>
+                        <form th:action="@{/service/create}" th:object="${service}" method="post">
+                            <input type="hidden" name="action" value="addService"/>
 
+                            <!-- Выбор категории -->
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Категория:</label>
+                                <select class="form-select" id="category" th:field="*{category}"
+                                        th:classappend="${#fields.hasErrors('category') && action == 'addService' ? ' is-invalid' : ''}">
+                                    <option value="" disabled selected>Выберите категорию</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}"
+                                            th:selected="${category.id == service.category?.id}">
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('category') && action == 'addService'}"
+                                     class="invalid-feedback">
+                                    <span th:errors="*{category}"></span>
+                                </div>
+                            </div>
 
-<!-- Форма добавления услуги -->
-<h2>Добавить услугу</h2>
+                            <!-- Поле для названия -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Название:</label>
+                                <input class="form-control" id="name" type="text" placeholder="Замена сцепления"
+                                       th:field="*{name}"
+                                       th:classappend="${#fields.hasErrors('name') && action == 'addService' ? ' is-invalid' : ''}">
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('name') && action == 'addService'}"
+                                         class="invalid-feedback" th:errors="*{name}"></div>
+                                </div>
+                            </div>
 
-<div th:if="${errorService}" style="color: red;">
-    <p th:text="${errorService}"></p>
-</div>
+                            <!-- Поле для описания -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Описание:</label>
+                                <textarea class="form-control" id="description" style = "height: 150px;"
+                                          placeholder="Замена сцепления с полной проверкой и регулировкой системы трансмиссии"
+                                          th:field="*{description}"
+                                          th:classappend="${#fields.hasErrors('description') && action == 'addService' ? ' is-invalid' : ''}"></textarea>
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('description') && action == 'addService'}"
+                                         class="invalid-feedback" th:errors="*{description}"></div>
+                                </div>
+                            </div>
 
-<form th:action="@{/service/create}" th:object="${service}" method="post">
-    <input type="hidden" name="action" value="addService"/>
-
-    <!-- Выбор категории -->
-    <div>
-        <label for="category">Категория:</label>
-        <select id="category" th:field="*{category}">
-            <option value="" disabled>Выберите категорию</option>
-            <option th:each="category : ${categories}"
-                    th:value="${category.id}"
-                    th:text="${category.name}"
-                    th:selected="${category.id == service.category?.id}">
-            </option>
-        </select>
-    </div>
-
-    <!-- Поле для названия -->
-    <div>
-        <label for="name">Название:</label>
-        <input id="name" type="text" name="name" placeholder="замена сцепления" th:field="*{name}"/>
-        <div th:if="${#fields.hasErrors('name') && action == 'addService'}" style="color: red;">
-            <p th:errors="*{name}"></p>
+                            <!-- Кнопка сохранения -->
+                            <div class="d-grid">
+                                <div class="text-center">
+                                    <button type="submit" th:disabled="${#lists.isEmpty(categories)}"
+                                            class="btn btn-success d-flex align-items-center justify-content-center mx-auto">
+                                        <img src="/icons/save.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                        Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Поле для описания -->
-    <div>
-        <label for="description">Описание:</label>
-        <textarea id="description" name="description"
-                  placeholder="замена сцепления с полной проверкой и регулировкой системы трансмиссии"
-                  th:field="*{description}"></textarea>
-        <div th:if="${#fields.hasErrors('description') && action == 'addService'}" style="color: red;">
-            <p th:errors="*{description}"></p>
-        </div>
-    </div>
-
-    <!-- Кнопка сохранения -->
-    <div>
-        <button type="submit" th:disabled="${#lists.isEmpty(categories)}">Сохранить услугу</button>
-    </div>
-</form>
-
+</div>
 
 </body>
 </html>

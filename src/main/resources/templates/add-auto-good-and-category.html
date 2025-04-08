@@ -2,111 +2,175 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Добавление автотовара и категории</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 50%;
+            border: 1px solid #ddd; /* Легкая граница */
+            border-radius: 10px; /* Скругленные углы */
+            background-color: white; /* Белый фон формы */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+        }
+    </style>
 </head>
 <body>
 
-
-<h1>Добавить автотовар и категорию</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
+<!-- Всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <!-- Кнопка возврата -->
+        <button type="button" onclick="window.location.href='/auto-good/list'"
+                class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 130px;">
+            <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Автотовары
+        </button>
 
-<div>
-    <a th:href="@{/auto-good/list}">
-        <button type="button">К списку автотоваров</button>
-    </a>
+        <h1 class="mb-4 text-center">Добавление автотовара и категории</h1>
+
+        <div class="row">
+            <!-- Форма добавления категории -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0 text-center">Добавить категорию</h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorCategory}" class="alert alert-danger" role="alert">
+                            <p class="mb-0" th:text="${errorCategory}"></p>
+                        </div>
+
+                        <form th:action="@{/auto-good/create}" method="post">
+                            <input type="hidden" name="action" value="addCategory"/>
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Наименование категории:</label>
+                                <input type="text" class="form-control" id="categoryName" name="categoryName"
+                                       maxlength="35" required
+                                       placeholder="Масла и жидкости" th:value="${categoryName}">
+                            </div>
+                            <div class="d-grid">
+                                <div class="text-center">
+                                    <button type="submit"
+                                            class="btn btn-success d-flex align-items-center justify-content-center mx-auto">
+                                        <img src="/icons/save.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                        Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма добавления автотовара -->
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h2 class="h5 mb-0 text-center">Добавить автотовар</h2>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${errorAutoGood}" class="alert alert-danger" role="alert">
+                            <p class="mb-0" th:text="${errorAutoGood}"></p>
+                        </div>
+
+                        <form th:action="@{/auto-good/create}" th:object="${autoGood}" method="post">
+                            <input type="hidden" name="action" value="addAutoGood"/>
+
+                            <!-- Выбор категории -->
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Категория:</label>
+                                <select class="form-select" id="category" th:field="*{category}"
+                                        th:classappend="${#fields.hasErrors('category') && action == 'addAutoGood' ? ' is-invalid' : ''}">
+                                    <option value="" disabled selected>Выберите категорию</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}"
+                                            th:selected="${category.id == autoGood.category?.id}">
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('category') && action == 'addAutoGood'}"
+                                     class="invalid-feedback">
+                                    <span th:errors="*{category}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Поле для названия -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Название:</label>
+                                <input class="form-control" id="name" type="text" placeholder="моторное масло 5W-30"
+                                       th:field="*{name}"
+                                       th:classappend="${#fields.hasErrors('name') && action == 'addAutoGood' ? ' is-invalid' : ''}">
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('name') && action == 'addAutoGood'}"
+                                         class="invalid-feedback" th:errors="*{name}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Поле для количества -->
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Количество:</label>
+                                <input class="form-control" id="quantity" type="number" placeholder="10"
+                                       th:field="*{quantity}" min="1" step="1"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                       th:classappend="${#fields.hasErrors('quantity') && action == 'addAutoGood' ? ' is-invalid' : ''}">
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('quantity') && action == 'addAutoGood'}"
+                                         class="invalid-feedback" th:errors="*{quantity}"></div>
+                                </div>
+                            </div>
+
+
+                            <!-- Поле для цены за единицу -->
+                            <div class="mb-3">
+                                <label for="priceOneUnit" class="form-label">Цена за единицу:</label>
+                                <div class="input-group has-validation">
+                                    <input class="form-control" id="priceOneUnit" type="text"
+                                           placeholder="500.00" th:field="*{priceOneUnit}"
+                                           pattern="^[0-9]+([.,][0-9]{1,2})?$"
+                                           onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 44 || event.charCode === 46"
+                                           th:classappend="${#fields.hasErrors('priceOneUnit') && action == 'addAutoGood' ? ' is-invalid' : ''}">
+                                    <span class="input-group-text">₽</span>
+                                </div>
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('priceOneUnit') && action == 'addAutoGood'}"
+                                         class="invalid-feedback" th:errors="*{priceOneUnit}"></div>
+                                </div>
+                            </div>
+
+
+                            <!-- Поле для срока годности -->
+                            <div class="mb-3">
+                                <label for="expirationDate" class="form-label">Срок годности:</label>
+                                <input class="form-control" id="expirationDate" type="date" th:field="*{expirationDate}"
+                                       th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                       th:classappend="${#fields.hasErrors('expirationDate') && action == 'addAutoGood' ? ' is-invalid' : ''}">
+                                <div class="error-space">
+                                    <div th:if="${#fields.hasErrors('expirationDate') && action == 'addAutoGood'}"
+                                         class="invalid-feedback" th:errors="*{expirationDate}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Кнопка сохранения -->
+                            <div class="d-grid">
+                                <div class="text-center">
+                                    <button type="submit" th:disabled="${#lists.isEmpty(categories)}"
+                                            class="btn btn-success d-flex align-items-center justify-content-center mx-auto">
+                                        <img src="/icons/save.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                        Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-
-<!-- Форма добавления категории -->
-<h2>Добавить категорию</h2>
-
-<div th:if="${errorCategory}" style="color: red;">
-    <p th:text="${errorCategory}"></p>
-</div>
-
-<form th:action="@{/auto-good/create}" method="post">
-    <input type="hidden" name="action" value="addCategory"/>
-    <div>
-        <label for="categoryName">Наименование категории:</label>
-        <input type="text" id="categoryName" name="categoryName" maxlength="35"
-               placeholder="масла и жидкости" required th:value="${categoryName}">
-    </div>
-    <div>
-        <button type="submit">Добавить категорию</button>
-    </div>
-</form>
-
-
-<!-- Форма добавления автотовара -->
-<h2>Добавить автотовар</h2>
-
-<div th:if="${errorAutoGood}" style="color: red;">
-    <p th:text="${errorAutoGood}"></p>
-</div>
-
-<form th:action="@{/auto-good/create}" th:object="${autoGood}" method="post">
-    <input type="hidden" name="action" value="addAutoGood"/>
-
-    <!-- Выбор категории -->
-    <div>
-        <label for="category">Категория:</label>
-        <select id="category" th:field="*{category}">
-            <option value="" disabled>Выберите категорию</option>
-            <option th:each="category : ${categories}"
-                    th:value="${category.id}"
-                    th:text="${category.name}"
-                    th:selected="${category.id == autoGood.category?.id}">
-            </option>
-        </select>
-    </div>
-
-    <!-- Поле для названия -->
-    <div>
-        <label for="name">Название:</label>
-        <input id="name" type="text" placeholder="моторное масло 5W-30" th:field="*{name}"/>
-        <div th:if="${#fields.hasErrors('name') && action == 'addAutoGood'}" style="color: red;">
-            <p th:errors="*{name}"></p>
-        </div>
-    </div>
-
-    <!-- Поле для количества -->
-    <div>
-        <label for="quantity">Количество:</label>
-        <input id="quantity" type="number" placeholder="10" th:field="*{quantity}"/>
-        <div th:if="${#fields.hasErrors('quantity') && action == 'addAutoGood'}" style="color: red;">
-            <p th:errors="*{quantity}"></p>
-        </div>
-    </div>
-
-    <!-- Поле для цены за единицу -->
-    <div>
-        <label for="priceOneUnit">Цена за единицу:</label>
-        <input id="priceOneUnit" type="number" step="0.01" placeholder="500" th:field="*{priceOneUnit}"/>
-        <div th:if="${#fields.hasErrors('priceOneUnit') && action == 'addAutoGood'}" style="color: red;">
-            <p th:errors="*{priceOneUnit}"></p>
-        </div>
-    </div>
-
-    <!-- Поле для срока годности -->
-    <div>
-        <label for="expirationDate">Срок годности:</label>
-        <input id="expirationDate" type="date" th:field="*{expirationDate}"
-               th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
-        <div th:if="${#fields.hasErrors('expirationDate') && action == 'addAutoGood'}" style="color: red;">
-            <p th:errors="*{expirationDate}"></p>
-        </div>
-    </div>
-
-    <!-- Кнопка сохранения -->
-    <div>
-        <button type="submit" th:disabled="${#lists.isEmpty(categories)}">Сохранить автотовар</button>
-    </div>
-</form>
-
 
 </body>
 </html>

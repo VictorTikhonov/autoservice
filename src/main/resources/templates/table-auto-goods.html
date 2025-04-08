@@ -3,119 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <title>Список автотоваров</title>
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/table-auto-goods.css}" rel="stylesheet">
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
 </head>
 <body>
 
-
-<!-- Кнопка для создания категории/автотовара -->
-<div>
-    <span>Создать автотовар/категорию: </span>
-    <a th:href="@{/auto-good/create}">
-        <button type="button">Создать</button>
-    </a>
-</div>
-
-
-<h1>Список автотоваров</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
+<div th:insert="~{/fragments/navigation.html}"></div>
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-<!-- Фильтрация по категории -->
-<form th:action="@{/auto-good/list}" method="get">
-    <label for="category">Выберите категорию:</label>
-    <select id="category" name="categoryId">
-        <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
-        <option th:each="category : ${categories}"
-                th:value="${category.id}"
-                th:text="${category.name}"
-                th:selected="${category.id == selectedCategoryId}"></option>
-    </select>
-    <button type="submit">Фильтровать</button>
-</form>
-
-
-<!-- Форма поиска -->
-<form th:action="@{/auto-good/list}" method="get">
-    <label for="searchInput">Поиск по наименованию:</label>
-    <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}" placeholder="моторное масло 5W-30">
-    <button type="submit">Искать</button>
-    <button type="button" onclick="clearSearch()">Очистить</button>
-</form>
-
-
-<!-- Контейнер для таблицы и пагинации -->
-<div class="table-container">
-    <!-- Обертка для таблицы -->
-    <div class="table-wrapper">
-        <!-- Таблица автотоваров -->
-        <table id="autoGoodsTable">
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Название автотовара</th>
-                <th>Количество</th>
-                <th>Цена</th>
-                <th>Срок годности</th>
-                <th>Категория</th>
-                <th>Удаление</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Если автотоваров нет, вывожу сообщение -->
-            <tr th:if="${autoGoods.isEmpty()}">
-                <td colspan="7" style="color: red; text-align: center;">Автотовары отсутствуют</td>
-            </tr>
-
-            <!-- Отображение автотоваров -->
-            <tr th:each="autoGood, iterStat : ${autoGoods}">
-                <td th:text="${iterStat.index + 1}"></td>
-                <td th:text="${autoGood.name}"></td>
-                <td th:text="${autoGood.quantity}"></td>
-                <td th:text="${autoGood.priceOneUnit}"></td>
-                <td th:text="${autoGood.expirationDate}"></td>
-                <td th:text="${autoGood.category.name}"></td>
-                <td>
-                    <form th:action="@{/auto-good/delete}" method="post">
-                        <input type="hidden" name="id" th:value="${autoGood.id}">
-                        <button type="submit">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="d-flex align-items-center">
+        <span class="me-3 fw-semi-bold">Добавление автотовара/категории: </span>
+        <button type="button" onclick="window.location.href='/auto-good/create'"
+                class="btn btn-primary d-flex align-items-center justify-content-center">
+            <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Создать
+        </button>
     </div>
 
-    <!-- Пагинация -->
-    <div class="pagination-container">
-        <div class="pagination">
-            <!-- Стрелка назад всегда видна, но не кликабельная на первой странице -->
-            <span class="pagination-arrow">
-            <a th:if="${currentPage > 0}"
-               th:href="@{/auto-good/list(page=${currentPage - 1}, size=${size}, categoryId=${selectedCategoryId}, searchQuery=${searchQuery})}">
-                «««
-            </a>
-            <span th:if="${currentPage == 0}">«««</span>
-        </span>
+    <h1 class="mb-4 text-center">Список автотоваров</h1>
 
-            <!-- Текущая страница и общее количество страниц -->
-            <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+    <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
+        <div class="d-flex justify-content-between">
+            <!-- Блок фильтров -->
+            <div class="filter-block" style="width: 48%;">
+                <form method="get" th:action="@{/auto-good/list}">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="fw-bold text-dark text-center">Фильтр</legend>
+                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-2">
+                            <!-- Категория -->
+                            <div class="w-100">
+                                <label for="category" class="form-label">Категория:</label>
+                                <select id="category" name="categoryId" class="form-select">
+                                    <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}"
+                                            th:selected="${category.id == selectedCategoryId}"></option>
+                                </select>
+                            </div>
+                        </div>
 
-            <!-- Стрелка вперед всегда видна, но не кликабельная на последней странице -->
-            <span class="pagination-arrow">
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{/auto-good/list(page=${currentPage + 1}, size=${size}, categoryId=${selectedCategoryId}, searchQuery=${searchQuery})}">
-                »»»
-            </a>
-            <span th:if="${currentPage == totalPages - 1}">»»»</span>
-        </span>
+                        <div class="d-flex justify-content-center mt-2">
+                            <button type="submit"
+                                    class="btn btn-success d-flex align-items-center justify-content-center">
+                                <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Готово
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <!-- Блок поиска -->
+            <div class="search-block" style="width: 48%;">
+                <form method="get" th:action="@{/auto-good/list}">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="fw-bold text-dark text-center">Поиск автотовара</legend>
+                        <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
+                            <!-- Название товара -->
+                            <div class="me-lg-3 mb-2 mb-lg-0 flex-grow-1">
+                                <label for="searchInput" class="form-label">Название:</label>
+                                <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}"
+                                       placeholder="моторное масло 5W-30" class="form-control">
+                            </div>
+
+                            <!-- Кнопка "Очистить" -->
+                            <div class="align-self-end">
+                                <button type="button" onclick="clearSearch()"
+                                        class="btn btn-danger d-flex align-items-center justify-content-center"
+                                        style="width: 50px; height: 38px;">
+                                    <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-2">
+                            <button type="submit"
+                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Найти
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для таблицы и пагинации -->
+    <div class="table-container">
+        <!-- Обертка для таблицы -->
+        <div class="table-wrapper">
+            <!-- Таблица автотоваров -->
+            <table>
+                <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Название</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Срок годности</th>
+                    <th>Категория</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="autoGood, iterStat : ${autoGoods}">
+                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${autoGood.name}"></td>
+                    <td th:text="${autoGood.quantity}"></td>
+                    <td th:text="${#numbers.formatDecimal(autoGood.priceOneUnit, 1, 2)} + ' ₽'"></td>
+                    <td th:text="${#temporals.format(autoGood.expirationDate, 'dd.MM.yyyy')}"></td>
+                    <td th:text="${autoGood.category.name}"></td>
+                    <td class="text-center">
+                        <form th:action="@{/auto-good/delete}" method="post"
+                              style="display: inline-block; text-align: center;">
+                            <input type="hidden" name="id" th:value="${autoGood.id}"/>
+                            <button type="submit" class="btn btn-danger p-2"
+                                    style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                                <img src="/icons/trash-fill.svg" alt="Удалить" width="20" height="20">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${autoGoods.isEmpty()}">
+                    <td colspan="7">Автотовары отсутствуют</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Пагинация -->
+        <div class="pagination-container">
+            <div class="pagination">
+                <!-- Стрелка назад -->
+                <span class="pagination-arrow" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a th:if="${currentPage > 0}" th:href="@{/auto-good/list(page=${currentPage - 1}, size=${size},
+                                        categoryId=${selectedCategoryId},
+                                        searchQuery=${searchQuery})}">
+                       <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
+                    </a>
+                    <span th:if="${currentPage == 0}">
+                        <img src="/icons/arrow-left-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+                    </span>
+                </span>
+
+                <!-- Текущая страница и общее количество страниц -->
+                <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+
+                <!-- Стрелка вперед -->
+                <span class="pagination-arrow" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <a th:if="${currentPage < totalPages - 1}" th:href="@{/auto-good/list(page=${currentPage + 1}, size=${size},
+                                        categoryId=${selectedCategoryId},
+                                        searchQuery=${searchQuery})}">
+                        <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
+                    </a>
+                    <span th:if="${currentPage == totalPages - 1}">
+                        <img src="/icons/arrow-right-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+                    </span>
+                </span>
+            </div>
         </div>
     </div>
 </div>
-
 
 <script>
     function clearSearch() {
@@ -123,7 +174,6 @@
         window.location.href = "/auto-good/list";
     }
 </script>
-
 
 </body>
 </html>

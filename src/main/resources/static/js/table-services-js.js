@@ -71,7 +71,7 @@ function searchByName(tableId, inputId) {
     filteredRows = [];  // Очищаем массив отфильтрованных строк
 
     for (let i = 1; i < rows.length; i++) {
-        const cellText = rows[i].cells[0]?.textContent || '';
+        const cellText = rows[i].cells[1]?.textContent || '';
         if (cellText.toLowerCase().includes(filter)) {
             filteredRows.push(rows[i]);  // Добавляю строку в массив отфильтрованных
         } else {

@@ -3,106 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <title>Список услуг</title>
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/table-services.css}" rel="stylesheet">
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
     <script src="/js/table-services-js.js"></script>
 </head>
+
 <body>
 
-
-<!-- Кнопка для создания категории/услуги -->
-<div>
-    <span>Создать услугу/категорию: </span>
-    <a th:href="@{/service/create}">
-        <button type="button">Создать</button>
-    </a>
-</div>
-
-
-<h1>Список услуг</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
+<div th:insert="~{/fragments/navigation.html}"></div>
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-<!-- Фильтрация по категории -->
-<form th:action="@{/service/list}" method="get">
-    <label for="category">Выберите категорию:</label>
-    <select id="category" name="categoryId">
-        <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
-        <option th:each="category : ${categories}"
-                th:value="${category.id}"
-                th:text="${category.name}"
-                th:selected="${category.id == selectedCategoryId}"></option>
-    </select>
-    <button type="submit">Фильтровать</button>
-</form>
-
-
-<!--Поле для поиска-->
-<div>
-    <label for="searchInput">Поиск по наименованию:</label>
-    <input type="text" id="searchInput" onkeyup="searchByName('servicesTable', 'searchInput')"
-           placeholder="замена сцепления">
-</div>
-
-
-<!-- Контейнер для таблицы и пагинации -->
-<div class="table-container">
-    <!-- Обертка для таблицы -->
-    <div class="table-wrapper">
-        <!-- Таблица услуг -->
-        <table id="servicesTable">
-            <thead>
-            <tr>
-                <th>Название услуги</th>
-                <th>Описание</th>
-                <th>Категория</th>
-                <th>Удаление</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Если услуг нет, выводим сообщение -->
-            <tr th:if="${#lists.isEmpty(services)}">
-                <td colspan="4" style="color: red; text-align: center;">Услуги отсутствуют</td>
-            </tr>
-
-            <!-- Отображение услуг -->
-            <tr th:each="service, iterStat : ${services}">
-                <td th:text="${service.name}"></td>
-                <td th:text="${service.description}"></td>
-                <td th:text="${service.category.name}"></td>
-                <td>
-                    <form th:action="@{/service/delete}" method="post">
-                        <input type="hidden" name="id" th:value="${service.id}">
-                        <button type="submit">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="d-flex align-items-center">
+        <span class="me-3 fw-semi-bold">Добавление услуги/категории: </span>
+        <button type="button" onclick="window.location.href='/service/create'"
+                class="btn btn-primary d-flex align-items-center justify-content-center">
+            <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Создать
+        </button>
     </div>
 
-    <!-- Пагинация -->
-    <div class="pagination-container">
-        <div class="pagination">
-            <!-- Стрелка назад -->
-            <span class="pagination-arrow">
-            <a id="prevPage" href="#" onclick="changePage(currentPage - 1)" aria-disabled="false">«««</a>
-            <span id="prevPageDisabled" style="display: none;">«««</span>
-        </span>
+    <h1 class="mb-4 text-center">Список услуг</h1>
 
-            <span id="currentPageNumber">1</span> из <span id="totalPages">1</span>
+    <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
+        <div class="d-flex justify-content-between">
+            <!-- Блок фильтров -->
+            <div class="filter-block" style="width: 48%;">
+                <form method="get" th:action="@{/service/list}">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="fw-bold text-dark text-center">Фильтр</legend>
+                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-2">
+                            <!-- Категория -->
+                            <div class="w-100">
+                                <label for="category" class="form-label">Категория:</label>
+                                <select id="category" name="categoryId" class="form-select">
+                                    <option value="" th:selected="${selectedCategoryId == null}">Все категории</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}"
+                                            th:selected="${category.id == selectedCategoryId}"></option>
+                                </select>
+                            </div>
+                        </div>
 
-            <!-- Стрелка вперед -->
-            <span class="pagination-arrow">
-            <a id="nextPage" href="#" onclick="changePage(currentPage + 1)" aria-disabled="false">»»»</a>
-            <span id="nextPageDisabled" style="display: none;">»»»</span>
-        </span>
+                        <div class="d-flex justify-content-center mt-2">
+                            <button type="submit"
+                                    class="btn btn-success d-flex align-items-center justify-content-center">
+                                <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Готово
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <!-- Блок поиска -->
+            <div class="search-block" style="width: 48%;">
+                <form method="get" th:action="@{/service/list}">
+                    <fieldset class="border p-3 rounded">
+                        <legend class="fw-bold text-dark text-center">Поиск услуги</legend>
+                        <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
+                            <!-- Название услуги -->
+                            <div class="me-lg-3 mb-2 mb-lg-0 flex-grow-1">
+                                <label for="searchInput" class="form-label">Название:</label>
+                                <input type="text" id="searchInput" name="searchQuery" th:value="${searchQuery}"
+                                       placeholder="замена сцепления" class="form-control"
+                                       onkeyup="searchByName('servicesTable', 'searchInput')">
+                            </div>
+
+                            <!-- Кнопка "Очистить" -->
+                            <div class="align-self-end">
+                                <button type="button" onclick="clearSearch()"
+                                        class="btn btn-danger d-flex align-items-center justify-content-center"
+                                        style="width: 50px; height: 38px;">
+                                    <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-2">
+                            <button type="submit"
+                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Найти
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для таблицы и пагинации -->
+    <div class="table-container">
+        <!-- Обертка для таблицы -->
+        <div class="table-wrapper">
+            <!-- Таблица услуг -->
+            <table id="servicesTable">
+                <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Описание</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="service, iterStat : ${services}">
+                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${service.name}"></td>
+                    <td th:text="${service.category.name}"></td>
+                    <td th:text="${service.description}"></td>
+                    <td class="text-center">
+                        <form th:action="@{/service/delete}" method="post"
+                              style="display: inline-block; text-align: center;">
+                            <input type="hidden" name="id" th:value="${service.id}"/>
+                            <button type="submit" class="btn btn-danger p-2"
+                                    style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                                <img src="/icons/trash-fill.svg" alt="Удалить" width="20" height="20">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${services.isEmpty()}">
+                    <td colspan="4">Услуги отсутствуют</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Пагинация -->
+        <div class="pagination-container">
+            <div class="pagination">
+                <!-- Стрелка назад -->
+                <span class="pagination-arrow" id="prevPageContainer">
+                    <a id="prevPage" href="#" onclick="changePage(currentPage - 1)" aria-disabled="false">
+                <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
+            </a>
+                    <span id="prevPageDisabled" style="display: none;">
+                <img src="/icons/arrow-left-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+            </span>
+                </span>
+
+                <!-- Текущая страница и общее количество страниц -->
+                <span id="currentPageNumber">1</span> из <span id="totalPages">1</span>
+
+                <!-- Стрелка вперед -->
+                <span class="pagination-arrow" id="nextPageContainer">
+                    <a id="nextPage" href="#" onclick="changePage(currentPage + 1)" aria-disabled="false">
+                <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
+                    </a>
+                    <span id="nextPageDisabled" style="display: none;">
+                        <img src="/icons/arrow-right-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+                    </span>
+                </span>
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+    function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        window.location.href = "/service/list";
+    }
+</script>
 
 </body>
 </html>

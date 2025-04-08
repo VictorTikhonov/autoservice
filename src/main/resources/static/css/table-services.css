@@ -1,28 +1,5 @@
 @import url("common.css");
 
-
-
-/*.container-1 {*/
-/*    width: 75%; !* Контейнер занимает 80% от оставшейся ширины *!*/
-/*    margin-left: 20%; !* Отступ слева для навигации *!*/
-/*    margin-right: 5%; !* Отступ справа *!*/
-/*    padding: 20px;*/
-/*    background-color: white; !* Белый фон *!*/
-/*    border: 1px solid #ddd; !* Легкая граница *!*/
-/*    border-radius: 10px; !* Скругленные углы *!*/
-/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
-/*}*/
-
-
-/*.container-2 {*/
-/*    max-width: 60%;*/
-/*    margin: 0 auto; !* Центрирование по горизонтали *!*/
-/*    border: 1px solid #ddd; !* Легкая граница *!*/
-/*    border-radius: 10px; !* Скругленные углы *!*/
-/*    background-color: white; !* Белый фон формы *!*/
-/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
-/*}*/
-
 /* Размеры столбцов в процентном соотношении */
 .table-container table th,
 .table-container table td {
