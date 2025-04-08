@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Боковая панель */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 15%;
+      height: 100%;
+      background-color: #f8f9fa; /* Светлый серый */
+      color: #343a40; /* Темный текст для контраста */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Заголовок */
+    .sidebar h2 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    /* Стили для списка */
+    .menu .list-group-item {
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #ced4da; /* Светлая граница между элементами, более контрастная */
+    }
+
+    .menu .list-group-item:hover {
+      background-color: #ECE4E4;
+      color: #0c69f2;
+      border-bottom: 1px solid #0c69f2;
+      cursor: pointer;
+    }
+
+    /* Иконки */
+    .menu .list-group-item img {
+      width: 20px;
+      margin-right: 20px;
+      filter: brightness(0); /* Иконки черные */
+      transition: transform 0.3s ease;
+    }
+
+    .menu .list-group-item:hover img {
+      transform: scale(1.5);
+      /*filter: brightness(0) saturate(100%) invert(31%) sepia(91%) saturate(750%) hue-rotate(186deg) brightness(102%) contrast(102%);*/
+    }
+
+
+    /* Кнопка выхода */
+    .logout {
+      margin-right: 15%;
+      margin-left: 15%;
+      padding: 10px; /* Уменьшаем padding */
+      text-align: center;
+      border-top: none; /* Убираем верхнюю границу */
+    }
+
+    .logout a {
+      display: inline-block; /* Уменьшаем ширину кнопки */
+      padding: 10px 20px; /* Меньше padding по бокам */
+      font-weight: bold;
+      background-color: #dc3545; /* Красный цвет для кнопки выхода */
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout a:hover {
+      background-color: #c82333; /* Темнее при наведении */
+    }
+  </style>
+</head>
+<body>
+
+<!-- Боковое меню -->
+<div class="sidebar">
+  <div>
+    <h2>Автосервис</h2>
+    <ul class="menu list-group">
+      <li><a class="list-group-item" onclick="window.location.href='/'"><img src="/icons/profile.svg" alt="">Профиль</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/request/list'"><img src="/icons/request.svg" alt="">Заявки</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/work-order/list'"><img src="/icons/work-order.svg" alt="">Заказ-наряды</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/auto-good/list'"><img src="/icons/auto-good.svg" alt="">Товары</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/service/list'"><img src="/icons/services.svg" alt="">Услуги</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/employee/list'"><img src="/icons/employees.svg" alt="">Сотрудники</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/report/operator'"><img src="/icons/report_operator.svg" alt="">Отчёт по заявкам</a></li>
+      <li><a class="list-group-item" onclick="window.location.href='/report/mechanic'"><img src="/icons/report_mechanic.svg" alt="">Отчёт по заказ-нарядам</a></li>
+    </ul>
+  </div>
+
+  <!-- Кнопка выхода -->
+  <div class="logout">
+    <button class="btn btn-danger w-100" onclick="window.location.href='#';">Выйти</button>
+  </div>
+</div>
+
+</body>
+</html>

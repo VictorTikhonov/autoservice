@@ -1,0 +1,31 @@
+@import url("common.css");
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.role-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.role-options {
+    display: flex;
+    gap: 1rem;
+}
+
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.account-info-block {
+    height: 65%;
+}

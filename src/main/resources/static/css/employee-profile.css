@@ -1,0 +1,25 @@
+@import url("common.css");
+
+.container {
+    width: 65%;
+    margin-left: 25%;
+    margin-right: 10%;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.two-columns {
+    display: flex;
+    gap: 20px;
+}
+
+.left-column {
+    flex: 2;
+}
+
+.right-column {
+    flex: 1;
+}

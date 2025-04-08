@@ -1,0 +1,86 @@
+@import url("common.css");
+
+
+/*.container-1 {*/
+/*    width: 75%; !* Контейнер занимает 80% от оставшейся ширины *!*/
+/*    margin-left: 20%; !* Отступ слева для навигации *!*/
+/*    margin-right: 5%; !* Отступ справа *!*/
+/*    padding: 20px;*/
+/*    background-color: white; !* Белый фон *!*/
+/*    border: 1px solid #ddd; !* Легкая граница *!*/
+/*    border-radius: 10px; !* Скругленные углы *!*/
+/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
+/*}*/
+
+
+/*.container-2 {*/
+/*    max-width: 80%;*/
+/*    margin: 0 auto; !* Центрирование по горизонтали *!*/
+/*    border: 1px solid #ddd; !* Легкая граница *!*/
+/*    border-radius: 10px; !* Скругленные углы *!*/
+/*    background-color: white; !* Белый фон формы *!*/
+/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
+/*}*/
+
+/* Размеры столбцов в процентном соотношении */
+.table-container table th,
+.table-container table td {
+    width: auto; /* Автоматическое распределение */
+    text-align: center; /* Центрирование текста по умолчанию */
+}
+
+
+
+.table-container table th:nth-child(1), /* Столбец № */
+.table-container table td:nth-child(1) {
+    width: 5%;
+}
+
+.table-container table th:nth-child(2), /* Столбец Фамилия */
+.table-container table td:nth-child(2) {
+    width: 10%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 20px; /* Отступ слева */
+}
+
+.table-container table th:nth-child(3), /* Столбец Имя */
+.table-container table td:nth-child(3) {
+    width: 10%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 20px; /* Отступ слева */
+}
+
+.table-container table th:nth-child(4), /* Столбец Отчество */
+.table-container table td:nth-child(4) {
+    width: 15%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 20px; /* Отступ слева */
+
+}
+
+.table-container table th:nth-child(5), /* Столбец Должность */
+.table-container table td:nth-child(5) {
+    width: 20%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 20px; /* Отступ слева */
+}
+
+.table-container table th:nth-child(6), /* Столбец Телефон */
+.table-container table td:nth-child(6) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(7), /* Столбец Статус */
+.table-container table td:nth-child(7) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(8), /* Столбец Зарплата */
+.table-container table td:nth-child(8) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(9), /* Столбец Действие */
+.table-container table td:nth-child(9) {
+    width: 5%;
+}

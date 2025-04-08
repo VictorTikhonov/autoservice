@@ -1,0 +1,40 @@
+/* Переопределенные стили для таблицы с классом .current-items */
+.current-items {
+    border-collapse: collapse; /* Объединяем границы ячеек */
+}
+
+table td:nth-child(2),
+table th:nth-child(2) {
+    text-align: left; /* Выравнивание текста по левому краю */
+    padding-left: 40px; /* Отступ слева */
+}
+
+
+.current-items, .current-items th, .current-items td {
+    border: 1px solid black; /* Граница для таблицы и ячеек */
+}
+
+.current-items th, .current-items td {
+    padding: 10px; /* Увеличиваем отступы в ячейках */
+    text-align: center; /* Выравнивание текста по центру */
+}
+
+h2 {
+    font-size: 1.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #2c3e50;
+}
+
+h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #34495e;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    padding-bottom: 3px;
+}
+
+.error-row {
+    background-color: #ffcccc; /* Светло-красный цвет */
+}
