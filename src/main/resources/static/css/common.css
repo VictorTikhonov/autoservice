@@ -85,6 +85,13 @@ legend {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
 }
 
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
 
 .profile-field {
     margin-bottom: 10px;

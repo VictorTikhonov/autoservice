@@ -12,16 +12,6 @@ fieldset {
     resize: vertical; /* Разрешить изменение размера по вертикали */
 }
 
-
-.invalid-feedback {
-    display: block;
-    width: 100%;
-    margin-top: 0.25rem;
-    font-size: 0.875em;
-    color: #dc3545;
-}
-
-
 .container {
     max-width: 60%;
     border: 1px solid #ddd; /* Легкая граница */
