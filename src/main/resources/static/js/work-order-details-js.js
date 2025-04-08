@@ -1,6 +1,17 @@
+function clearSearchServices() {
+    document.getElementById("searchServices").value = "";  // Очистка поля поиска
+    searchByName('servicesTable', 'searchServices');  // Вызов поиска с пустым значением
+}
+
+function clearSearchAutoGoods() {
+    document.getElementById("searchAutoGoods").value = "";  // Очистка поля поиска
+    searchByName('autoGoodsTable', 'searchAutoGoods');  // Вызов поиска с пустым значением
+}
+
+
 let currentAutoGoodsPage = 0;
 let currentServicesPage = 0;
-const rowsPerPage = 2;
+const rowsPerPage = 10;
 let autoGoodsTotalRows = 0;
 let servicesTotalRows = 0;
 let autoGoodsFilteredRows = [];
@@ -91,21 +102,30 @@ function updateTableDisplay(tableName) {
 
 
 function updatePaginationButtons(tableName, totalPages) {
-    const prevPage = tableName === 'autoGoods' ? document.getElementById('prevAutoGoodsPage') : document.getElementById('prevServicePage');
-    const nextPage = tableName === 'autoGoods' ? document.getElementById('nextAutoGoodsPage') : document.getElementById('nextServicePage');
+    const prevBtn = document.getElementById(tableName === 'autoGoods' ? 'prevAutoGoodsPage' : 'prevServicePage');
+    const nextBtn = document.getElementById(tableName === 'autoGoods' ? 'nextAutoGoodsPage' : 'nextServicePage');
+    const prevDisabled = document.getElementById(tableName === 'autoGoods' ? 'prevAutoGoodsPageDisabled' : 'prevServicePageDisabled');
+    const nextDisabled = document.getElementById(tableName === 'autoGoods' ? 'nextAutoGoodsPageDisabled' : 'nextServicePageDisabled');
 
-    if ((tableName === 'autoGoods' ? currentAutoGoodsPage : currentServicesPage) > 0) {
-        prevPage.classList.remove('disabled');  // Убираем класс disabled
+    const currentPage = tableName === 'autoGoods' ? currentAutoGoodsPage : currentServicesPage;
+
+    if (currentPage > 0) {
+        prevBtn.style.display = 'inline';
+        prevDisabled.style.display = 'none';
     } else {
-        prevPage.classList.add('disabled');  // Добавляем класс disabled
+        prevBtn.style.display = 'none';
+        prevDisabled.style.display = 'inline';
     }
 
-    if ((tableName === 'autoGoods' ? currentAutoGoodsPage : currentServicesPage) < totalPages - 1) {
-        nextPage.classList.remove('disabled');  // Убираем класс disabled
+    if (currentPage < totalPages - 1) {
+        nextBtn.style.display = 'inline';
+        nextDisabled.style.display = 'none';
     } else {
-        nextPage.classList.add('disabled');  // Добавляем класс disabled
+        nextBtn.style.display = 'none';
+        nextDisabled.style.display = 'inline';
     }
 }
+
 
 
 function searchByName(tableId, inputId) {
@@ -230,6 +250,34 @@ function updateSelectedItems(itemType) {
         selectedItemsList.appendChild(listItem);
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Отправка выбранных автотоваров и услуг

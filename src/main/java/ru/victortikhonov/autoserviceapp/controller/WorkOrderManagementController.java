@@ -46,7 +46,7 @@ public class WorkOrderManagementController {
         this.requestRepository = requestRepository;
 
         this.mechanicRepository = mechanicRepository;
-        mechanic = mechanicRepository.findById(16L).orElse(null);
+        mechanic = mechanicRepository.findById(24L).orElse(null);
     }
 
 
@@ -85,7 +85,7 @@ public class WorkOrderManagementController {
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                      @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size) {
+                                     @RequestParam(defaultValue = "3") int size) {
 
         // Добавляю id нового ЗН,чтобы подсветить его
         if (newWorkOrderId != null) {

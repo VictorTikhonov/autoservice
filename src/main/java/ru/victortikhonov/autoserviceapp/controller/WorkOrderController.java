@@ -33,7 +33,7 @@ public class WorkOrderController {
         this.workOrderItemService = workOrderItemService;
 
         this.mechanicRepository = mechanicRepository;
-        mechanic = mechanicRepository.findById(16L).orElse(null);
+        mechanic = mechanicRepository.findById(24L).orElse(null);
     }
 
 
@@ -136,7 +136,7 @@ public class WorkOrderController {
 
             workOrderItemService.saveWorkOrder(workOrder);
 
-            return "redirect:/work-order/list";
+            return "redirect:/work-order/list?status=ALL";
         }
 
         model.addAttribute("errorMessage", "Заказ-наряд с таким ID не найден");

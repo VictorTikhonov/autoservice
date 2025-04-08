@@ -4,335 +4,455 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Детали заказ-наряда</title>
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet" >
+    <link th:href="@{/css/work-order-details.css}" rel="stylesheet">
     <script src="/js/work-order-details-js.js"></script>
-    <style>
-        /* Переопределенные стили для таблицы с классом .current-items */
-        .current-items {
-            width: 35%; /* Устанавливаем таблице ширину 100% */
-            border-collapse: collapse; /* Объединяем границы ячеек */
-        }
-
-        .current-items, .current-items th, .current-items td {
-            border: 1px solid black; /* Граница для таблицы и ячеек */
-        }
-
-        .current-items th, .current-items td {
-            padding: 10px; /* Увеличиваем отступы в ячейках */
-            text-align: center; /* Выравнивание текста по центру */
-        }
-
-        h2 {
-            font-size: 1.8em;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #2c3e50;
-        }
-
-        h3 {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #34495e;
-            margin-top: 15px;
-            margin-bottom: 10px;
-            padding-bottom: 3px;
-        }
-
-        .error-row {
-            background-color: #ffcccc; /* Светло-красный цвет */
-        }
-    </style>
 </head>
 <body>
 
-
-<div th:if="${not viewMode}">
-    <a th:href="@{/work-order/list}">
-        <button type="button">К списку заказ-нарядов</button>
-    </a>
-</div>
-
-
-<h1>Заказ-наряд № <span th:text="${workOrder.id}"></span></h1>
-
-
-<h2>Общие сведения</h2>
-<div class="form-section">
-    <h3 th:if="${viewMode}">Механик</h3>
-    <p th:if="${viewMode}"><strong>ФИО:</strong> <span
-            th:text="${workOrder.mechanic.surname} + ' ' + ${workOrder.mechanic.name} +
-             ' ' + ${workOrder.mechanic.patronymic}"></span></p>
-    <p th:if="${viewMode}"><strong>Номер телефона:</strong> <span th:text="${workOrder.mechanic.phoneNumber}"></span>
-    </p>
-
-    <h3>Клиент</h3>
-    <p><strong>ФИО:</strong> <span
-            th:text="${workOrder.request.client.surname} + ' ' + ${workOrder.request.client.name} +
-             ' ' + ${workOrder.request.client.patronymic}"></span></p>
-    <p><strong>Номер телефона:</strong> <span th:text="${workOrder.request.client.phoneNumber}"></span></p>
-
-    <h3>Автомобиль</h3>
-    <p><strong>Марка:</strong> <span th:text="${workOrder.request.car.brand}"></span></p>
-    <p><strong>Модель:</strong> <span th:text="${workOrder.request.car.model}"></span></p>
-    <p><strong>VIN:</strong> <span th:text="${workOrder.request.car.vin}"></span></p>
-    <p><strong>Госномер:</strong> <span th:text="${workOrder.request.car.stateNumber}"></span></p>
-
-    <h3>Заказ-наряд</h3>
-    <p><strong>Статус:</strong> <span th:text="${workOrder.workOrderStatuses.description}"></span></p>
-    <p><strong>Дата начала работ:</strong>
-        <span th:text=" ${#temporals.format(workOrder.startDate, 'dd.MM.yyyy HH:mm')}"></span>
-    </p>
-    <p><strong>Дата окончания работ:</strong>
-        <span th:text="${workOrder.endDate != null} ? ${#temporals.format(workOrder.endDate, 'dd.MM.yyyy HH:mm')} : 'отсутствует'"></span>
-    </p>
-    <p><strong>Жалобы:</strong> <span th:text="${workOrder.request.complaints}"></span></p>
-</div>
-
-
-<h2 th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode} ">
-    Добавление автотоваров и услуг в заказ-наряд</h2>
-
-
-<div class="form-section"
-     th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
-    <h3>Выбор автотоваров</h3>
-    <form id="itemsForm" method="post">
-        <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
-
-        <!-- Фильтрация автотоваров -->
-        <label for="searchAutoGoods">Поиск товара:</label>
-        <input type="text" id="searchAutoGoods" onkeyup="searchByName('autoGoodsTable', 'searchAutoGoods')"
-               placeholder="Введите название товара"/>
-
-        <!-- Если автотоваров нет -->
-        <div th:if="${#lists.isEmpty(availableAutoGoods)}" style="color: red;">
-            <p>Автотовары отсутствуют</p>
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <div th:if="${not viewMode}">
+            <button type="button" onclick="window.location.href='/work-order/list?status=ALL'"
+                    class="btn btn-primary d-flex align-items-center justify-content-center" style = "width: 170px;">
+                <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+                Заказ-наряды
+            </button>
         </div>
 
+        <h1 class="mb-2 text-center">Заказ-наряд № <span th:text="${workOrder.id}"></span></h1>
 
-        <!-- Таблица для выбора авто товаров -->
-        <div class="table-container">
-            <div class="table-wrapper">
-                <table id="autoGoodsTable" th:if="${!#lists.isEmpty(availableAutoGoods)}">
-                    <thead>
-                    <tr>
-                        <th>Выбрать</th>
-                        <th>Наименование</th>
-                        <th>Категория</th>
-                        <th>Количество в наличии</th>
-                        <th>Цена за штуку</th>
-                        <th>Количество для заказа</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+        <h2 class="mb-2">Общие сведения</h2>
+        <div class="bg-white p-2 rounded shadow-sm mb-2">
+            <div class="row">
+                <!-- Первый столбец: Клиент и Автомобиль -->
+                <div class="col-md-6">
+                    <div class="info-block d-flex flex-column h-45">
+                        <fieldset class="flex-grow-1">
+                            <legend class="font-weight-bold d-flex align-items-center">
+                                <img src="/icons/person.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                Клиент
+                            </legend>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>ФИО:</strong>
+                                    <span th:text="${workOrder.request.client.surname} + ' ' + ${workOrder.request.client.name} + ' ' + ${workOrder.request.client.patronymic}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Номер телефона:</strong>
+                                    <span th:text="${workOrder.request.client.phoneNumber}"></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
 
-                    <tr th:each="autoGood : ${availableAutoGoods}">
-                        <td>
-                            <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}" class="checkbox" disabled/>
-                        </td>
-                        <td th:text="${autoGood.name}"></td>
-                        <td th:text="${autoGood.category.name}"></td>
-                        <td th:text="${autoGood.quantity}"></td>
-                        <td th:text="${autoGood.priceOneUnit}"></td>
-                        <td>
-                            <input type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
-                                   class="quantity-input"
-                                   oninput="enableCheckbox(this); validateInput(this)"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <div class="info-block d-flex flex-column h-45">
+                        <fieldset class="flex-grow-1">
+                            <legend class="font-weight-bold d-flex align-items-center">
+                                <img src="/icons/car-front-fill.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                Автомобиль
+                            </legend>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Марка:</strong>
+                                    <span th:text="${workOrder.request.car.brand}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Модель:</strong>
+                                    <span th:text="${workOrder.request.car.model}"></span>
+                                </p>
+                                <p class="mb-1"><strong>VIN:</strong>
+                                    <span th:text="${workOrder.request.car.vin}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Госномер:</strong>
+                                    <span th:text="${workOrder.request.car.stateNumber}"></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
 
-            <!-- Пагинация для авто товаров -->
-            <div class="pagination-container">
-                <div class="pagination">
-                    <span class="pagination-arrow">
-                        <a id="prevAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage - 1)">«««</a>
-                        <span id="prevAutoGoodsPageDisabled" style="display: none;">«««</span>
-                    </span>
+                <!-- Второй столбец: Механик и Заказ-наряд -->
+                <div class="col-md-6">
+                    <div th:if="${viewMode}" class="info-block d-flex flex-column h-45">
+                        <fieldset class="flex-grow-1">
+                            <legend class="font-weight-bold d-flex align-items-center">
+                                <img src="/icons/person-gear.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                Механик
+                            </legend>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>ФИО:</strong>
+                                    <span th:text="${workOrder.mechanic.surname} + ' ' + ${workOrder.mechanic.name} + ' ' + ${workOrder.mechanic.patronymic}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Номер телефона:</strong>
+                                    <span th:text="${workOrder.mechanic.phoneNumber}"></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
 
-                    <span id="currentAutoGoodsPageNumber">1</span> из <span id="totalAutoGoodsPages">1</span>
-
-                    <span class="pagination-arrow">
-                        <a id="nextAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage + 1)">»»»</a>
-                        <span id="nextAutoGoodsPageDisabled" style="display: none;">»»»</span>
-                    </span>
+                    <div class="info-block d-flex flex-column h-45">
+                        <fieldset class="flex-grow-1">
+                            <legend class="font-weight-bold d-flex align-items-center">
+                                <img src="/icons/work-order.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                Заказ-наряд
+                            </legend>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Статус:</strong>
+                                    <span th:text="${workOrder.workOrderStatuses.description}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Дата начала работ:</strong>
+                                    <span th:text="${#temporals.format(workOrder.startDate, 'dd.MM.yyyy HH:mm')}"></span>
+                                </p>
+                                <p class="mb-1"><strong>Дата окончания работ:</strong>
+                                    <span th:text="${workOrder.endDate != null} ? ${#temporals.format(workOrder.endDate, 'dd.MM.yyyy HH:mm')} : 'отсутствует'"></span>
+                                </p>
+                                <p class="mb-1"><strong>Жалобы:</strong>
+                                    <span th:text="${workOrder.request.complaints}"></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <h3>Выбор услуг</h3>
-        <!-- Фильтрация услуг -->
-        <label for="searchServices">Поиск услуги:</label>
-        <input type="text" id="searchServices" onkeyup="searchByName('servicesTable', 'searchServices')"
-               placeholder="Введите название услуги"/>
 
-        <!-- Если услуг нет -->
-        <div th:if="${#lists.isEmpty(availableServices)}" style="color: red;">
-            <p>Услуги отсутствуют</p>
-        </div>
+        <h2 class="mb-2" th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode} ">
+            Добавление автотоваров и услуг в заказ-наряд</h2>
 
-        <!-- Контейнер для таблицы и пагинации -->
-        <div class="table-container">
-            <!-- Обертка для таблицы -->
-            <div class="table-wrapper">
-                <table id="servicesTable" th:if="${!#lists.isEmpty(availableServices)}">
-                    <thead>
-                    <tr>
-                        <th>Выбрать</th>
-                        <th>Наименование</th>
-                        <th>Категория</th>
-                        <th>Цена</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+        <div class="bg-white p-2 rounded shadow-sm mb-2"
+             th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
+            <h3 class="mb-3 d-flex align-items-center">
+                <img src="/icons/auto-good.svg" alt="Иконка" width="20" height="20" class="me-2">
+                Выбор автотоваров
+            </h3>
 
-                    <tr th:each="service : ${availableServices}">
-                        <td>
-                            <input type="checkbox" name="selectedServices" th:value="${service.id}" class="checkbox" disabled/>
-                        </td>
-                        <td th:text="${service.name}"></td>
-                        <td th:text="${service.category.name}"></td>
-                        <td>
-                            <input type="number" name="price" min="0" class="price-input" oninput="enableCheckbox(this)"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <form id="itemsForm" method="post" class="mb-2">
+                <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
 
-            <!-- Пагинация -->
-            <div class="pagination-container">
-                <div class="pagination">
-                    <span class="pagination-arrow">
-                        <a id="prevServicePage" href="#" onclick="changePage('services', currentServicesPage - 1)">«««</a>
-                        <span id="prevServicePageDisabled" style="display: none;">«««</span></span>
+                <!-- Фильтрация автотоваров -->
+                <div class="mb-2 p-3 border rounded">
+                    <div class="d-flex align-items-center mb-3">
+                        <label for="searchAutoGoods" class="form-label me-2">Поиск товара:</label>
+                        <input type="text" id="searchAutoGoods" class="form-control" style="width: 50%;"
+                               onkeyup="searchByName('autoGoodsTable', 'searchAutoGoods')"
+                               placeholder="Введите название товара"/>
 
-                    <span id="currentServicePageNumber">1</span> из <span id="totalServicePages">1</span>
+                        <!-- Кнопка очистки -->
+                        <button type="button" onclick="clearSearchAutoGoods()"
+                                class="btn btn-danger d-flex align-items-center justify-content-center ms-2"
+                                style="width: 50px; height: 38px;">
+                            <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                        </button>
+                    </div>
 
-                    <span class="pagination-arrow">
-                        <a id="nextServicePage" href="#" onclick="changePage('services', currentServicesPage + 1)">»»»</a>
-                        <span id="nextServicePageDisabled" style="display: none;">»»»</span></span>
+                    <!-- Если автотоваров нет -->
+                    <div th:if="${#lists.isEmpty(availableAutoGoods)}" class="alert alert-danger">
+                        Автотовары отсутствуют
+                    </div>
+
+                    <!-- Таблица для выбора авто товаров -->
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table id="autoGoodsTable" th:if="${!#lists.isEmpty(availableAutoGoods)}">
+                                <thead>
+                                <tr>
+                                    <th width="10%">Выбор</th>
+                                    <th width="25%">Название</th>
+                                    <th width="25%">Категория</th>
+                                    <th width="15%">В наличии</th>
+                                    <th width="15%">Цена</th>
+                                    <th width="10%">Кол-во</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="autoGood : ${availableAutoGoods}">
+                                    <td>
+                                        <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}" class="checkbox" disabled/>
+                                    </td>
+                                    <td th:text="${autoGood.name}"></td>
+                                    <td th:text="${autoGood.category.name}"></td>
+                                    <td th:text="${autoGood.quantity}"></td>
+                                    <td th:text="${autoGood.priceOneUnit}"></td>
+                                    <td>
+                                        <input type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
+                                               class="quantity-input"
+                                               oninput="enableCheckbox(this); validateInput(this)"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Пагинация для авто товаров -->
+                        <div class="pagination-container">
+                            <div class="pagination">
+                                <span class="pagination-arrow">
+                                    <a id="prevAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage - 1)">
+                                        <img src="/icons/arrow-left-circle-fill.svg" alt="Назад">
+                                    </a>
+                                    <span id="prevAutoGoodsPageDisabled" style="display: none;">
+                                        <img src="/icons/arrow-left-circle.svg" alt="Назад (неактивно)">
+                                    </span>
+                                </span>
+
+                                <span id="currentAutoGoodsPageNumber">1</span> из <span id="totalAutoGoodsPages">1</span>
+
+                                <span class="pagination-arrow">
+                                    <a id="nextAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage + 1)">
+                                        <img src="/icons/arrow-right-circle-fill.svg" alt="Вперед">
+                                    </a>
+                                    <span id="nextAutoGoodsPageDisabled" style="display: none;">
+                                        <img src="/icons/arrow-right-circle.svg" alt="Вперед (неактивно)">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <h3 class="mb-3 d-flex align-items-center">
+                    <img src="/icons/services.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Выбор услуг
+                </h3>
+
+                <!-- Фильтрация услуг -->
+                <div class="mb-2 p-3 border rounded">
+                    <div class="d-flex align-items-center mb-3">
+                        <label for="searchServices" class="form-label me-2">Поиск услуги:</label>
+                        <input type="text" id="searchServices" class="form-control" style="width: 50%;"
+                               onkeyup="searchByName('servicesTable', 'searchServices')"
+                               placeholder="Введите название услуги"/>
+                        <!-- Кнопка очистки -->
+                        <button type="button" onclick="clearSearchServices()"
+                                class="btn btn-danger d-flex align-items-center justify-content-center ms-2"
+                                style="width: 50px; height: 38px;">
+                            <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                        </button>
+                    </div>
+
+
+                    <!-- Если услуг нет -->
+                    <div th:if="${#lists.isEmpty(availableServices)}" class="alert alert-danger">
+                        Услуги отсутствуют
+                    </div>
+
+                    <!-- Контейнер для таблицы и пагинации -->
+                    <div class="table-container" th:if="${!#lists.isEmpty(availableServices)}">
+                        <div class="table-wrapper">
+                            <table id="servicesTable" th:if="${!#lists.isEmpty(availableServices)}" style="width: 90%;">
+                                <thead>
+                                <tr>
+                                    <th style = "width: 15%;">Выбрать</th>
+                                    <th style = "width: 35%;">Наименование</th>
+                                    <th style = "width: 35%;">Категория</th>
+                                    <th style = "width: 15%;">Цена</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="service : ${availableServices}">
+                                    <td>
+                                        <input type="checkbox" name="selectedServices" th:value="${service.id}" class="checkbox" disabled/>
+                                    </td>
+                                    <td th:text="${service.name}"></td>
+                                    <td th:text="${service.category.name}"></td>
+                                    <td>
+                                        <input type="number" name="price" min="0" class="price-input" oninput="enableCheckbox(this)"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Пагинация -->
+                        <div class="pagination-container">
+                            <div class="pagination">
+                                <span class="pagination-arrow">
+                                    <a id="prevServicePage" href="#" onclick="changePage('services', currentServicesPage - 1)">
+                                        <img src="/icons/arrow-left-circle-fill.svg" alt="Назад">
+                                    </a>
+                                    <span id="prevServicePageDisabled" style="display: none;">
+                                        <img src="/icons/arrow-left-circle.svg" alt="Назад (неактивно)">
+                                    </span>
+                                </span>
+
+                                <span id="currentServicePageNumber">1</span> из <span id="totalServicePages">1</span>
+
+                                <span class="pagination-arrow">
+                                    <a id="nextServicePage" href="#" onclick="changePage('services', currentServicesPage + 1)">
+                                        <img src="/icons/arrow-right-circle-fill.svg" alt="Вперед">
+                                    </a>
+                                    <span id="nextServicePageDisabled" style="display: none;">
+                                        <img src="/icons/arrow-right-circle.svg" alt="Вперед (неактивно)">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="mb-2 p-3 border rounded">
+                        <div class="row mb-2">
+                            <div id="noAutoGoodsOrServiceMessage" class="alert alert-danger mb-3 text-center" style="display: none;">
+                                Пожалуйста, выберите хотя бы один автотовар или услугу для добавления
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded">
+                                    <h4 class="d-flex align-items-center">
+                                        Выбранные автотовары:
+                                    </h4>
+                                    <ul id="selectedAutoGoodsList" class="list-group"></ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded">
+                                    <h4 class="d-flex align-items-center">
+                                        Выбранные услуги:
+                                    </h4>
+                                    <ul id="selectedServicesList" class="list-group"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    <div class="d-flex justify-content-center">
+                        <button type="button" onclick="submitSelectedItems()"
+                                class="btn btn-success d-flex align-items-center">
+                            <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Добавить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <h2 class="mb-2">Состав заказ-наряда</h2>
+
+        <div class="bg-white p-2 rounded shadow-sm mb-2">
+
+            <!-- Текущие автотовары -->
+            <div class="info-block mb-2">
+                <fieldset>
+                    <legend class="font-weight-bold d-flex align-items-center">
+                        <img src="/icons/auto-good.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Автотовары
+                    </legend>
+                    <div class="table-responsive">
+                        <table class="current-items">
+                            <!-- Ваша существующая таблица автотоваров без изменений -->
+                            <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Название</th>
+                                <th>Количество</th>
+                                <th>Цена</th>
+                                <th>Сумма</th>
+                                <th th:if="${not viewMode and workOrder.workOrderStatuses ==
+                                T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS and not #lists.isEmpty(services)}">
+                                    Удаление
+                                </th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="autoGood, iterStat : ${autoGoods}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${autoGood.autoGood.name}"></td>
+                                <td th:text="${autoGood.quantity}"></td>
+                                <td th:text="${autoGood.priceOneUnit}"></td>
+                                <td th:text="${autoGood.calculatePrice()}"></td>
+                                <td th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
+                                        Удалить
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(autoGoods)}">
+                                <td colspan="5">Нет добавленных автотоваров</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"><strong>Итого</strong></td>
+                                <td th:text="${workOrder.calculateTotalPriceAutoGoods()}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </fieldset>
             </div>
-        </div>
 
-        <div id="noAutoGoodsOrServiceMessage" style="color: red; display: none;">
-            <p>Пожалуйста, выберите хотя бы один автотовар или услугу для добавления</p>
-        </div>
+            <!-- Текущие услуги -->
+            <div class="info-block mb-2">
+                <fieldset>
+                    <legend class="font-weight-bold d-flex align-items-center">
+                        <img src="/icons/services.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Услуги
+                    </legend>
+                    <div class="table-responsive">
+                        <table class="current-items" style="width: 60%;">
+                            <!-- Ваша существующая таблица услуг без изменений -->
+                            <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Название</th>
+                                <th>Цена</th>
+                                <th th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS
+                            and not #lists.isEmpty(services)}">Удаление
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="service, iterStat : ${services}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${service.service.name}"></td>
+                                <td th:text="${service.price}"></td>
+                                <td th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
+                                        Удалить
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(services)}">
+                                <td colspan="4">Нет добавленных услуг</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><strong>Итого</strong></td>
+                                <td th:text="${workOrder.calculateTotalPriceServices()}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
 
-        <div id="selectedAutoGoods">
-            <h3>Выбранные автотовары:</h3>
-            <ul id="selectedAutoGoodsList"></ul>
-        </div>
+            <!-- Общая стоимость -->
+            <div class="info-block mb-4">
+                <fieldset>
+                    <legend class="font-weight-bold d-flex align-items-center">
+                        <img src="/icons/cash.svg" alt="Иконка" width="20" height="20" class="me-2">
+                        Общая стоимость
+                    </legend>
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                        <h4 class="mb-0" th:text="${workOrder.calculatePrice()} + ' ₽'"></h4>
+                    </div>
+                </fieldset>
+            </div>
 
-        <div id="selectedServices">
-            <h3>Выбранные услуги:</h3>
-            <ul id="selectedServicesList"></ul>
-        </div>
+            <!-- Кнопка завершения работы -->
+            <div class="d-flex flex-column align-items-center mt-4">
+                <span id="missingServiceError" th:if="${missingServiceError}"
+                      class="text-danger" th:text="${missingServiceError}"></span>
 
-        <button type="button" onclick="submitSelectedItems()">
-            Добавить
-        </button>
-    </form>
-</div>
-
-
-<h2>Состав заказ-наряда</h2>
-
-
-<!-- Текущие автотовары -->
-<div class="form-section">
-    <h3>Автотовары</h3>
-    <table class="current-items">
-        <thead>
-        <tr>
-            <th>№</th>
-            <th>Название</th>
-            <th>Количество</th>
-            <th>Цена</th>
-            <th>Сумма</th>
-            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS
-            and not #lists.isEmpty(autoGoods)}">Удаление</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="autoGood,  iterStat : ${autoGoods}">
-            <td th:text="${iterStat.index + 1}"></td>
-            <td th:text="${autoGood.autoGood.name}"></td>
-            <td th:text="${autoGood.quantity}"></td>
-            <td th:text="${autoGood.priceOneUnit}"></td>
-            <td th:text="${autoGood.calculatePrice()}"></td>
-            <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button"
-                        th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
-                    Удалить
+                <button type="button" class="btn btn-success d-flex align-items-center mt-2"
+                        th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}"
+                        th:onclick="|window.location='@{/work-order/details/complete(workOrderId=${workOrder.id})}'|">
+                    <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Завершить
                 </button>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(autoGoods)}">
-            <td colspan="5">Нет добавленных автотоваров</td>
-        </tr>
-        <tr>
-            <td colspan="4"><strong>Итого</strong></td>
-            <td th:text="${workOrder.calculateTotalPriceAutoGoods()}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+            </div>
 
-
-<!-- Текущие услуги -->
-<div class="form-section">
-    <h3>Услуги</h3>
-    <table class="current-items">
-        <thead>
-        <tr>
-            <th>№</th>
-            <th>Название</th>
-            <th>Цена</th>
-            <th th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS
-             and not #lists.isEmpty(services)}">Удаление
-            </th>
-        <tbody>
-        <tr th:each="service, iterStat : ${services}">
-            <td th:text="${iterStat.index + 1}"></td>
-            <td th:text="${service.service.name}"></td>
-            <td th:text="${service.price}"></td>
-            <td th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
-                <button type="button"
-                        th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
-                    Удалить
-                </button>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(services)}">
-            <td colspan="4">Нет добавленных услуг</td>
-        </tr>
-        <tr>
-            <td colspan="2"><strong>Итого</strong></td>
-            <td th:text="${workOrder.calculateTotalPriceServices()}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-
-<!-- Общая стоимость -->
-<div class="form-section">
-    <p><strong>Итоговая сумма:</strong> <span th:text="${workOrder.calculatePrice()}"></span></p>
-</div>
-
-
-<!-- Отображаем кнопку только если статус заказ-наряда "В процессе" -->
-<div>
-    <button type="button" th:if="${workOrder.workOrderStatuses ==T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}"
-            th:onclick="|window.location='@{/work-order/details/complete(workOrderId=${workOrder.id})}'|">
-        Завершить работу
-    </button>
-    <br>
-    <span id="missingServiceError" th:if="${missingServiceError}" th:text="${missingServiceError}" style="color: red;"></span>
+        </div>
+    </div>
 </div>
 
 </body>

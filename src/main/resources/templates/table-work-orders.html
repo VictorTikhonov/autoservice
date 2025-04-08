@@ -3,131 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <title>Список заказ-нарядов</title>
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
     <style>
-        /* Стили для подсветки нового заказ-наряда */
-        .highlight {
-            background-color: yellow;
-        }
-
-        .canceled-in-progress {
-            background-color: #ec5353;
+        .container-2{
+            max-width: 50%;
         }
     </style>
 </head>
 <body>
 
-
-<div th:if="${cancellationNotice}" style="color: #ec5353;">
-    <p th:utext="${cancellationNotice}"></p>
-</div>
-
-
-<h1>Список заказ-нарядов</h1>
-
-
-<!-- Подключаю всплывающее уведомление -->
+<div th:insert="~{/fragments/navigation.html}"></div>
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-<div th:if="${dateError}" style="color: red;">
-    <p th:text="${dateError}"></p>
-</div>
+    <h1 class="mb-4 text-center">Список заказ-нарядов</h1>
 
+    <div th:if="${cancellationNotice}" class="alert alert-danger mb-3" th:utext="${cancellationNotice}"></div>
+    <div th:if="${dateError}" class="alert alert-danger mb-3" th:text="${dateError}"></div>
 
-<!-- Фильтры -->
-<form th:action="@{/work-order/list}" method="get">
-    <fieldset>
-        <legend>Фильтр по дате создания ЗН</legend>
-        <label for="statusFilter">Статус:</label>
-        <select id="statusFilter" name="status">
-            <option th:each="status : ${statuses}"
-                    th:value="${status}"
-                    th:text="${status.description}"
-                    th:selected="${status == selectedStatus}"></option>
-        </select>
+    <!-- Фильтры и поиск -->
+    <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
+        <form method="get" th:action="@{/work-order/list}">
+            <fieldset class="border p-3 rounded">
+                <legend class="fw-bold text-dark text-center">Фильтр заказ-нарядов</legend>
 
-        <!-- Фильтры по дате -->
-        <label for="startDate">Дата с: </label>
-        <input type="date" id="startDate" name="startDate" th:value="${startDate}"/>
+                <div class="row mb-3 align-items-end">
+                    <!-- Статус -->
+                    <div class="col-md-4">
+                        <label for="statusFilter" class="form-label">Статус:</label>
+                        <select id="statusFilter" name="status" class="form-select">
+                            <option th:each="status : ${statuses}"
+                                    th:value="${status}"
+                                    th:text="${status.description}"
+                                    th:selected="${status == selectedStatus}"></option>
+                        </select>
+                    </div>
 
-        <label for="endDate">Дата по: </label>
-        <input type="date" id="endDate" name="endDate" th:value="${endDate}"/>
+                    <!-- Период -->
+                    <div class="col-md-8">
+                        <label for="startDate" class="form-label">Период:</label>
+                        <div class="d-flex align-items-center">
+                            <input type="date" id="startDate" name="startDate" th:value="${startDate}"
+                                   class="form-control me-2">
+                            <span class="mx-1">-</span>
+                            <input type="date" id="endDate" name="endDate" th:value="${endDate}"
+                                   class="form-control">
+                        </div>
+                    </div>
+                </div>
 
-        <button type="submit">Применить</button>
-    </fieldset>
-</form>
-
-
-<!-- Контейнер для таблицы и пагинации -->
-<div class="table-container">
-    <!-- Обертка для таблицы -->
-    <div class="table-wrapper">
-        <!-- Таблица заказ-нарядов -->
-        <table border="1">
-            <thead>
-            <tr>
-                <th>№ ЗН</th>
-                <th>№ заявки</th>
-                <th>Статус</th>
-                <th>Авто</th>
-                <th>Дата создания</th>
-                <th>Дата окончания работ</th>
-                <th>Цена</th>
-                <th>Действие</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="workOrder : ${workOrders}"
-                th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
-                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS)
-                     ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
-
-                <td th:text="${workOrder.id}"></td>
-                <td th:text="${workOrder.request.id}"></td>
-                <td th:text="${workOrder.workOrderStatuses.description}"></td>
-                <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
-                <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
-                <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
-                <td th:text="${workOrder.calculatePrice()}"></td>
-                <td>
-                    <!-- Кнопка "Открыть" -->
-                    <form th:action="@{/work-order/details}" method="get" style="display: inline;">
-                        <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
-                        <button type="submit">Открыть</button>
-                    </form>
-                </td>
-            </tr>
-            <tr th:if="${workOrders.isEmpty()}">
-                <td colspan="8">Заказ-наряды отсутствуют</td>
-            </tr>
-            </tbody>
-        </table>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center me-2">
+                        <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Применить
+                    </button>
+                    <button type="button" onclick="window.location.href='/work-order/list'"
+                            class="btn btn-danger d-flex align-items-center justify-content-center">
+                        <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20" class="me-2"> Сбросить
+                    </button>
+                </div>
+            </fieldset>
+        </form>
     </div>
 
-    <!-- Пагинация -->
-    <div class="pagination-container">
-        <div class="pagination">
-            <!-- Стрелка "назад" -->
-            <span class="pagination-arrow">
-            <a th:if="${currentPage > 0}"
-               th:href="@{/work-order/list(page=${currentPage - 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}">
-                «««
-            </a>
-            <span th:if="${currentPage == 0}">«««</span>
-        </span>
+    <!-- Контейнер для таблицы и пагинации -->
+    <div class="table-container">
+        <!-- Обертка для таблицы -->
+        <div class="table-wrapper">
+            <!-- Таблица заказ-нарядов -->
+            <table id="workOrdersTable">
+                <thead>
+                <tr>
+                    <th>№ ЗН</th>
+                    <th>№ заявки</th>
+                    <th>Статус</th>
+                    <th>Авто</th>
+                    <th>Дата создания</th>
+                    <th>Дата окончания работ</th>
+                    <th>Цена</th>
+                    <th>Действие</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="workOrder : ${workOrders}"
+                    th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
+                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS)
+                     ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
+                    <td th:text="${workOrder.id}"></td>
+                    <td th:text="${workOrder.request.id}"></td>
+                    <td th:text="${workOrder.workOrderStatuses.description}"></td>
+                    <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
+                    <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td th:text="${workOrder.calculatePrice()}"></td>
+                    <td class="text-center">
+                        <form th:action="@{/work-order/details}" method="get" style="display: inline-block;">
+                            <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
+                            <button type="submit" class="btn btn-primary p-2"
+                                    style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                                <img src="/icons/box-arrow-in-right.svg" alt="Открыть" width="20" height="20">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${workOrders.isEmpty()}">
+                    <td colspan="8">Заказ-наряды отсутствуют</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <!-- Текущая страница и общее количество страниц -->
-            <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+        <!-- Пагинация -->
+        <div class="pagination-container">
+            <div class="pagination">
+                <!-- Стрелка назад -->
+                <span class="pagination-arrow">
+                    <a th:if="${currentPage > 0}"
+                       th:href="@{/work-order/list(page=${currentPage - 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}"
+                       aria-disabled="false">
+                        <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
+                    </a>
+                    <span th:if="${currentPage == 0}">
+                        <img src="/icons/arrow-left-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+                    </span>
+                </span>
 
-            <!-- Стрелка "вперед" -->
-            <span class="pagination-arrow">
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{/work-order/list(page=${currentPage + 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}">
-                »»»
-            </a>
-            <span th:if="${currentPage >= totalPages - 1}">»»»</span>
-        </span>
+                <!-- Текущая страница и общее количество страниц -->
+                <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
+
+                <!-- Стрелка вперед -->
+                <span class="pagination-arrow">
+                    <a th:if="${currentPage < totalPages - 1}"
+                       th:href="@{/work-order/list(page=${currentPage + 1}, size=${size}, status=${selectedStatus}, startDate=${startDate}, endDate=${endDate})}"
+                       aria-disabled="false">
+                        <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
+                    </a>
+                    <span th:if="${currentPage >= totalPages - 1}">
+                        <img src="/icons/arrow-right-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
+                    </span>
+                </span>
+            </div>
         </div>
     </div>
 </div>

@@ -1,7 +1,11 @@
+@import url("common.css");
+
+
 /* Переопределенные стили для таблицы с классом .current-items */
 .current-items {
     border-collapse: collapse; /* Объединяем границы ячеек */
 }
+
 
 table td:nth-child(2),
 table th:nth-child(2) {
@@ -14,10 +18,12 @@ table th:nth-child(2) {
     border: 1px solid black; /* Граница для таблицы и ячеек */
 }
 
+
 .current-items th, .current-items td {
     padding: 10px; /* Увеличиваем отступы в ячейках */
     text-align: center; /* Выравнивание текста по центру */
 }
+
 
 h2 {
     font-size: 1.8em;
@@ -25,6 +31,7 @@ h2 {
     text-transform: uppercase;
     color: #2c3e50;
 }
+
 
 h3 {
     font-size: 1.2em;
@@ -34,6 +41,7 @@ h3 {
     margin-bottom: 10px;
     padding-bottom: 3px;
 }
+
 
 .error-row {
     background-color: #ffcccc; /* Светло-красный цвет */
