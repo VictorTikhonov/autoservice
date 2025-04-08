@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<title>Список заявок</title>
 <head>
-    <meta charset="UTF-8">
-    <title>Список заявок</title>
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
     <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/table-requests.css">
-    <link rel="stylesheet" href="/css/common.css">
+    <link href="/css/table-requests.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
 </head>
+
 <body>
 
-<div class="container mt-3 mb-3 p-4 rounded shadow-sm">
+<div th:insert="~{/fragments/navigation.html}"></div>
+
+<div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
+
     <button type="button" onclick="window.location.href='/request/create'"
-            class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
+            class="btn btn-primary d-flex align-items-center justify-content-center">
         <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
-        Создать заявку
+        Создать
     </button>
 
     <h1 class="mb-4 text-center">Список заявок</h1>
 
-    <div class="container mt-2 mb-1 p-2 bg-white shadow rounded">
-
-        <div class="d-flex justify-content-between mb-4">
+    <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
+        <div class="d-flex justify-content-between">
             <!-- Блок фильтров -->
             <div class="filter-block" style="width: 50%;">
                 <form method="get" th:action="@{/request/list}">
                     <fieldset class="border p-3 rounded">
-                        <!-- Заголовок "Фильтры" по центру -->
-                        <legend class="fw-bold text-dark text-center">Фильтры</legend>
-                        <!-- Инпуты на одной строке -->
-                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-3">
+                        <legend class="fw-bold text-dark text-center">Фильтр</legend>
+                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-2">
                             <!-- Статус -->
-                            <div class="me-lg-3 mb-3 mb-lg-0">
+                            <div class="me-lg-3 mb-2 mb-lg-0 w-40">
                                 <label for="statusFilter" class="form-label">Статус:</label>
-                                <select id="statusFilter" name="status" class="form-select">
+                                <select id="statusFilter" name="status" class="form-select w-100">
                                     <option value="OPEN"
                                             th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
                                         В ожидании
@@ -54,23 +53,22 @@
                             </div>
 
                             <!-- Период (даты) -->
-                            <div class="me-lg-3 mb-3 mb-lg-0">
+                            <div class="me-lg-3 mb-2 mb-lg-0 w-60">
                                 <label for="startDate" class="form-label">Период:</label>
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center w-100"> <!-- Добавлен w-100 -->
                                     <input type="date" id="startDate" name="startDate" th:value="${startDate}"
-                                           class="form-control me-2">
+                                           class="form-control flex-grow-1 me-2" style="min-width: 0;">
                                     <span class="mx-2">-</span>
                                     <input type="date" id="endDate" name="endDate" th:value="${endDate}"
-                                           class="form-control">
+                                           class="form-control flex-grow-1" style="min-width: 0;">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Кнопка "Готово" по центру -->
-                        <div class="d-flex justify-content-center mt-3">
+                        <!-- Кнопка "Готово" -->
+                        <div class="d-flex justify-content-center mt-2">
                             <button type="submit"
-                                    class="btn btn-success d-flex align-items-center justify-content-center"
-                                    style="width: 120px;">
+                                    class="btn btn-success d-flex align-items-center justify-content-center">
                                 <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Готово
                             </button>
                         </div>
@@ -82,12 +80,11 @@
             <div class="search-block" style="width: 48%;">
                 <form method="get" th:action="@{/request/list}">
                     <fieldset class="border p-3 rounded">
-                        <!-- Заголовок "Поиск" по центру -->
+                        <!-- Заголовок "Поиск" -->
                         <legend class="fw-bold text-dark text-center">Поиск заявки</legend>
-                        <!-- Инпуты и кнопка "Очистить" на одной строке -->
-                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-3">
+                        <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
                             <!-- Номер заявки -->
-                            <div class="me-lg-3 mb-3 mb-lg-0">
+                            <div class="me-lg-3 mb-2 mb-lg-0">
                                 <label for="searchId" class="form-label">Номер заявки:</label>
                                 <input type="text" id="searchId" name="searchId" th:value="${searchId}" placeholder="1"
                                        pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
@@ -95,7 +92,7 @@
                             </div>
 
                             <!-- Телефон клиента -->
-                            <div class="me-lg-3 mb-3 mb-lg-0">
+                            <div class="me-lg-3 mb-2 mb-lg-0">
                                 <label for="searchPhone" class="form-label">Телефон клиента:</label>
                                 <input type="text" id="searchPhone" name="searchPhone" th:value="${searchPhone}"
                                        placeholder="89999999999" pattern="\d*"
@@ -103,21 +100,20 @@
                             </div>
 
                             <!-- Кнопка "Очистить" -->
-                            <div class="mt-lg-4">
+                            <div class="align-self-end">
                                 <button type="button" onclick="clearSearch()"
                                         class="btn btn-danger d-flex align-items-center justify-content-center"
-                                        style="width: 50px;">
-                                    <img src="/icons/trash-fill.svg" alt="Иконка" width="20" height="20">
+                                        style="width: 50px; height: 38px;">
+                                    <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Кнопка "Найти" по центру -->
-                        <div class="d-flex justify-content-center mt-3">
+                        <!-- Кнопка поиска-->
+                        <div class="d-flex justify-content-center mt-2">
                             <button type="submit"
-                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center"
-                                    style="width: 120px;">
-                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Найти
+                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Поиск
                             </button>
                         </div>
                     </fieldset>
@@ -136,12 +132,12 @@
                 <tr>
                     <th>№</th>
                     <th>Телефон клиента</th>
-                    <th>Дата и время создания</th>
+                    <th>Создано</th>
                     <th>Статус</th>
                     <th>Автомобиль</th>
                     <th>Госномер</th>
                     <th>VIN</th>
-                    <th>Действие</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -151,8 +147,7 @@
                     <td th:text="${#temporals.format(request.submissionDate, 'yyyy-MM-dd HH:mm')}"></td>
                     <td th:text="${request.requestStatus.description}"></td>
                     <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
-                    <td th:text="${#strings.substring(request.car.stateNumber, 0, 1) + ' ' + #strings.substring(request.car.stateNumber, 1, 4) + ' '
-                     + #strings.substring(request.car.stateNumber, 4, 6) + ' (' + #strings.substring(request.car.stateNumber, 6)} + ')'"></td>
+                    <td th:text="${request.car.stateNumber}"></td>
                     <td th:text="${request.car.vin}"></td>
                     <td class="text-center">
                         <form th:action="@{/request/check}" method="post"
@@ -178,33 +173,31 @@
             <div class="pagination">
                 <!-- Стрелка назад -->
                 <span class="pagination-arrow" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-            <a th:if="${currentPage > 0}"
-               th:href="@{/request/list(page=${currentPage - 1}, size=${size},
+            <a th:if="${currentPage > 0}" th:href="@{/request/list(page=${currentPage - 1}, size=${size},
                                         status=${status},
                                         startDate=${startDate},
                                         endDate=${endDate})}">
                <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
             </a>
+
             <span th:if="${currentPage == 0}">
-                <!-- Неактивная стрелка -->
                 <img src="/icons/arrow-left-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
             </span>
-        </span>
 
+        </span>
                 <!-- Текущая страница и общее количество страниц -->
                 <span th:text="${currentPage + 1}"></span> из <span th:text="${totalPages}"></span>
 
                 <!-- Стрелка вперед -->
                 <span class="pagination-arrow" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{/request/list(page=${currentPage + 1}, size=${size},
+            <a th:if="${currentPage < totalPages - 1}" th:href="@{/request/list(page=${currentPage + 1}, size=${size},
                                         status=${status},
                                         startDate=${startDate},
                                         endDate=${endDate})}">
                 <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
             </a>
+
             <span th:if="${currentPage == totalPages - 1}">
-                <!-- Неактивная стрелка -->
                 <img src="/icons/arrow-right-circle.svg" alt="Неактивная стрелка" width="24" height="24"/>
             </span>
         </span>
@@ -212,6 +205,8 @@
         </div>
     </div>
 </div>
+
+<div th:replace="~{fragments/toast :: toast}"></div>
 
 <script>
     function clearSearch() {
