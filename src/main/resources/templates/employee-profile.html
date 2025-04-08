@@ -3,52 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <title>Профиль сотрудника</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/employee-profile.css}" rel="stylesheet">
 </head>
 <body>
 
-
-<h1>Профиль сотрудника</h1>
-
-
 <!-- Подключаю всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
+<div th:insert="~{/fragments/navigation.html}"></div>
 
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <h1 class="mb-4 text-center">Профиль сотрудника</h1>
 
-<!-- Личная информация -->
-<div>
-    <h2>Личная информация</h2>
-    <p><strong>Фамилия:</strong> <span th:text="${employeeProfile.surname}"></span></p>
-    <p><strong>Имя:</strong> <span th:text="${employeeProfile.name}"></span></p>
-    <p><strong>Отчество:</strong> <span th:text="${employeeProfile.patronymic}"></span></p>
-    <p><strong>Номер телефона:</strong> <span th:text="${employeeProfile.phoneNumber}"></span></p>
-    <p><strong>Дата рождения:</strong> <span th:text="${employeeProfile.birthDate}"></span></p>
-</div>
+        <div class="two-columns">
+            <!-- Левая колонка -->
+            <div class="left-column">
+                <!-- Личная информация -->
+                <div class="info-block">
+                    <h3 class="font-weight-bold text-center mb-4">
+                        <div class="d-inline-flex align-items-center">
+                            <img src="/icons/person.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            <span>Личная информация</span>
+                        </div>
+                    </h3>
 
-<!-- Профессиональные сведения -->
-<div>
-    <h2>Профессиональные сведения</h2>
-    <p><strong>Должность:</strong> <span th:text="${employeeProfile.position.positionName}"></span></p>
-    <p><strong>Зарплата:</strong> <span th:text="${employeeProfile.salary}"></span></p>
-    <p><strong>Дата трудоустройства:</strong> <span th:text="${employeeProfile.hireDate}"></span></p>
-</div>
+                    <div class="profile-field">
+                        <strong>Фамилия:</strong><span th:text="${employeeProfile.surname}"></span>
+                    </div>
+                    <div class="profile-field">
+                        <strong>Имя:</strong><span th:text="${employeeProfile.name}"></span>
+                    </div>
+                    <div class="profile-field">
+                        <strong>Отчество:</strong><span th:text="${employeeProfile.patronymic}"></span>
+                    </div>
+                    <div class="profile-field">
+                        <strong>Номер телефона:</strong><span th:text="${employeeProfile.phoneNumber}"></span>
+                    </div>
+                    <div class="profile-field">
+                        <strong>Дата рождения:</strong><span th:text="${#temporals.format(employeeProfile.birthDate, 'dd.MM.yyyy')}"></span>
+                    </div>
+                </div>
 
-<!-- Учетная запись -->
-<div>
-    <h2>Учетная запись</h2>
-    <p><strong>Логин:</strong> <span th:text="${employeeProfile.account.login}"></span></p>
-</div>
+                <!-- Профессиональные сведения -->
+                <div class="info-block">
+                    <h3 class="font-weight-bold text-center mb-4">
+                        <div class="d-inline-flex align-items-center">
+                            <img src="/icons/briefcase.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            <span>Профессиональные сведения</span>
+                        </div>
+                    </h3>
 
-<!--Кнопки управления-->
-<div>
-    <button type="button" id="editInfoButton"
-            th:onclick="'window.location.href=\'/my-profile/update-info\''">
-        Редактировать личную информацию
-    </button>
+                    <div class="profile-field">
+                        <strong>Должность:</strong><span th:text="${employeeProfile.position.positionName}"></span>
+                    </div>
+                    <div class="profile-field">
+                        <strong>Зарплата:</strong><span th:text="${#numbers.formatDecimal(employeeProfile.salary, 1, 2, 'COMMA')}"></span>&nbsp;₽
+                    </div>
+                    <div class="profile-field">
+                        <strong>Дата трудоустройства:</strong><span th:text="${#temporals.format(employeeProfile.hireDate, 'dd.MM.yyyy')}"></span>
+                    </div>
+                </div>
+            </div>
 
-    <button type="button" id="changePasswordButton"
-            th:onclick="'window.location.href=\'/my-profile/update-password\''">
-        Сменить пароль
-    </button>
+            <!-- Правая колонка -->
+            <div class="right-column">
+                <!-- Учетная запись -->
+                <div class="info-block">
+                    <h3 class="font-weight-bold text-center mb-4">
+                        <div class="d-inline-flex align-items-center">
+                            <img src="/icons/shield-lock.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            <span>Учётная запись</span>
+                        </div>
+                    </h3>
+
+                    <div class="profile-field">
+                        <strong>Логин:</strong><span th:text="${employeeProfile.account.login}"></span>
+                    </div>
+
+                    <div class="profile-field">
+                        <strong>Роль:</strong><span th:text="${employeeProfile.account.role.getValue()}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="d-flex justify-content-center mt-4 gap-3">
+            <button type="button" id="editInfoButton" class="btn btn-primary d-flex align-items-center justify-content-center"
+                    th:onclick="'window.location.href=\'/my-profile/update-info\''" style="width: 190px">
+                <img src="/icons/pencil.svg" alt="Иконка" width="20" height="20" class="me-2">
+                Редактировать
+            </button>
+
+            <button type="button" id="changePasswordButton" class="btn btn-secondary d-flex align-items-center justify-content-center"
+                    th:onclick="'window.location.href=\'/my-profile/update-password\''" style="width: 190px">
+                <img src="/icons/key.svg" alt="Иконка" width="20" height="20" class="me-2">
+                Сменить пароль
+            </button>
+        </div>
+    </div>
 </div>
 
 
