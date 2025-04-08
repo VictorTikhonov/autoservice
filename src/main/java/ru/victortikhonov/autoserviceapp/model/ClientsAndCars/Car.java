@@ -25,7 +25,7 @@ public class Car {
     private String stateNumber;
 
 
-    @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "VIN номер должен состоять из 17 символов и соответствовать стандарту")
+    @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "Некорректный VIN (17 символов)")
     @Column(name = "vin")
     private String vin;
 

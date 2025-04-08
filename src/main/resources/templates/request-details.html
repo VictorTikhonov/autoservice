@@ -13,9 +13,9 @@
         <div class="d-flex justify-content-between mb-1">
             <!-- Кнопка "Список заявок" -->
             <button type="button" onclick="window.location.href='/request/list'"
-                    class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
+                    class="btn btn-primary d-flex align-items-center justify-content-center">
                 <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
-                Список заявок
+                Заявки
             </button>
 
             <!-- Кнопка отмены заявки -->
@@ -23,8 +23,7 @@
                   th:if="${requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN or
                           requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
                 <input type="hidden" name="requestId" th:value="${request.id}"/>
-                <button type="submit" class="btn btn-danger d-flex align-items-center justify-content-center float-end"
-                        style="width: 170px;">
+                <button type="submit" class="btn btn-danger d-flex align-items-center justify-content-center float-end">
                     <img src="/icons/x-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
                      Отменить
                 </button>
@@ -39,15 +38,13 @@
                 <input type="hidden" name="workOrderId" th:value="${request.workOrder.id}"/>
                 <input type="hidden" name="viewMode" value="true"/>
                 <button type="submit" class="btn btn-secondary text-white d-flex align-items-center justify-content-center"
-                        style="width: 170px;">
+                style="width: 170px;">
                     <img src="/icons/file.svg" alt="Иконка" width="20" height="20" class="me-2">
                     Открыть ЗН
                 </button>
             </form>
         </div>
 
-
-        <!-- Разделение на две колонки -->
         <div class="row">
             <!-- Левая колонка -->
             <div class="col-md-6">
@@ -91,19 +88,19 @@
                     <p class="border rounded p-2 bg-white shadow-sm"><strong>Модель: </strong>
                         <span th:text="${request.car.model}"></span></p>
                     <p class="border rounded p-2 bg-white shadow-sm"><strong>Госномер: </strong>
-                        <span th:text="${#strings.substring(request.car.stateNumber, 0, 1) + ' ' + #strings.substring(request.car.stateNumber, 1, 4) + ' '
-                     + #strings.substring(request.car.stateNumber, 4, 6) + ' (' + #strings.substring(request.car.stateNumber, 6)} + ')'"></span></p>
+                        <span th:text="${request.car.stateNumber}"></span></p>
                     <p class="border rounded p-2 bg-white shadow-sm"><strong>VIN номер: </strong>
                         <span th:text="${request.car.vin}"></span></p>
                 </div>
 
                 <div class="info-block">
                     <h2>Жалобы</h2>
-                    <p class="border rounded p-2 bg-white shadow-sm" th:text="${request.complaints}"></p>
+                    <textarea class="form-control border rounded p-2 bg-white shadow-sm"
+                              style="height: 150px; width: 100%; overflow-y: auto;" th:text="${request.complaints}" readonly></textarea>
                 </div>
+
             </div>
         </div>
-
 
         <!-- Кнопка для создания заказ-наряда -->
         <div class="d-flex justify-content-center mt-3">
@@ -116,8 +113,6 @@
                 </button>
             </form>
         </div>
-
-
     </div>
 </div>
 

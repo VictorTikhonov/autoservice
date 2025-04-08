@@ -1,11 +1,33 @@
 @import url("common.css");
 
-.container {
-    max-width: 80%;
-    border: 1px solid #ddd; /* Легкая граница */
-    border-radius: 10px; /* Скругленные углы */
-    background-color: white; /* Белый фон формы */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+
+/*.container-1 {*/
+/*    width: 75%; !* Контейнер занимает 80% от оставшейся ширины *!*/
+/*    margin-left: 20%; !* Отступ слева для навигации *!*/
+/*    margin-right: 5%; !* Отступ справа *!*/
+/*    padding: 20px;*/
+/*    background-color: white; !* Белый фон *!*/
+/*    border: 1px solid #ddd; !* Легкая граница *!*/
+/*    border-radius: 10px; !* Скругленные углы *!*/
+/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
+/*}*/
+
+
+/*.container-2 {*/
+/*    max-width: 75%;*/
+/*    margin: 0 auto; !* Центрирование по горизонтали *!*/
+/*    border: 1px solid #ddd; !* Легкая граница *!*/
+/*    border-radius: 10px; !* Скругленные углы *!*/
+/*    background-color: white; !* Белый фон формы *!*/
+/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
+/*}*/
+
+.w-40 {
+    width: 40% !important;
+}
+
+.w-60 {
+    width: 60% !important;
 }
 
 th:nth-child(1), td:nth-child(1) {
@@ -17,15 +39,17 @@ th:nth-child(2), td:nth-child(2) {
 }
 
 th:nth-child(3), td:nth-child(3) {
-    width: 20%; /* 20% для столбца Дата и время создания */
+    width: 15%; /* 20% для столбца Дата и время создания */
 }
 
 th:nth-child(4), td:nth-child(4) {
-    width: 10%; /* 10% для столбца Статус */
+    width: 15%; /* 10% для столбца Статус */
 }
 
 th:nth-child(5), td:nth-child(5) {
     width: 15%; /* 15% для столбца Автомобиль */
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 50px; /* Отступ слева */
 }
 
 th:nth-child(6), td:nth-child(6) {
@@ -33,9 +57,9 @@ th:nth-child(6), td:nth-child(6) {
 }
 
 th:nth-child(7), td:nth-child(7) {
-    width: 10%; /* 10% для столбца VIN */
+    width: 15%; /* 10% для столбца VIN */
 }
 
 th:nth-child(8), td:nth-child(8) {
-    width: 10%; /* 10% для столбца Действие */
+    width: 5%; /* 10% для столбца Действие */
 }

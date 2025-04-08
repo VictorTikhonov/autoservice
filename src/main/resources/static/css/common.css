@@ -1,33 +1,101 @@
 body {
     background-color: #d0d0d0;
-    font-size: 16px;
 }
+
 
 /* Стили для прямоугольников */
 .info-block {
-    background-color: #eeeeee;
+    /*background-color: #eeeeee;*/
     border: 1px solid #ddd; /* Граница */
     border-radius: 8px; /* Скругленные углы */
-    padding: 20px; /* Внутренние отступы */
-    margin-bottom: 20px; /* Отступ между блоками */
+    padding: 20px 20px 5px 20px;
+    margin-bottom: 10px; /* Отступ между блоками */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень */
 }
+
+
+.form-section {
+    margin-bottom: 1.5rem;
+}
+
+
+.error-space {
+    height: 18px;
+    display: flex;
+    align-items: center;
+}
+
 
 legend {
     font-weight: 600; /* Полужирное начертание */
     color: #343a40; /* Цвет текста */
 }
 
+
 .btn-orange {
     background-color: #fd7e14; /* Оранжевый цвет */
     border-color: #fd7e14; /* Оранжевая граница */
 }
+
 
 .btn-orange:hover {
     background-color: #e96d00; /* Темный оттенок оранжевого при наведении */
     border-color: #e96d00;
 }
 
+
 .btn img {
     filter: invert(1); /* Сделает иконку белой, если она тёмная */
+}
+
+
+.btn{
+    width: 130px;
+}
+
+
+.w-32 {
+    width: 32% !important;
+}
+
+
+.w-64 {
+    width: 66% !important;
+}
+
+
+.container-1 {
+    width: 75%; /* Контейнер занимает 80% от оставшейся ширины */
+    margin-left: 20%; /* Отступ слева для навигации */
+    margin-right: 5%; /* Отступ справа */
+    padding: 20px;
+    background-color: white; /* Белый фон */
+    border: 1px solid #ddd; /* Легкая граница */
+    border-radius: 10px; /* Скругленные углы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
+
+
+.container-2 {
+    max-width: 75%;
+    margin: 0 auto; /* Центрирование по горизонтали */
+    border: 1px solid #ddd; /* Легкая граница */
+    border-radius: 10px; /* Скругленные углы */
+    background-color: white; /* Белый фон формы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
+
+
+.profile-field {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    display: flex;
+}
+
+
+.profile-field strong {
+    margin-right: 10px; /* Отступ между label и значением */
 }

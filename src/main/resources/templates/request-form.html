@@ -11,9 +11,9 @@
 <div class="container mt-3 mb-3">
     <div class="bg-white p-4 rounded shadow-sm">
         <button type="button" onclick="window.location.href='/request/list'"
-                class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
+                class="btn btn-primary d-flex align-items-center justify-content-center">
             <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
-            Список заявок
+            Заявки
         </button>
 
         <h1 class="mb-4 text-center">Оформление заявки на ремонт автомобиля</h1>
@@ -28,15 +28,14 @@
                         Информация о клиенте
                     </legend>
 
-
                     <div class="mb-3 d-flex">
                         <div class="me-3 w-32">
                             <label for="surname" class="form-label">Фамилия:</label>
                             <input type="text" id="surname" class="form-control" placeholder="Тихонов"
                                    th:field="*{client.surname}"
                                    th:classappend="${#fields.hasErrors('client.surname') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('client.surname')}" class="invalid-feedback">
-                                <span th:errors="*{client.surname}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.surname')}" class="invalid-feedback" th:errors="*{client.surname}"></div>
                             </div>
                         </div>
 
@@ -45,18 +44,28 @@
                             <input type="text" id="name" class="form-control" placeholder="Виктор"
                                    th:field="*{client.name}"
                                    th:classappend="${#fields.hasErrors('client.name') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('client.name')}" class="invalid-feedback">
-                                <span th:errors="*{client.name}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.name')}" class="invalid-feedback" th:errors="*{client.name}"></div>
                             </div>
                         </div>
 
-                        <div class="w-32">
+                        <div class="me-3 w-32">
                             <label for="patronymic" class="form-label">Отчество:</label>
                             <input type="text" id="patronymic" class="form-control" placeholder="Владимирович"
                                    th:field="*{client.patronymic}"
                                    th:classappend="${#fields.hasErrors('client.patronymic') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('client.patronymic')}" class="invalid-feedback">
-                                <span th:errors="*{client.patronymic}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.patronymic')}" class="invalid-feedback" th:errors="*{client.patronymic}"></div>
+                            </div>
+                        </div>
+
+                        <div class="me-3 w-32">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="text" id="email" class="form-control" placeholder="pochta@mail.ru"
+                                   th:field="*{client.email}"
+                                   th:classappend="${#fields.hasErrors('client.email') ? ' is-invalid' : ''}"/>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.email')}" class="invalid-feedback" th:errors="*{client.email}"></div>
                             </div>
                         </div>
                     </div>
@@ -70,28 +79,22 @@
                                    pattern="[0-9]*" title="Введите только цифры"
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    th:classappend="${#fields.hasErrors('client.phoneNumber') ? ' is-invalid' : ''}"/>
-                            <span th:if="${#fields.hasErrors('client.phoneNumber')}" th:errors="*{client.phoneNumber}"
-                                  class="invalid-feedback"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.phoneNumber')}" class="invalid-feedback" th:errors="*{client.phoneNumber}"></div>
+                            </div>
                         </div>
 
-                        <button id="searchClientButton" type="submit" formaction="/request/create/search-client"
-                                class="btn btn-orange text-white d-flex align-items-center justify-content-center" style="width: 120px;">
-                            <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2">
-                            Поиск
-                        </button>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="mb-3 w-32">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="text" id="email" class="form-control" placeholder="pochta@mail.ru"
-                               th:field="*{client.email}"
-                               th:classappend="${#fields.hasErrors('client.email') ? ' is-invalid' : ''}"/>
-                        <div th:if="${#fields.hasErrors('client.email')}" class="invalid-feedback">
-                            <span th:errors="*{client.email}"></span>
+                        <div class="d-flex flex-column align-items-center">
+                            <button id="searchClientButton" type="submit" formaction="/request/create/search-client"
+                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                Поиск
+                            </button>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('client.phoneNumber')}" class="invalid-feedback"></div>
+                            </div>
                         </div>
                     </div>
-
                 </fieldset>
             </div>
 
@@ -103,15 +106,14 @@
                         Информация об автомобиле
                     </legend>
 
-
                     <div class="mb-3 d-flex">
                         <div class="me-3 w-32">
                             <label for="brand" class="form-label">Марка автомобиля:</label>
                             <input type="text" id="brand" class="form-control" placeholder="Lada"
                                    th:field="*{car.brand}"
                                    th:classappend="${#fields.hasErrors('car.brand') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('car.brand')}" class="invalid-feedback">
-                                <span th:errors="*{car.brand}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('car.brand')}" class="invalid-feedback" th:errors="*{car.brand}"></div>
                             </div>
                         </div>
 
@@ -120,8 +122,8 @@
                             <input type="text" id="model" class="form-control" placeholder="Vesta"
                                    th:field="*{car.model}"
                                    th:classappend="${#fields.hasErrors('car.model') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('car.model')}" class="invalid-feedback">
-                                <span th:errors="*{car.model}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('car.model')}" class="invalid-feedback" th:errors="*{car.model}"></div>
                             </div>
                         </div>
 
@@ -130,8 +132,8 @@
                             <input type="number" id="yearOfManufacture" class="form-control" placeholder="2020"
                                    th:field="*{car.yearOfManufacture}" min="1900"
                                    th:classappend="${#fields.hasErrors('car.yearOfManufacture') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('car.yearOfManufacture')}" class="invalid-feedback">
-                                <span th:errors="*{car.yearOfManufacture}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('car.yearOfManufacture')}" class="invalid-feedback" th:errors="*{car.yearOfManufacture}"></div>
                             </div>
                         </div>
                     </div>
@@ -142,8 +144,8 @@
                             <input type="text" id="stateNumber" class="form-control" placeholder="А001АА163"
                                    th:field="*{car.stateNumber}" oninput="transformVin(this)"
                                    th:classappend="${#fields.hasErrors('car.stateNumber') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('car.stateNumber')}" class="invalid-feedback">
-                                <span th:errors="*{car.stateNumber}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('car.stateNumber')}" class="invalid-feedback" th:errors="*{car.stateNumber}"></div>
                             </div>
                         </div>
 
@@ -152,8 +154,8 @@
                             <input type="text" id="vin" class="form-control" placeholder="XW8ZZZ61ZLG028617"
                                    th:field="*{car.vin}" oninput="transformVin(this)"
                                    th:classappend="${#fields.hasErrors('car.vin') ? ' is-invalid' : ''}"/>
-                            <div th:if="${#fields.hasErrors('car.vin')}" class="invalid-feedback">
-                                <span th:errors="*{car.vin}"></span>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('car.vin')}" class="invalid-feedback" th:errors="*{car.vin}"></div>
                             </div>
                         </div>
                     </div>
@@ -164,8 +166,8 @@
                                   placeholder="Проблемы с переключением передач, часто заедает коробка передач"
                                   th:field="*{complaint}"
                                   th:classappend="${#fields.hasErrors('complaint') ? ' is-invalid' : ''}"></textarea>
-                        <div th:if="${#fields.hasErrors('complaint')}" class="invalid-feedback">
-                            <span th:errors="*{complaint}"></span>
+                        <div class="error-space">
+                            <div th:if="${#fields.hasErrors('complaint')}" class="invalid-feedback" th:errors="*{complaint}"></div>
                         </div>
                     </div>
                 </fieldset>
@@ -173,7 +175,7 @@
 
             <div class="d-flex justify-content-center">
                 <button type="submit" formaction="/request/create"
-                        class="btn btn-success d-flex align-items-center justify-content-center" style="width: 120px;">
+                        class="btn btn-success d-flex align-items-center justify-content-center">
                     <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
                     Создать
                 </button>
@@ -188,8 +190,6 @@
         </div>
     </div>
 </div>
-
-<script src="/static/js/bootstrap.bundle.min.js"></script>
 
 <script>
     function transformVin(input) {

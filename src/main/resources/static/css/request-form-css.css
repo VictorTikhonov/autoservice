@@ -1,30 +1,31 @@
 @import url("common.css");
 
 
-
 /* Убираем лишний отступ снизу в fieldset */
 fieldset {
     margin-bottom: 0; /* Убираем отступ снизу */
 }
 
-.w-32 {
-    width: 32% !important;
-}
-
-.w-64 {
-    width: 66% !important;
-}
 
 #complaint {
-    height: 100px; /* Увеличенная высота */
+    height: 80px; /* Увеличенная высота */
     resize: vertical; /* Разрешить изменение размера по вертикали */
 }
+
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
 
 .container {
     max-width: 60%;
     border: 1px solid #ddd; /* Легкая граница */
-    border-radius: 10px; /* Скругленные углы */
+    border-radius: 6px; /* Скругленные углы */
     background-color: white; /* Белый фон формы */
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
 }
-

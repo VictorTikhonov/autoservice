@@ -11,21 +11,21 @@ import lombok.Data;
 @Data
 public abstract class Person {
 
-    @NotBlank(message = "Фамилия не может быть пустой")
+    @NotBlank(message = "Пустое поле")
     @Size(max = 50, message = "Фамилия не должна превышать 50 символов")
     @Column(name = "surname")
     private String surname;
 
-    @NotBlank(message = "Имя не может быть пустым")
+    @NotBlank(message = "Пустое поле")
     @Size(max = 50, message = "Имя не должно превышать 50 символов")
     @Column(name = "name")
     private String name;
 
-    @Size(max = 50, message = "Отчество не должно превышать 50 символов")
+    @Size(max = 50, message = "Более 50 символов")
     @Column(name = "patronymic", nullable = true)
     private String patronymic;
 
-    @Pattern(regexp = "^[0-9]{11}$", message = "Номер телефона должен состоять из 11 цифр")
+    @Pattern(regexp = "^[0-9]{11}$", message = "Укажите 11 цифр")
     @Column(name = "phone_number")
     private String phoneNumber;
 
