@@ -50,7 +50,7 @@ public class ReportController {
         // Проверка на пустые значения
         if (startDate == null || endDate == null) {
             model.addAttribute("errorMessage", "Выберите даты для формирования отчета");
-            return "operator-report";
+            return "report-request";
         }
 
         List<Operator> operators = (List<Operator>) operatorRepository.findAll();
@@ -59,7 +59,7 @@ public class ReportController {
         long totalRequestsCount = requests.size();
 
         if (totalRequestsCount == 0) {
-            return "operator-report";
+            return "report-request";
         }
 
         long totalOpen = 0;
@@ -86,7 +86,7 @@ public class ReportController {
         model.addAttribute("totalRejected", totalRejected);
         setDateRangeAttributes(model, startDate, endDate);
 
-        return "operator-report";
+        return "report-request";
     }
 
 
@@ -96,7 +96,7 @@ public class ReportController {
         // Проверка на пустые значения
         if (startDate == null || endDate == null) {
             model.addAttribute("errorMessage", "Выберите даты для формирования отчета");
-            return "mechanic-report";
+            return "report-work-order";
         }
 
         List<Mechanic> mechanics = (List<Mechanic>) mechanicRepository.findAll();
@@ -105,7 +105,7 @@ public class ReportController {
         long totalWorkOrdersCount = workOrders.size();
 
         if (totalWorkOrdersCount == 0) {
-            return "mechanic-report";
+            return "report-work-order";
         }
 
         long totalInProgress = 0; // В процессе
@@ -134,7 +134,7 @@ public class ReportController {
         model.addAttribute("totalCanceled", totalCanceled);
         setDateRangeAttributes(model, startDate, endDate);
 
-        return "mechanic-report";
+        return "report-work-order";
     }
 
 
