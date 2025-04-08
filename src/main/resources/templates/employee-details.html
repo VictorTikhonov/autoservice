@@ -3,145 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <title>Данные сотрудника</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <style>
+        .editable:disabled {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
 <body>
-
-
-<div>
-    <a th:href="@{/employee/list}">
-        <button type="button">К списку сотрудников</button>
-    </a>
-</div>
-
-
-<h1>Информация о сотруднике</h1>
-
 
 <!-- Подключаю всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
 
-
-<form id="employeeForm" th:action="@{/employee/profile/update}" method="post" th:object="${selectedEmployee}">
-    <input type="hidden" name="id" th:value="${selectedEmployee.id}"/>
-
-    <!-- Личная информация -->
-    <div>
-        <label for="surname">Фамилия:</label>
-        <input id="surname" type="text" name="surname" th:value="${selectedEmployee.surname}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
-    </div>
-
-    <div>
-        <label for="name">Имя:</label>
-        <input id="name" type="text" name="name" th:value="${selectedEmployee.name}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
-    </div>
-
-    <div>
-        <label for="patronymic">Отчество:</label>
-        <input id="patronymic" type="text" name="patronymic" th:value="${selectedEmployee.patronymic}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-    </div>
-
-    <div>
-        <label for="phoneNumber">Телефон:</label>
-        <input id="phoneNumber" type="text" name="phoneNumber" th:value="${selectedEmployee.phoneNumber}"
-               class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"
-               pattern="[0-9]*" title="Введите только цифры"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
-        <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
-        <div th:if="${errorPhoneNumberUpdate}" style="color: red;" th:text="${errorPhoneNumberUpdate}"></div>
-    </div>
-
-    <!-- Профессиональные сведения -->
-    <div>
-        <label for="position">Должность:</label>
-        <select id="position" th:field="*{position}" name="positionId"
-                class="editable"
-                th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}">
-            <option value="" disabled>Выберите должность</option>
-            <option th:each="position : ${positions}"
-                    th:value="${position.id}"
-                    th:text="${position.positionName}"
-                    th:selected="${position.id == selectedEmployee.position?.id}"/>
-        </select>
-    </div>
-
-    <div>
-        <label for="salary">Зарплата:</label>
-        <input id="salary" type="number" name="salary" th:value="${selectedEmployee.salary}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${#fields.hasErrors('salary')}" style="color: red;" th:errors="*{salary}"></div>
-    </div>
-
-    <div>
-        <label for="employmentStatus">Статус:</label>
-        <select id="employmentStatus" name="employmentStatus" class="editable"
-                th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}">
-            <option value="" disabled>Выберите статус</option>
-            <option th:each="status : ${statuses}" th:value="${status.name()}" th:text="${status.description}"
-                    th:selected="${status == selectedEmployee.employmentStatus}"/>
-        </select>
-    </div>
-
-    <div>
-        <label for="hireDate">Дата трудоустройства:</label>
-        <input id="hireDate" type="date" name="hireDate" th:value="${selectedEmployee.hireDate}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${#fields.hasErrors('hireDate')}" style="color: red;" th:errors="*{hireDate}"></div>
-    </div>
-
-    <div>
-        <label for="dismissalDate">Дата увольнения:</label>
-        <input id="dismissalDate" type="date" name="dismissalDate" th:value="${selectedEmployee.dismissalDate}"
-               class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${errorDismissalDate}" style="color: red;"><span th:text="${errorDismissalDate}"></span></div>
-    </div>
-
-    <div>
-        <label for="birthDate">Дата рождения:</label>
-        <input id="birthDate" type="date" name="birthDate" th:value="${selectedEmployee.birthDate}" class="editable"
-               th:disabled="${!#fields.hasErrors() && errorDismissalDate == null && errorPhoneNumberUpdate == null}"/>
-        <div th:if="${#fields.hasErrors('birthDate')}" style="color: red;" th:errors="*{birthDate}"></div>
-    </div>
-
-    <!-- Кнопки управления -->
-    <div>
-        <button type="button" id="editButton" th:style="'display: ' + (${editMode} ? 'none' : 'inline-block')"
-                onclick="toggleEditMode(true)">Редактировать
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <button type="button" onclick="window.location.href='/employee/list'"
+                class="btn btn-primary d-flex align-items-center justify-content-center">
+            <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Сотрудники
         </button>
 
-        <button type="submit" id="saveButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')">
-            Сохранить
-        </button>
+        <h1 class="mb-4 text-center">Информация о сотруднике</h1>
 
-        <button type="button" id="cancelButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')"
-                th:onclick="'window.location.href=\'/employee/profile/' + ${selectedEmployee.id} + '?action=cancel\''">
-            Отмена
-        </button>
+        <form id="employeeForm" th:action="@{/employee/profile/update}" method="post" th:object="${selectedEmployee}">
+            <input type="hidden" name="id" th:value="${selectedEmployee.id}"/>
+
+            <div class="row">
+                <!-- Левая колонка - Личная информация -->
+                <div class="col-md-6 pe-md-3">
+                    <div class="info-block">
+                        <h3 class="font-weight-bold d-flex align-items-center mb-4">
+                            <img src="/icons/person.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Личная информация
+                        </h3>
+
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="surname" class="form-label">Фамилия:</label>
+                                    <input id="surname" type="text" name="surname" th:value="${selectedEmployee.surname}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('surname')} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('surname')}" class="invalid-feedback" th:errors="*{surname}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="name" class="form-label">Имя:</label>
+                                    <input id="name" type="text" name="name" th:value="${selectedEmployee.name}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="patronymic" class="form-label">Отчество:</label>
+                                    <input id="patronymic" type="text" name="patronymic" th:value="${selectedEmployee.patronymic}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('patronymic')} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('patronymic')}" class="invalid-feedback" th:errors="*{patronymic}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="phoneNumber" class="form-label">Телефон:</label>
+                                    <input id="phoneNumber" type="text" name="phoneNumber" th:value="${selectedEmployee.phoneNumber}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('phoneNumber') or errorPhoneNumberUpdate != null} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"
+                                           pattern="[0-9]*" title="Введите только цифры"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('phoneNumber')}" class="invalid-feedback" th:errors="*{phoneNumber}"></div>
+                                        <div th:if="${errorPhoneNumberUpdate != null}" class="invalid-feedback" th:text="${errorPhoneNumberUpdate}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="birthDate" class="form-label">Дата рождения:</label>
+                                    <input id="birthDate" type="date" name="birthDate" th:value="${selectedEmployee.birthDate}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('birthDate')}" class="invalid-feedback" th:errors="*{birthDate}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка - Профессиональные сведения -->
+                <div class="col-md-6 ps-md-3">
+                    <div class="info-block">
+                        <h3 class="font-weight-bold d-flex align-items-center mb-4">
+                            <img src="/icons/briefcase.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Профессиональные сведения
+                        </h3>
+
+                        <div class="form-section">
+                            <label for="position" class="form-label">Должность:</label>
+                            <select id="position" th:field="*{position}" name="positionId"
+                                    class="form-select editable"
+                                    th:classappend="${#fields.hasErrors('position')} ? 'is-invalid' : ''"
+                                    th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}">
+                                <option value="" disabled>Выберите должность</option>
+                                <option th:each="position : ${positions}"
+                                        th:value="${position.id}"
+                                        th:text="${position.positionName}"
+                                        th:selected="${position.id == selectedEmployee.position?.id}"/>
+                            </select>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('position')}" class="invalid-feedback" th:errors="*{position}"></div>
+                            </div>
+                        </div>
+
+                        <!-- Объединенные статус и зарплата -->
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="salary" class="form-label">Зарплата:</label>
+                                    <div class="input-group has-validation">
+                                        <input id="salary" type="number" name="salary" th:value="${selectedEmployee.salary}"
+                                               class="form-control editable"
+                                               th:classappend="${#fields.hasErrors('salary')} ? 'is-invalid' : ''"
+                                               th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                        <span class="input-group-text">₽</span>
+                                    </div>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('salary')}" class="invalid-feedback" th:errors="*{salary}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="employmentStatus" class="form-label">Статус:</label>
+                                    <select id="employmentStatus" name="employmentStatus"
+                                            class="form-select editable"
+                                            th:classappend="${#fields.hasErrors('employmentStatus')} ? 'is-invalid' : ''"
+                                            th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}">
+                                        <option value="" disabled>Выберите статус</option>
+                                        <option th:each="status : ${statuses}" th:value="${status.name()}" th:text="${status.description}"
+                                                th:selected="${status == selectedEmployee.employmentStatus}"/>
+                                    </select>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('employmentStatus')}" class="invalid-feedback" th:errors="*{employmentStatus}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="hireDate" class="form-label">Дата трудоустройства:</label>
+                                    <input id="hireDate" type="date" name="hireDate" th:value="${selectedEmployee.hireDate}"
+                                           class="form-control editable"
+                                           th:classappend="${#fields.hasErrors('hireDate')} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('hireDate')}" class="invalid-feedback" th:errors="*{hireDate}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dismissalDate" class="form-label">Дата увольнения:</label>
+                                    <input id="dismissalDate" type="date" name="dismissalDate" th:value="${selectedEmployee.dismissalDate}"
+                                           class="form-control editable"
+                                           th:classappend="${errorDismissalDate != null} ? 'is-invalid' : ''"
+                                           th:disabled="${!#fields.hasErrors() and errorDismissalDate == null and errorPhoneNumberUpdate == null}"/>
+                                    <div class="error-space">
+                                        <div th:if="${errorDismissalDate != null}" class="invalid-feedback" th:text="${errorDismissalDate}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<!--            &lt;!&ndash; Кнопки управления &ndash;&gt;-->
+<!--            <div class="d-flex justify-content-center mt-4 gap-3">-->
+<!--                <button type="button" id="editButton" th:style="'display: ' + (${editMode} ? 'none' : 'inline-block')"-->
+<!--                        onclick="toggleEditMode(true)">Редактировать-->
+<!--                </button>-->
+
+<!--                <button type="submit" id="saveButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')">-->
+<!--                    Сохранить-->
+<!--                </button>-->
+
+<!--                <button type="button" id="cancelButton" th:style="'display: ' + (${editMode} ? 'inline-block' : 'none')"-->
+<!--                        th:onclick="'window.location.href=\'/employee/profile/' + ${selectedEmployee.id} + '?action=cancel\''">-->
+<!--                    Отмена-->
+<!--                </button>-->
+<!--            </div>-->
+
+
+            <div class="d-flex justify-content-center mt-4 gap-3">
+                <button type="button" id="editButton" style="width: 170px"
+                        class="btn btn-secondary btn-action d-flex align-items-center justify-content-center"
+                        th:classappend="${editMode} ? 'd-none' : 'd-inline-block'"
+                        onclick="toggleEditMode(true)">
+                    <img src="/icons/pencil.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Редактировать
+                </button>
+
+                <button type="submit" id="saveButton"
+                        class="btn btn-success btn-action d-flex align-items-center justify-content-center"
+                        th:classappend="${editMode} ? 'd-inline-block' : 'd-none'">
+                    <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Сохранить
+                </button>
+
+                <button type="button" id="cancelButton"
+                        class="btn btn-danger btn-action d-flex align-items-center justify-content-center"
+                        th:classappend="${editMode} ? 'd-inline-block' : 'd-none'"
+                        th:onclick="'window.location.href=\'/employee/profile/' + ${selectedEmployee.id} + '?action=cancel\''">
+                    <img src="/icons/x-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Отмена
+                </button>
+            </div>
+        </form>
     </div>
-</form>
-
+</div>
 
 <script>
-        // Функция переключения режима редактирования
-        function toggleEditMode(editMode) {
-            const inputs = document.querySelectorAll('.editable');
-            inputs.forEach(input => input.disabled = !editMode);
+    function toggleEditMode(editMode) {
+        const inputs = document.querySelectorAll('.editable');
+        inputs.forEach(input => {
+            input.disabled = !editMode; // Разблокирует, если editMode = true
+        });
 
-            document.getElementById('editButton').style.display = editMode ? 'none' : 'inline-block';
-            document.getElementById('saveButton').style.display = editMode ? 'inline-block' : 'none';
-            document.getElementById('cancelButton').style.display = editMode ? 'inline-block' : 'none';
-        }
+        document.getElementById('editButton').classList.toggle('d-none', editMode);
+        document.getElementById('saveButton').classList.toggle('d-none', !editMode);
+        document.getElementById('cancelButton').classList.toggle('d-none', !editMode);
+    }
 
-        // Сделать функции доступными в глобальной области видимости
-        window.toggleEditMode = toggleEditMode;
+    // // Функция переключения режима редактирования
+    // function toggleEditMode(editMode) {
+    //     const inputs = document.querySelectorAll('.editable');
+    //     inputs.forEach(input => input.disabled = !editMode);
+    //
+    //     document.getElementById('editButton').style.display = editMode ? 'none' : 'inline-block';
+    //     document.getElementById('saveButton').style.display = editMode ? 'inline-block' : 'none';
+    //     document.getElementById('cancelButton').style.display = editMode ? 'inline-block' : 'none';
+    // }
+    //
+    // // Сделать функции доступными в глобальной области видимости
+    // window.toggleEditMode = toggleEditMode;
 </script>
-
 
 </body>
 </html>

@@ -41,12 +41,12 @@ public class Employee extends Person {
     private EmployeeStatus employmentStatus;
 
 
-    @NotNull(message = "Зарплата не может быть пустой")
+    @NotNull(message = "Пустое поле")
     @Column(name = "salary")
     private BigDecimal salary;
 
 
-    @NotNull(message = "Дата трудоустройства не может быть пустой")
+    @NotNull(message = "Пустое поле")
     @Column(name = "hire_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate hireDate;
@@ -57,7 +57,7 @@ public class Employee extends Person {
     private LocalDate dismissalDate;
 
 
-    @NotNull(message = "Дата дня рождения не может быть пустой")
+    @NotNull(message = "Пустое поле")
     @Column(name = "birth_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;

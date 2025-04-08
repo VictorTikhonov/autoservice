@@ -94,14 +94,14 @@ public class EmployeeManagementController {
 
         // Если установлен статут "Уволен" а дата не стоит
         if ((employee.getEmploymentStatus().equals(EmployeeStatus.DISMISSED) && employee.getDismissalDate() == null)) {
-            model.addAttribute("errorDismissalDate", "Дата увольнения не может быть пустой");
+            model.addAttribute("errorDismissalDate", "Пустое поле");
             errorMessages.add("errorDismissalDate");
         }
 
         // Если статут НЕ "Уволен" а дата стоит
         if ((!employee.getEmploymentStatus().equals(EmployeeStatus.DISMISSED) && employee.getDismissalDate() != null)) {
             model.addAttribute("errorDismissalDate",
-                    "Дату увольнения можно указать только при статусе \"Уволен\"");
+                    "Доступно при статусе \"Уволен\"");
             errorMessages.add("errorLogin");
         }
 

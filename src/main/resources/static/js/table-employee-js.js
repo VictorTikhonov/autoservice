@@ -1,96 +1,116 @@
-    let currentPage = 0;
-    const rowsPerPage = 5;
-    let totalRows = 0;
-    let filteredRows = [];
-    document.addEventListener('DOMContentLoaded', initializePagination);
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация при загрузке
+    initTable();
 
+    // Назначение обработчиков событий
+    document.getElementById('searchByFio')?.addEventListener('input', searchTable);
+    document.getElementById('searchByPhone')?.addEventListener('input', searchTable);
+});
 
-    function initializePagination() {
-        const rows = document.querySelectorAll('#employeeTable tbody tr');
-        filteredRows = Array.from(rows); // Сохраняем все строки в массив
-        totalRows = filteredRows.length; // Считаем все строки
-        updatePagination(totalRows); // Обновляем пагинацию сразу при инициализации
+// Глобальные переменные
+let currentPage = 0;
+const rowsPerPage = 5;
+let totalRows = 0;
+let allRows = [];
+
+function initTable() {
+    allRows = Array.from(document.querySelectorAll('#employeeTable tbody tr'));
+    totalRows = allRows.length;
+    filteredRows = [...allRows];
+    updatePagination();
+}
+
+function searchTable() {
+    const fioSearch = document.getElementById('searchByFio')?.value.toLowerCase() || '';
+    const phoneSearch = document.getElementById('searchByPhone')?.value.toLowerCase() || '';
+
+    filteredRows = allRows.filter(row => {
+        const cells = row.cells;
+        const surname = cells[1].textContent.toLowerCase();
+        const name = cells[2].textContent.toLowerCase();
+        const patronymic = cells[3].textContent.toLowerCase();
+        const phone = cells[5].textContent.toLowerCase();
+
+        // Проверка совпадения по ФИО (любой части)
+        const fioMatch = !fioSearch ||
+            surname.includes(fioSearch) ||
+            name.includes(fioSearch) ||
+            patronymic.includes(fioSearch);
+
+        // Проверка совпадения по телефону
+        const phoneMatch = !phoneSearch || phone.includes(phoneSearch);
+
+        return fioMatch && phoneMatch;
+    });
+
+    totalRows = filteredRows.length;
+    currentPage = 0;
+    updatePagination();
+}
+
+function updatePagination() {
+    // Обновление отображения страниц
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    document.getElementById('totalPages').textContent = totalPages || 1;
+    document.getElementById('currentPageNumber').textContent = totalRows ? currentPage + 1 : 0;
+
+    // Обновление отображения строк
+    updateTableDisplay();
+
+    // Обновление кнопок пагинации
+    updatePaginationButtons(totalPages);
+}
+
+function updateTableDisplay() {
+    const start = currentPage * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    // Сначала скрываем все строки
+    allRows.forEach(row => row.style.display = 'none');
+
+    // Показываем только строки текущей страницы
+    filteredRows.slice(start, end).forEach(row => {
+        row.style.display = '';
+    });
+}
+
+function updatePaginationButtons(totalPages) {
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    const prevDisabled = document.getElementById('prevPageDisabled');
+    const nextDisabled = document.getElementById('nextPageDisabled');
+
+    if (!prevBtn || !nextBtn || !prevDisabled || !nextDisabled) return;
+
+    // Обработка кнопки "Назад"
+    if (currentPage <= 0 || totalPages === 0) {
+        prevBtn.style.display = 'none';
+        prevDisabled.style.display = 'inline';
+    } else {
+        prevBtn.style.display = 'inline';
+        prevDisabled.style.display = 'none';
     }
 
-
-    function updateTableDisplay() {
-        const startIndex = currentPage * rowsPerPage;
-        const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
-
-        filteredRows.forEach((row, index) => {
-            if (index >= startIndex && index < endIndex) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        document.getElementById('currentPageNumber').innerText = currentPage + 1;
+    // Обработка кнопки "Вперед"
+    if (currentPage >= totalPages - 1 || totalPages === 0) {
+        nextBtn.style.display = 'none';
+        nextDisabled.style.display = 'inline';
+    } else {
+        nextBtn.style.display = 'inline';
+        nextDisabled.style.display = 'none';
     }
+}
 
-
-    function changePage(page) {
-        const totalPages = Math.ceil(totalRows / rowsPerPage);
-        if (page >= 0 && page < totalPages) {
-            currentPage = page;
-            updateTableDisplay();
-            updatePaginationButtons(totalPages);
-        }
+function changePage(newPage) {
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    if (newPage >= 0 && newPage < totalPages) {
+        currentPage = newPage;
+        updatePagination();
     }
+}
 
-
-    function updatePaginationButtons(totalPages) {
-        const prevPage = document.getElementById('prevPage');
-        const nextPage = document.getElementById('nextPage');
-        const prevPageDisabled = document.getElementById('prevPageDisabled');
-        const nextPageDisabled = document.getElementById('nextPageDisabled');
-
-        // Стрелка назад
-        if (currentPage > 0) {
-            prevPage.style.display = 'inline';  // Показываем активную стрелку
-            prevPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
-        } else {
-            prevPage.style.display = 'none';  // Скрываем активную стрелку
-            prevPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
-        }
-
-        // Стрелка вперед
-        if (currentPage < totalPages - 1) {
-            nextPage.style.display = 'inline';  // Показываем активную стрелку
-            nextPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
-        } else {
-            nextPage.style.display = 'none';  // Скрываем активную стрелку
-            nextPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
-        }
-    }
-
-
-    function searchTable() {
-        const searchByFio = document.getElementById('searchByFio').value.toLowerCase();
-        const searchByPhone = document.getElementById('searchByPhone').value.toLowerCase();
-        const rows = document.querySelectorAll('#employeeTable tbody tr');
-        filteredRows = [];  // Очищаем массив отфильтрованных строк
-
-        rows.forEach(row => {
-            const fioContent = `${row.cells[0].textContent.toLowerCase()} ${row.cells[1].textContent.toLowerCase()} ${row.cells[2].textContent.toLowerCase()}`;
-            const phoneContent = row.cells[3].textContent.trim();
-
-            if ((fioContent.includes(searchByFio) || !searchByFio) && (phoneContent.startsWith(searchByPhone) || !searchByPhone)) {
-                filteredRows.push(row);  // Добавляю строку в массив отфильтрованных
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        totalRows = filteredRows.length; // Пересчитываем количество строк после фильтрации
-        currentPage = 0;  // Возвращаюсь на первую страницу при изменении поиска
-        updatePagination(totalRows); // Обновляем пагинацию после изменения фильтра
-    }
-
-
-    function updatePagination(totalRows) {
-        const totalPages = Math.ceil(totalRows / rowsPerPage);
-        document.getElementById('totalPages').innerText = totalPages;
-        updateTableDisplay();
-        updatePaginationButtons(totalPages);
-    }
+function clearSearch() {
+    document.getElementById("searchByFio").value = "";
+    document.getElementById("searchByPhone").value = "";
+    searchTable();
+}

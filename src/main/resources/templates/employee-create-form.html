@@ -3,133 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <title>Создание работника и аккаунта</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/employee-create-form.css}" rel="stylesheet">
 </head>
 <body>
-
-
-<div>
-    <a th:href="@{/employee/list}">
-        <button type="button">К списку сотрудников</button>
-    </a>
-</div>
-
-<div th:if="${error}" style="color: red;" th:text="${error}"></div>
-
-
-<h2>Создание работника и аккаунта</h2>
-
 
 <!-- Подключаю всплывающее уведомление -->
 <div th:replace="~{fragments/toast :: toast}"></div>
 
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <button type="button" onclick="window.location.href='/employee/list'"
+                class="btn btn-primary d-flex align-items-center justify-content-center">
+            <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
+            Сотрудники
+        </button>
 
-<form th:action="@{/employee/create}" th:object="${employee}" method="post">
+        <h1 class="mb-4 text-center">Добавление сотрудника и аккаунта</h1>
 
-    <!-- Выбор роли -->
-    <h2>Информация о сотруднике</h2>
+        <!-- Ошибка -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-    <div>
-        <label>Роль:</label>
-        <label>
-            <input type="radio" name="role" value="OPERATOR" th:checked="${role == 'OPERATOR'}"/> Оператор
-        </label>
-        <label>
-            <input type="radio" name="role" value="MECHANIC" th:checked="${role == 'MECHANIC'}"/> Механик
-        </label>
-        <div th:if="${errorRole}" style="color: red;" th:text="${errorRole}"></div>
+        <form th:action="@{/employee/create}" th:object="${employee}" method="post">
+            <div class="row">
+                <!-- Левый столбец - Информация о сотруднике -->
+                <div class="col-md-7 pe-md-3">
+                    <div class="info-block">
+                        <h3 class="font-weight-bold text-center mb-4">
+                            <img src="/icons/person.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Информация о сотруднике
+                        </h3>
+
+                        <!-- Выбор роли -->
+                        <div class="form-section">
+                            <div class="role-container">
+                                <label class="form-label mb-0">Роль:</label>
+                                <div class="role-options">
+                                    <div class="form-check">
+                                        <input class="form-check-input border-dark" type="radio" name="role" id="roleOperator" value="OPERATOR" th:checked="${role == 'OPERATOR'}">
+                                        <label class="form-check-label" for="roleOperator">Оператор</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input border-dark" type="radio" name="role" id="roleMechanic" value="MECHANIC" th:checked="${role == 'MECHANIC'}">
+                                        <label class="form-check-label" for="roleMechanic">Механик</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="error-space">
+                                <div th:if="${errorRole}" class="invalid-feedback" th:text="${errorRole}"></div>
+                            </div>
+                        </div>
+
+                        <!-- ФИО -->
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-4 w-32">
+                                    <label for="surname" class="form-label">Фамилия:</label>
+                                    <input type="text" id="surname" class="form-control" placeholder="Тихонов" th:field="*{surname}"
+                                           th:classappend="${#fields.hasErrors('surname') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('surname')}" class="invalid-feedback" th:errors="*{surname}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 w-32">
+                                    <label for="name" class="form-label">Имя:</label>
+                                    <input type="text" id="name" class="form-control" placeholder="Виктор" th:field="*{name}"
+                                           th:classappend="${#fields.hasErrors('name') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 w-32">
+                                    <label for="patronymic" class="form-label">Отчество:</label>
+                                    <input type="text" id="patronymic" class="form-control" placeholder="Владимирович" th:field="*{patronymic}"
+                                           th:classappend="${#fields.hasErrors('patronymic') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('patronymic')}" class="invalid-feedback" th:errors="*{patronymic}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Телефон и должность -->
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-6 w-32">
+                                    <label for="phoneNumber" class="form-label">Телефон:</label>
+                                    <input type="text" id="phoneNumber" class="form-control" placeholder="89999999999"
+                                           th:field="*{phoneNumber}" pattern="[0-9]*" title="Введите только цифры"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                           th:classappend="${#fields.hasErrors('phoneNumber') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('phoneNumber')}" class="invalid-feedback" th:errors="*{phoneNumber}"></div>
+                                        <div th:if="${errorPhoneNumber}" class="invalid-feedback" th:text="${errorPhoneNumber}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 w-32">
+                                    <label for="position" class="form-label">Должность:</label>
+                                    <select id="position" class="form-select" th:field="*{position}"
+                                            th:classappend="${#fields.hasErrors('position') ? 'is-invalid' : ''}">
+                                        <option value="" disabled>Выберите должность</option>
+                                        <option th:each="position : ${positions}"
+                                                th:value="${position.id}"
+                                                th:text="${position.positionName}"
+                                                th:selected="${position.id == employee.position?.id}"/>
+                                    </select>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('position')}" class="invalid-feedback" th:errors="*{position}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Зарплата и даты -->
+                        <div class="form-section">
+                            <div class="row g-3">
+                                <div class="col-md-4 w-32">
+                                    <label for="salary" class="form-label">Зарплата:</label>
+                                    <input type="number" id="salary" class="form-control" placeholder="150000" th:field="*{salary}" step="0.01"
+                                           th:classappend="${#fields.hasErrors('salary') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('salary')}" class="invalid-feedback" th:errors="*{salary}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 w-32">
+                                    <label for="hireDate" class="form-label">Дата трудоустройства:</label>
+                                    <input type="date" id="hireDate" class="form-control" th:field="*{hireDate}"
+                                           th:classappend="${#fields.hasErrors('hireDate') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('hireDate')}" class="invalid-feedback" th:errors="*{hireDate}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 w-32">
+                                    <label for="birthDate" class="form-label">Дата рождения:</label>
+                                    <input type="date" id="birthDate" class="form-control" th:field="*{birthDate}"
+                                           th:classappend="${#fields.hasErrors('birthDate') ? 'is-invalid' : ''}"/>
+                                    <div class="error-space">
+                                        <div th:if="${#fields.hasErrors('birthDate')}" class="invalid-feedback" th:errors="*{birthDate}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правый столбец - Информация об учетной записи -->
+                <div class="col-md-5 ps-md-3 right-column">
+                    <div class="info-block account-info-block">
+                        <h3 class="font-weight-bold text-center mb-4">
+                            <img src="/icons/shield-lock.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Информация об учетной записи
+                        </h3>
+
+                        <div class="form-section">
+                            <label for="login" class="form-label">Логин:</label>
+                            <input type="text" id="login" class="form-control w-75" placeholder="vtikhonov" th:field="*{account.login}"
+                                   th:classappend="${#fields.hasErrors('account.login') ? 'is-invalid' : ''}"/>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('account.login')}" class="invalid-feedback" th:errors="*{account.login}"></div>
+                                <div th:if="${errorLogin}" class="invalid-feedback" th:text="${errorLogin}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <label for="password" class="form-label">Пароль:</label>
+                            <div class="input-group w-75">
+                                <input type="password" id="password" class="form-control" th:field="*{account.password}"
+                                       th:classappend="${#fields.hasErrors('account.password') ? 'is-invalid' : ''}"/>
+                                <button class="btn btn-secondary password-toggle-btn" type="button" id="togglePasswordButton" style="width: 50px;">
+                                    <img src="/icons/eye.svg" alt="Показать пароль" width="20" height="20" id="passwordIcon">
+                                </button>
+                            </div>
+                            <div class="error-space">
+                                <div th:if="${#fields.hasErrors('account.password')}" class="invalid-feedback" th:errors="*{account.password}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка Добавить теперь в правом столбце -->
+                    <div class="d-flex justify-content-center mt-3">
+                        <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center">
+                            <img src="/icons/person-plus.svg" alt="Иконка" width="20" height="20" class="me-2">
+                            Добавить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
     </div>
-
-    <!-- Поля личной информации работника -->
-    <div>
-        <label for="surname">Фамилия: </label>
-        <input type="text" id="surname" placeholder="Тихонов" th:field="*{surname}"/>
-        <div th:if="${#fields.hasErrors('surname')}" style="color: red;" th:errors="*{surname}"></div>
-    </div>
-
-    <div>
-        <label for="name">Имя: </label>
-        <input type="text" id="name" placeholder="Виктор" th:field="*{name}"/>
-        <div th:if="${#fields.hasErrors('name')}" style="color: red;" th:errors="*{name}"></div>
-    </div>
-
-    <div>
-        <label for="patronymic">Отчество: </label>
-        <input type="text" id="patronymic" placeholder="Владимирович" th:field="*{patronymic}"/>
-        <div th:if="${#fields.hasErrors('patronymic')}" style="color: red;" th:errors="*{patronymic}"></div>
-    </div>
-
-    <div>
-        <label for="phoneNumber">Телефон: </label>
-        <input type="text" id="phoneNumber" th:field="*{phoneNumber}" placeholder="89999999999"
-               pattern="[0-9]*" title="Введите только цифры"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
-        <div th:if="${#fields.hasErrors('phoneNumber')}" style="color: red;" th:errors="*{phoneNumber}"></div>
-        <div th:if="${errorPhoneNumber}" style="color: red;" th:text="${errorPhoneNumber}"></div>
-    </div>
-
-    <!-- Список должностей -->
-    <div>
-        <label for="position">Должность:</label>
-        <select id="position" th:field="*{position}">
-            <option value="" disabled>Выберите должность</option>
-            <option th:each="position : ${positions}"
-                    th:value="${position.id}"
-                    th:text="${position.positionName}"
-                    th:selected="${position.id == employee.position?.id}"/>
-        </select>
-    </div>
-
-    <!-- Поля для зарплаты и дат трудоустройства, дня рождения -->
-    <div>
-        <label for="salary">Зарплата: </label>
-        <input type="number" id="salary" placeholder="150000" th:field="*{salary}" step="0.01"/>
-        <div th:if="${#fields.hasErrors('salary')}" style="color: red;" th:errors="*{salary}"></div>
-    </div>
-
-    <div>
-        <label for="hireDate">Дата трудоустройства: </label>
-        <input type="date" id="hireDate" th:field="*{hireDate}"/>
-        <div th:if="${#fields.hasErrors('hireDate')}" style="color: red;" th:errors="*{hireDate}"></div>
-    </div>
-
-    <div>
-        <label for="birthDate">Дата рождения: </label>
-        <input type="date" id="birthDate" th:field="*{birthDate}"/>
-        <div th:if="${#fields.hasErrors('birthDate')}" style="color: red;" th:errors="*{birthDate}"></div>
-    </div>
-
-
-    <h2>Информация об учетной записи</h2>
-    <!-- Поля для аккаунта -->
-    <div>
-        <label for="login">Логин: </label>
-        <input type="text" id="login" placeholder="vtikhonov" th:field="*{account.login}"/>
-        <div th:if="${#fields.hasErrors('account.login')}" style="color: red;" th:errors="*{account.login}"></div>
-        <div th:if="${errorLogin}" style="color: red;" th:text="${errorLogin}"></div>
-    </div>
-
-    <div>
-        <label for="password">Пароль: </label>
-        <input type="password" id="password" th:field="*{account.password}"/>
-        <button type="button" id="togglePasswordButton">Показать пароль</button>
-        <div th:if="${#fields.hasErrors('account.password')}" style="color: red;" th:errors="*{account.password}"></div>
-    </div>
-
-    <button type="submit">Создать работника</button>
-</form>
-
+</div>
 
 <script>
-        // Функция для переключения видимости пароля
-        const passwordField = document.getElementById('password');
-        const toggleButton = document.getElementById('togglePasswordButton');
-        if (passwordField && toggleButton) {
-            toggleButton.addEventListener('click', function () {
-                passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-            });
-        }
-</script>
+    // Функция для переключения видимости пароля
+    const passwordField = document.getElementById('password');
+    const toggleButton = document.getElementById('togglePasswordButton');
+    const passwordIcon = document.getElementById('passwordIcon');
 
+    if (passwordField && toggleButton && passwordIcon) {
+        toggleButton.addEventListener('click', function () {
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                passwordIcon.src = '/icons/eye-slash.svg';
+                passwordIcon.alt = 'Скрыть пароль';
+            } else {
+                passwordField.type = 'password';
+                passwordIcon.src = '/icons/eye.svg';
+                passwordIcon.alt = 'Показать пароль';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

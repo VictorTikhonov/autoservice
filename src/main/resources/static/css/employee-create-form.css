@@ -1,13 +1,5 @@
 @import url("common.css");
 
-.invalid-feedback {
-    display: block;
-    width: 100%;
-    margin-top: 0.25rem;
-    font-size: 0.875em;
-    color: #dc3545;
-}
-
 .role-container {
     display: flex;
     align-items: center;
