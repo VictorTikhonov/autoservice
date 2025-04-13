@@ -25,6 +25,10 @@ public class Account {
     private String login;
 
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    private Employee employee;
+
+
     @NotBlank(message = "Пароль не может быть пустым")
     @Size(max = 100, message = "Пароль не должен превышать 100 символов")
     @Column(name = "password")

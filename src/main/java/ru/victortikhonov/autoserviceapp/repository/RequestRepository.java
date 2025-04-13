@@ -22,6 +22,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
                                               @Param("endDate") LocalDateTime endDate,
                                               Pageable pageable);
 
+    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate")
+    Page<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
+                                     @Param("endDate") LocalDateTime endDate,
+                                     Pageable pageable);
+
     Page<Request> findById(Long searchId, Pageable pageable);
 
     Page<Request> findByIdAndClientPhoneNumber(Long searchId, String searchPhone, Pageable pageable);
@@ -37,5 +42,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     long countRequestsByDateAndStatus(@Param("startDate") LocalDateTime startDate,
                                       @Param("endDate") LocalDateTime endDate,
                                       @Param("status") RequestStatus status);
-
 }

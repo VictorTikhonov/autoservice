@@ -16,7 +16,7 @@
 
 <div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-    <div class="d-flex align-items-center">
+    <div th:if="${(userRole == 'ADMIN')}" class="d-flex align-items-center">
         <span class="me-3 fw-semi-bold">Добавление услуги/категории: </span>
         <button type="button" onclick="window.location.href='/service/create'"
                 class="btn btn-primary d-flex align-items-center justify-content-center">
@@ -82,11 +82,9 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-center mt-2">
-                            <button type="submit"
-                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
-                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Найти
-                            </button>
+                        <!-- Пояснение о работе поиска -->
+                        <div class="text-muted text-center small mt-4">
+                            Поиск происходит автоматически при вводе текста
                         </div>
                     </fieldset>
                 </form>
@@ -106,7 +104,7 @@
                     <th>Название</th>
                     <th>Категория</th>
                     <th>Описание</th>
-                    <th></th>
+                    <th th:if="${(userRole == 'ADMIN')}"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -115,7 +113,7 @@
                     <td th:text="${service.name}"></td>
                     <td th:text="${service.category.name}"></td>
                     <td th:text="${service.description}"></td>
-                    <td class="text-center">
+                    <td th:if="${(userRole == 'ADMIN')}" class="text-center">
                         <form th:action="@{/service/delete}" method="post"
                               style="display: inline-block; text-align: center;">
                             <input type="hidden" name="id" th:value="${service.id}"/>

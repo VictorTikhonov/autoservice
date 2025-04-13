@@ -3,6 +3,7 @@ package ru.victortikhonov.autoserviceapp.controller;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -24,16 +25,18 @@ public class EmployeeCreationController {
     private final MechanicRepository mechanicRepository;
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public EmployeeCreationController(AccountRepository accountRepository, OperatorRepository operatorRepository,
                                       MechanicRepository mechanicRepository, PositionRepository positionRepository,
-                                      EmployeeRepository employeeRepository) {
+                                      EmployeeRepository employeeRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
 
         this.accountRepository = accountRepository;
         this.operatorRepository = operatorRepository;
         this.mechanicRepository = mechanicRepository;
         this.positionRepository = positionRepository;
         this.employeeRepository = employeeRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
 
@@ -87,6 +90,10 @@ public class EmployeeCreationController {
         if (!errorMessages.isEmpty()) {
             return "employee-create-form";
         }
+
+        // Хэширование пароля перед сохранением
+        String encodedPassword = bCryptPasswordEncoder.encode(employee.getAccount().getPassword());
+        employee.getAccount().setPassword(encodedPassword);
 
         employee.getAccount().setRole(Role.valueOf(roleString));
 

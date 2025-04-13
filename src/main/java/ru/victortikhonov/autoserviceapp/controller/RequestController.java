@@ -5,12 +5,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.RequestForm;
@@ -45,14 +49,20 @@ public class RequestController {
 
     @PostMapping("/create")
     public String createRequest(@Valid @ModelAttribute("requestForm") RequestForm requestForm,
-                                Errors errors, SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
+                                Errors errors, @AuthenticationPrincipal EmployeeDetails employeeDetails,
+                                SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
 
         if (errors.hasErrors()) {
             return "request-form";
         }
 
+        Employee employee = employeeDetails.getEmployee();
+        if (!(employee instanceof Operator operator)) {
+            throw new IllegalStateException("Текущий пользователь не является оператором");
+        }
+
         // Ошибок нет, создаю и сохраняю заявку
-        Long requestId = requestService.createRequest(requestForm);
+        Long requestId = requestService.createRequest(requestForm, operator);
 
         // Завершаю сессию для requestForm
         sessionStatus.setComplete();
@@ -60,7 +70,6 @@ public class RequestController {
         redirectAttributes.addFlashAttribute("success",
                 "Заявка №" + requestId + " успешно создана!");
 
-        // TODO или оставить на этой странице
         return "redirect:/request/list";
     }
 
@@ -98,9 +107,9 @@ public class RequestController {
                                @RequestParam(required = false) String searchPhone,
                                Model model) {
 
-        // Устанавливаю сегодняшнюю дату если она не установлена
+        // Уставливаю по умолчанию фильтр дат на 7 дней
         if (startDate == null) {
-            startDate = LocalDate.now();
+            startDate = LocalDate.now().minusWeeks(1);
         }
         if (endDate == null || endDate.isAfter(LocalDate.now())) {
             endDate = LocalDate.now();
@@ -137,7 +146,8 @@ public class RequestController {
 
         // Добавляю в модель
         model.addAttribute("requests", requests);
-        model.addAttribute("status", status);
+        model.addAttribute("statuses", RequestStatus.values());
+        model.addAttribute("selectedStatus", status);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("currentPage", page);
@@ -150,7 +160,7 @@ public class RequestController {
     }
 
 
-    @PostMapping("/check")
+    @PostMapping("/details")
     public String checkRequest(@RequestParam("requestId") Long requestId, Model model) {
 
         // Получаю заявку

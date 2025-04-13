@@ -1,13 +1,15 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
 import ru.victortikhonov.autoserviceapp.repository.EmployeeRepository;
 
 import java.util.ArrayList;
@@ -25,11 +27,9 @@ public class UserProfileController {
     }
 
 
-    // TODO тут должен передаватсья авторизированный сотрудник (во всех методах)
     @GetMapping
-    public String showProfile(Model model) {
-        Employee employee = employeeRepository.findById(10L)
-                .orElseThrow(() -> new EntityNotFoundException("Работник не найден (10)"));
+    public String showProfile(Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails) {
+        Employee employee = employeeDetails.getEmployee();
 
         model.addAttribute("employeeProfile", employee);
 
@@ -46,7 +46,7 @@ public class UserProfileController {
     @PostMapping("/update-password")
     public String updatePassword(@RequestParam String newPassword,
                                  @RequestParam String confirmPassword,
-                                 @ModelAttribute("employeeProfile") Employee employee,
+                                 @AuthenticationPrincipal EmployeeDetails employeeDetails,
                                  Model model, RedirectAttributes redirectAttributes) {
 
         // Проверка на пустоту и длину пароля
@@ -61,6 +61,7 @@ public class UserProfileController {
             return "employee-update-password";
         }
 
+        Employee employee = employeeDetails.getEmployee();
         employee.getAccount().setPassword(newPassword);
         employeeRepository.save(employee);
 
@@ -71,7 +72,7 @@ public class UserProfileController {
 
 
     @GetMapping("/update-info")
-    public String showFormUpdateProfile(@ModelAttribute("employeeProfile") Employee employee, Model model) {
+    public String showFormUpdateProfile() {
 
         return "employee-update-profile";
     }
@@ -79,7 +80,7 @@ public class UserProfileController {
 
     @PostMapping("/update-info")
     public String updateProfile(@Valid @ModelAttribute("employeeProfile") Employee employee, Errors errors,
-                                Model model, RedirectAttributes redirectAttributes) {
+                                Model model, RedirectAttributes redirectAttributes, SessionStatus sessionStatus) {
 
         // Создание списка ошибок
         List<String> errorMessages = new ArrayList<>();
@@ -98,6 +99,8 @@ public class UserProfileController {
         }
 
         employeeRepository.save(employee);
+
+        sessionStatus.setComplete();
 
         redirectAttributes.addFlashAttribute("success", "Личная информация успешно обновлена!");
 

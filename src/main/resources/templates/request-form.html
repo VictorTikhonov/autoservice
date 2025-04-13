@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Создание заявки</title>
-    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/request-form-css.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/request-form-css.css}" rel="stylesheet" >
 </head>
 <body>
 
@@ -18,7 +18,7 @@
 
         <h1 class="mb-4 text-center">Оформление заявки на ремонт автомобиля</h1>
 
-        <form th:object="${requestForm}" method="post">
+        <form th:action="@{/request/create}" th:object="${requestForm}" method="post">
 
             <!-- Информация о клиенте -->
             <div class="info-block">
@@ -174,8 +174,7 @@
             </div>
 
             <div class="d-flex justify-content-center">
-                <button type="submit" formaction="/request/create"
-                        class="btn btn-success d-flex align-items-center justify-content-center">
+                <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center">
                     <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
                     Создать
                 </button>

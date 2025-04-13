@@ -8,6 +8,7 @@ import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeRepository extends CrudRepository<Employee, Long> {
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Employee e WHERE e.phoneNumber = :phoneNumber")
@@ -18,4 +19,6 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long> {
     boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
 
     Iterable<Employee> findByEmploymentStatusIn(List<EmployeeStatus> statuses);
+
+    Optional<Employee> findByAccountId(Long id);
 }

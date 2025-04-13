@@ -2,9 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <title>Список заявок</title>
 <head>
-    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/table-requests.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/table-pagination.css}">
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/table-requests.css}" rel="stylesheet">
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -13,7 +13,8 @@
 
 <div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-    <button type="button" onclick="window.location.href='/request/create'"
+    <button th:if="${(userRole == 'OPERATOR')}"
+            type="button" onclick="window.location.href='/request/create'"
             class="btn btn-primary d-flex align-items-center justify-content-center">
         <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
         Создать
@@ -33,24 +34,14 @@
                             <div class="me-lg-3 mb-2 mb-lg-0 w-40">
                                 <label for="statusFilter" class="form-label">Статус:</label>
                                 <select id="statusFilter" name="status" class="form-select w-100">
-                                    <option value="OPEN"
-                                            th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).OPEN}">
-                                        В ожидании
-                                    </option>
-                                    <option value="IN_PROGRESS"
-                                            th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).IN_PROGRESS}">
-                                        Исполняется
-                                    </option>
-                                    <option value="COMPLETED"
-                                            th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).COMPLETED}">
-                                        Завершена
-                                    </option>
-                                    <option value="REJECTED"
-                                            th:selected="${status == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED}">
-                                        Отклонена
+                                    <option th:each="statusItem : ${statuses}"
+                                            th:value="${statusItem}"
+                                            th:text="${statusItem.description}"
+                                            th:selected="${statusItem == selectedStatus}">
                                     </option>
                                 </select>
                             </div>
+
 
                             <!-- Период (даты) -->
                             <div class="me-lg-3 mb-2 mb-lg-0 w-60">
@@ -150,7 +141,7 @@
                     <td th:text="${request.car.stateNumber}"></td>
                     <td th:text="${request.car.vin}"></td>
                     <td class="text-center">
-                        <form th:action="@{/request/check}" method="post"
+                        <form th:action="@{/request/details}" method="post"
                               style="display: inline-block; text-align: center;">
                             <input type="hidden" name="requestId" th:value="${request.id}"/>
                             <button type="submit" class="btn btn-primary p-2"

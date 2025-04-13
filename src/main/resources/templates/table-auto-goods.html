@@ -14,7 +14,7 @@
 
 <div class="container-1 mt-3 mb-3 p-4 rounded shadow-sm main">
 
-    <div class="d-flex align-items-center">
+    <div th:if="${(userRole == 'ADMIN')}" class="d-flex align-items-center">
         <span class="me-3 fw-semi-bold">Добавление автотовара/категории: </span>
         <button type="button" onclick="window.location.href='/auto-good/create'"
                 class="btn btn-primary d-flex align-items-center justify-content-center">
@@ -105,7 +105,7 @@
                     <th>Цена</th>
                     <th>Срок годности</th>
                     <th>Категория</th>
-                    <th></th>
+                    <th th:if="${userRole == 'ADMIN'}"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,7 +116,7 @@
                     <td th:text="${#numbers.formatDecimal(autoGood.priceOneUnit, 1, 2)} + ' ₽'"></td>
                     <td th:text="${#temporals.format(autoGood.expirationDate, 'dd.MM.yyyy')}"></td>
                     <td th:text="${autoGood.category.name}"></td>
-                    <td class="text-center">
+                    <td th:if="${userRole == 'ADMIN'}" class="text-center">
                         <form th:action="@{/auto-good/delete}" method="post"
                               style="display: inline-block; text-align: center;">
                             <input type="hidden" name="id" th:value="${autoGood.id}"/>

@@ -16,6 +16,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable()) // TODO Отключаем CSRF
                 // Настройка разрешений на доступ к URL-адресам
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
