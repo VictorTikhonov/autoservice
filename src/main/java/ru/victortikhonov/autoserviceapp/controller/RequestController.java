@@ -14,6 +14,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
@@ -105,7 +106,8 @@ public class RequestController {
                                @RequestParam(defaultValue = "10") int size,
                                @RequestParam(required = false) Long searchId,
                                @RequestParam(required = false) String searchPhone,
-                               Model model) {
+                               @RequestParam(required = false) boolean myRequests,
+                               Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails) {
 
         // Уставливаю по умолчанию фильтр дат на 7 дней
         if (startDate == null) {
@@ -134,15 +136,36 @@ public class RequestController {
         // Формирую фильтрацию
         Pageable pageable = PageRequest.of(page, size);
         Page<Request> requests;
-        if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
-            requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
-        } else if (searchId != null) {
-            requests = requestService.findRequestsById(searchId, pageable);
-        } else if (searchPhone != null && !searchPhone.isEmpty()) {
-            requests = requestService.findRequestsByPhone(searchPhone, pageable);
-        } else {
-            requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable);
+
+        if(myRequests)
+        {
+            Employee employee = employeeDetails.getEmployee();
+            if (!(employee instanceof Operator operator)) {
+                // Можно кинуть исключение или вернуть ошибку
+                throw new IllegalStateException("Текущий пользователь не является оператором");
+            }
+
+            if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
+                requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
+            } else if (searchId != null) {
+                requests = requestService.findRequestsById(searchId, pageable);
+            } else if (searchPhone != null && !searchPhone.isEmpty()) {
+                requests = requestService.findRequestsByPhone(searchPhone, pageable);
+            } else {
+                requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable, operator);
+            }
+        }else{
+            if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
+                requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
+            } else if (searchId != null) {
+                requests = requestService.findRequestsById(searchId, pageable);
+            } else if (searchPhone != null && !searchPhone.isEmpty()) {
+                requests = requestService.findRequestsByPhone(searchPhone, pageable);
+            } else {
+                requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable, null);
+            }
         }
+
 
         // Добавляю в модель
         model.addAttribute("requests", requests);
@@ -155,6 +178,7 @@ public class RequestController {
         model.addAttribute("totalItems", requests.getTotalElements());
         model.addAttribute("searchId", searchId);
         model.addAttribute("searchPhone", searchPhone);
+        model.addAttribute("myRequests", myRequests);
 
         return "table-requests";
     }

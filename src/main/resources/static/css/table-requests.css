@@ -1,27 +1,5 @@
 @import url("common.css");
 
-
-/*.container-1 {*/
-/*    width: 75%; !* Контейнер занимает 80% от оставшейся ширины *!*/
-/*    margin-left: 20%; !* Отступ слева для навигации *!*/
-/*    margin-right: 5%; !* Отступ справа *!*/
-/*    padding: 20px;*/
-/*    background-color: white; !* Белый фон *!*/
-/*    border: 1px solid #ddd; !* Легкая граница *!*/
-/*    border-radius: 10px; !* Скругленные углы *!*/
-/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
-/*}*/
-
-
-/*.container-2 {*/
-/*    max-width: 75%;*/
-/*    margin: 0 auto; !* Центрирование по горизонтали *!*/
-/*    border: 1px solid #ddd; !* Легкая граница *!*/
-/*    border-radius: 10px; !* Скругленные углы *!*/
-/*    background-color: white; !* Белый фон формы *!*/
-/*    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); !* Тень для выделения *!*/
-/*}*/
-
 .w-40 {
     width: 40% !important;
 }
@@ -35,31 +13,40 @@ th:nth-child(1), td:nth-child(1) {
 }
 
 th:nth-child(2), td:nth-child(2) {
-    width: 15%; /* 15% для столбца Телефон клиента */
+    width: 14%; /* 10% для столбца Оператор */
 }
 
 th:nth-child(3), td:nth-child(3) {
-    width: 15%; /* 20% для столбца Дата и время создания */
+    width: 14%; /* 15% для столбца Клиент */
 }
 
 th:nth-child(4), td:nth-child(4) {
-    width: 15%; /* 10% для столбца Статус */
+    width: 11%; /* 20% для столбца Телефон */
 }
 
 th:nth-child(5), td:nth-child(5) {
-    width: 15%; /* 15% для столбца Автомобиль */
+    width: 10%; /* 20% для столбца Дата создания */
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 10%; /* 10% для столбца Статус */
+}
+
+th:nth-child(7), td:nth-child(7) {
+    width: 18%; /* 15% для столбца Автомобиль */
     text-align: left; /* Текст выравнивается по левому краю */
     padding-left: 50px; /* Отступ слева */
 }
 
-th:nth-child(6), td:nth-child(6) {
-    width: 15%; /* 15% для столбца Госномер */
-}
-
-th:nth-child(7), td:nth-child(7) {
-    width: 15%; /* 10% для столбца VIN */
-}
-
 th:nth-child(8), td:nth-child(8) {
-    width: 5%; /* 10% для столбца Действие */
+    width: 11%; /* 15% для столбца Госномер */
+}
+
+th:nth-child(9), td:nth-child(9) {
+    width: 7%; /* 10% для столбца Действие */
+}
+
+input[type="checkbox"].form-check-input:not(:checked) {
+    background-color: #adb5bd; /* насыщенный серый */
+    border-color: #adb5bd;
 }

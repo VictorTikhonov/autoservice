@@ -97,24 +97,6 @@ public class RequestService {
     }
 
 
-    public Page<Request> findRequests(RequestStatus status, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-
-        if (startDate == null || endDate == null || status == null) {
-            throw new IllegalArgumentException("Все параметры должны быть переданы");
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Дата начала не может быть позже даты конца");
-        }
-
-        if (status.equals(RequestStatus.ALL)) {
-            return requestRepository.findRequestsByDate(startDate, endDate, pageable);
-        } else {
-            return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate, pageable);
-        }
-    }
-
-
     public Optional<Request> findRequestById(Long id) {
 
         return requestRepository.findById(id);
@@ -130,6 +112,35 @@ public class RequestService {
         }
 
         return false;
+    }
+
+
+    public Page<Request> findRequests(RequestStatus status, LocalDateTime startDate, LocalDateTime endDate,
+                                      Pageable pageable, Operator operator) {
+
+        if (startDate == null || endDate == null || status == null) {
+            throw new IllegalArgumentException("Все параметры должны быть переданы");
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Дата начала не может быть позже даты конца");
+        }
+
+        if(operator!=null)
+        {
+            if (status.equals(RequestStatus.ALL)) {
+                return requestRepository.findRequestsByDate(startDate, endDate, operator.getId(), pageable);
+            } else {
+                return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate, operator.getId(), pageable);
+            }
+        }
+        else{
+            if (status.equals(RequestStatus.ALL)) {
+                return requestRepository.findRequestsByDate(startDate, endDate, pageable);
+            } else {
+                return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate, pageable);
+            }
+        }
     }
 
 

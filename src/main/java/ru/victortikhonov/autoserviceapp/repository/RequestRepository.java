@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -25,6 +24,22 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate")
     Page<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
                                      @Param("endDate") LocalDateTime endDate,
+                                     Pageable pageable);
+
+    @Query("SELECT r FROM Request r WHERE r.requestStatus = :status " +
+            "AND r.submissionDate BETWEEN :startDate AND :endDate " +
+            "AND r.operator.id = :operatorId")
+    Page<Request> findRequestsByStatusAndDate(@Param("status") RequestStatus status,
+                                              @Param("startDate") LocalDateTime startDate,
+                                              @Param("endDate") LocalDateTime endDate,
+                                              @Param("operatorId") Long operatorId,
+                                              Pageable pageable);
+
+    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate " +
+            "AND r.operator.id = :operatorId")
+    Page<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
+                                     @Param("endDate") LocalDateTime endDate,
+                                     @Param("operatorId") Long operatorId,
                                      Pageable pageable);
 
     Page<Request> findById(Long searchId, Pageable pageable);
