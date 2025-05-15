@@ -14,31 +14,31 @@
 
 .table-container table th:nth-child(2), /* Столбец Название */
 .table-container table td:nth-child(2) {
-    width: 25%;
+    width: 40%;
     text-align: left; /* Текст выравнивается по левому краю */
-    padding-left: 40px; /* Отступ слева */
+    padding-left: 10px; /* Отступ слева */
 }
 
-.table-container table th:nth-child(3), /* Столбец Количество */
+.table-container table th:nth-child(3), /* Столбец Категория */
 .table-container table td:nth-child(3) {
-    width: 15%;
+    width: 20%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 30px; /* Отступ слева */
 }
 
 .table-container table th:nth-child(4), /* Столбец Цена */
 .table-container table td:nth-child(4) {
-    width: 15%;
+    width: 10%;
 }
 
 .table-container table th:nth-child(5), /* Столбец Срок годности */
 .table-container table td:nth-child(5) {
-    width: 15%;
+    width: 10%;
 }
 
-.table-container table th:nth-child(6), /* Столбец Категория */
+.table-container table th:nth-child(6), /* Столбец Количество */
 .table-container table td:nth-child(6) {
-    width: 20%;
-    text-align: left; /* Текст выравнивается по левому краю */
-    padding-left: 40px; /* Отступ слева */
+    width: 10%;
 }
 
 .table-container table th:nth-child(7), /* Столбец Действие */

@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.Service_Auto_goods;
+package ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

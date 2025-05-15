@@ -7,12 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
-import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGood;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.*;
 import ru.victortikhonov.autoserviceapp.service.WorkOrderItemService;
 
 import java.time.LocalDateTime;
@@ -24,16 +22,9 @@ import java.util.Optional;
 public class WorkOrderController {
     private final WorkOrderItemService workOrderItemService;
 
-    // TODO временное решение
-    private final MechanicRepository mechanicRepository;
-    private final Mechanic mechanic;
-
-    public WorkOrderController(MechanicRepository mechanicRepository, WorkOrderItemService workOrderItemService) {
+    public WorkOrderController(WorkOrderItemService workOrderItemService) {
 
         this.workOrderItemService = workOrderItemService;
-
-        this.mechanicRepository = mechanicRepository;
-        mechanic = mechanicRepository.findById(24L).orElse(null);
     }
 
 

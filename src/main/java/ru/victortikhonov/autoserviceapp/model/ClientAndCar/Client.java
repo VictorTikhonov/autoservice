@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.ClientsAndCars;
+package ru.victortikhonov.autoserviceapp.model.ClientAndCar;
 
 
 import jakarta.persistence.*;
@@ -11,7 +11,6 @@ import ru.victortikhonov.autoserviceapp.model.Person;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -48,10 +47,5 @@ public class Client extends Person {
                 "\nДата регистрации: " + this.registrationDate +
                 "\nТелефон: " + super.getPhoneNumber() +
                 "\nПочта: " + (this.email == null ? "отсутствует" : this.email);
-    }
-
-
-    public List<Request> getEmployees() {
-        return Collections.unmodifiableList(requests);
     }
 }

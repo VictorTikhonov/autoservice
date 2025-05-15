@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.WorkOrders;
+package ru.victortikhonov.autoserviceapp.model.WorkOrder;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.victortikhonov.autoserviceapp.Task;
-import ru.victortikhonov.autoserviceapp.TaskStatus;
+import ru.victortikhonov.autoserviceapp.model.Task;
+import ru.victortikhonov.autoserviceapp.model.TaskStatus;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;

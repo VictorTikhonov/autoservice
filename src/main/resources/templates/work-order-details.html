@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Детали заказ-наряда</title>
     <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/table-pagination.css}" rel="stylesheet" >
+    <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
     <link th:href="@{/css/work-order-details.css}" rel="stylesheet">
     <script src="/js/work-order-details-js.js"></script>
 </head>
@@ -14,8 +14,8 @@
 <div class="container mt-3 mb-3">
     <div class="bg-white p-4 rounded shadow-sm">
         <div th:if="${not viewMode}">
-            <button type="button" onclick="window.location.href='/work-order/list?status=ALL'"
-                    class="btn btn-primary d-flex align-items-center justify-content-center" style = "width: 170px;">
+            <button type="button" onclick="window.location.href='/work-order/list'"
+                    class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 170px;">
                 <img src="/icons/list.svg" alt="Иконка" width="20" height="20" class="me-2">
                 Заказ-наряды
             </button>
@@ -71,7 +71,7 @@
 
                 <!-- Второй столбец: Механик и Заказ-наряд -->
                 <div class="col-md-6">
-                    <div th:if="${viewMode}" class="info-block d-flex flex-column h-45">
+                    <div th:if="${viewMode or userRole != 'MECHANIC'}" class="info-block d-flex flex-column h-45">
                         <fieldset class="flex-grow-1">
                             <legend class="font-weight-bold d-flex align-items-center">
                                 <img src="/icons/person-gear.svg" alt="Иконка" width="20" height="20" class="me-2">
@@ -115,11 +115,12 @@
         </div>
 
 
-        <h2 class="mb-2" th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode} ">
+        <h2 class="mb-2"
+            th:if="${(userRole == 'MECHANIC') and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS} and not ${viewMode} ">
             Добавление автотоваров и услуг в заказ-наряд</h2>
 
         <div class="bg-white p-2 rounded shadow-sm mb-2"
-             th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
+             th:if="${(userRole == 'MECHANIC') and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}">
             <h3 class="mb-3 d-flex align-items-center">
                 <img src="/icons/auto-good.svg" alt="Иконка" width="20" height="20" class="me-2">
                 Выбор автотоваров
@@ -155,26 +156,28 @@
                             <table id="autoGoodsTable" th:if="${!#lists.isEmpty(availableAutoGoods)}">
                                 <thead>
                                 <tr>
-                                    <th width="10%">Выбор</th>
-                                    <th width="25%">Название</th>
-                                    <th width="25%">Категория</th>
-                                    <th width="15%">В наличии</th>
-                                    <th width="15%">Цена</th>
-                                    <th width="10%">Кол-во</th>
+                                    <th style="width: 10%;">Выбор</th>
+                                    <th style="width: 45%;">Название</th>
+                                    <th style="width: 15%;">Категория</th>
+                                    <th style="width: 10%;">Кол-во</th>
+                                    <th style="width: 10%;">Цена</th>
+                                    <th style="width: 10%;">Кол-во</th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
                                 <tr th:each="autoGood : ${availableAutoGoods}">
                                     <td>
-                                        <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}" class="checkbox" disabled/>
+                                        <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}"
+                                               class="checkbox" disabled/>
                                     </td>
-                                    <td th:text="${autoGood.name}"></td>
-                                    <td th:text="${autoGood.category.name}"></td>
+                                    <td th:text="${autoGood.name}" style="text-align: left; padding-left: 10px;"></td>
+                                    <td th:text="${autoGood.category.name}" style="text-align: left; padding-left: 10px;"></td>
                                     <td th:text="${autoGood.quantity}"></td>
                                     <td th:text="${autoGood.priceOneUnit}"></td>
                                     <td>
-                                        <input type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
+                                        <input style="width: 80%;"
+                                               type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
                                                class="quantity-input"
                                                oninput="enableCheckbox(this); validateInput(this)"/>
                                     </td>
@@ -187,7 +190,8 @@
                         <div class="pagination-container">
                             <div class="pagination">
                                 <span class="pagination-arrow">
-                                    <a id="prevAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage - 1)">
+                                    <a id="prevAutoGoodsPage" href="#"
+                                       onclick="changePage('autoGoods', currentAutoGoodsPage - 1)">
                                         <img src="/icons/arrow-left-circle-fill.svg" alt="Назад">
                                     </a>
                                     <span id="prevAutoGoodsPageDisabled" style="display: none;">
@@ -195,10 +199,12 @@
                                     </span>
                                 </span>
 
-                                <span id="currentAutoGoodsPageNumber">1</span> из <span id="totalAutoGoodsPages">1</span>
+                                <span id="currentAutoGoodsPageNumber">1</span> из <span
+                                    id="totalAutoGoodsPages">1</span>
 
                                 <span class="pagination-arrow">
-                                    <a id="nextAutoGoodsPage" href="#" onclick="changePage('autoGoods', currentAutoGoodsPage + 1)">
+                                    <a id="nextAutoGoodsPage" href="#"
+                                       onclick="changePage('autoGoods', currentAutoGoodsPage + 1)">
                                         <img src="/icons/arrow-right-circle-fill.svg" alt="Вперед">
                                     </a>
                                     <span id="nextAutoGoodsPageDisabled" style="display: none;">
@@ -242,22 +248,24 @@
                             <table id="servicesTable" th:if="${!#lists.isEmpty(availableServices)}" style="width: 90%;">
                                 <thead>
                                 <tr>
-                                    <th style = "width: 15%;">Выбрать</th>
-                                    <th style = "width: 35%;">Наименование</th>
-                                    <th style = "width: 35%;">Категория</th>
-                                    <th style = "width: 15%;">Цена</th>
+                                    <th style="width: 15%;">Выбрать</th>
+                                    <th style="width: 35%;">Наименование</th>
+                                    <th style="width: 35%;">Категория</th>
+                                    <th style="width: 15%;">Цена</th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
                                 <tr th:each="service : ${availableServices}">
                                     <td>
-                                        <input type="checkbox" name="selectedServices" th:value="${service.id}" class="checkbox" disabled/>
+                                        <input type="checkbox" name="selectedServices" th:value="${service.id}"
+                                               class="checkbox" disabled/>
                                     </td>
                                     <td th:text="${service.name}"></td>
                                     <td th:text="${service.category.name}"></td>
                                     <td>
-                                        <input type="number" name="price" min="0" class="price-input" oninput="enableCheckbox(this)"/>
+                                        <input type="number" name="price" min="0" class="price-input"
+                                               oninput="enableCheckbox(this)"/>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -267,7 +275,8 @@
                         <div class="pagination-container">
                             <div class="pagination">
                                 <span class="pagination-arrow">
-                                    <a id="prevServicePage" href="#" onclick="changePage('services', currentServicesPage - 1)">
+                                    <a id="prevServicePage" href="#"
+                                       onclick="changePage('services', currentServicesPage - 1)">
                                         <img src="/icons/arrow-left-circle-fill.svg" alt="Назад">
                                     </a>
                                     <span id="prevServicePageDisabled" style="display: none;">
@@ -278,7 +287,8 @@
                                 <span id="currentServicePageNumber">1</span> из <span id="totalServicePages">1</span>
 
                                 <span class="pagination-arrow">
-                                    <a id="nextServicePage" href="#" onclick="changePage('services', currentServicesPage + 1)">
+                                    <a id="nextServicePage" href="#"
+                                       onclick="changePage('services', currentServicesPage + 1)">
                                         <img src="/icons/arrow-right-circle-fill.svg" alt="Вперед">
                                     </a>
                                     <span id="nextServicePageDisabled" style="display: none;">
@@ -290,35 +300,36 @@
                     </div>
                 </div>
 
-                    <div class="mb-2 p-3 border rounded">
-                        <div class="row mb-2">
-                            <div id="noAutoGoodsOrServiceMessage" class="alert alert-danger mb-3 text-center" style="display: none;">
-                                Пожалуйста, выберите хотя бы один автотовар или услугу для добавления
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3 border rounded">
-                                    <h4 class="d-flex align-items-center">
-                                        Выбранные автотовары:
-                                    </h4>
-                                    <ul id="selectedAutoGoodsList" class="list-group"></ul>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3 border rounded">
-                                    <h4 class="d-flex align-items-center">
-                                        Выбранные услуги:
-                                    </h4>
-                                    <ul id="selectedServicesList" class="list-group"></ul>
-                                </div>
+                <div class="mb-2 p-3 border rounded">
+                    <div class="row mb-2">
+                        <div id="noAutoGoodsOrServiceMessage" class="alert alert-danger mb-3 text-center"
+                             style="display: none;">
+                            Пожалуйста, выберите хотя бы один автотовар или услугу для добавления
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded">
+                                <h4 class="d-flex align-items-center">
+                                    Выбранные автотовары:
+                                </h4>
+                                <ul id="selectedAutoGoodsList" class="list-group ps-4"></ul>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded">
+                                <h4 class="d-flex align-items-center">
+                                    Выбранные услуги:
+                                </h4>
+                                <ul id="selectedServicesList" class="list-group ps-4"></ul>
+                            </div>
+                        </div>
+                    </div>
 
 
                     <div class="d-flex justify-content-center">
                         <button type="button" onclick="submitSelectedItems()"
                                 class="btn btn-success d-flex align-items-center">
                             <img src="/icons/plus-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
-                        Добавить
+                            Добавить
                         </button>
                     </div>
                 </div>
@@ -338,7 +349,6 @@
                     </legend>
                     <div class="table-responsive">
                         <table class="current-items">
-                            <!-- Ваша существующая таблица автотоваров без изменений -->
                             <thead>
                             <tr>
                                 <th>№</th>
@@ -346,8 +356,9 @@
                                 <th>Количество</th>
                                 <th>Цена</th>
                                 <th>Сумма</th>
-                                <th th:if="${not viewMode and workOrder.workOrderStatuses ==
-                                T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS and not #lists.isEmpty(services)}">
+                                <th th:if="${(userRole == 'MECHANIC') and not viewMode and workOrder.workOrderStatuses ==
+                                T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS and not
+                                 #lists.isEmpty(services)}">
                                     Удаление
                                 </th>
 
@@ -360,10 +371,12 @@
                                 <td th:text="${autoGood.quantity}"></td>
                                 <td th:text="${autoGood.priceOneUnit}"></td>
                                 <td th:text="${autoGood.calculatePrice()}"></td>
-                                <td th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+                                <td th:if="${(userRole == 'MECHANIC') and not viewMode and workOrder.workOrderStatuses ==
+                                T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS}">
                                     <button type="button" class="btn btn-danger btn-sm"
-                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'">
-                                        Удалить
+                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${autoGood.autoGood.id} + ', \'autoGood\')'"
+                                            style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                                        <img src="/icons/trash-fill.svg" alt="Удалить" width="20" height="20">
                                     </button>
                                 </td>
                             </tr>
@@ -371,8 +384,9 @@
                                 <td colspan="5">Нет добавленных автотоваров</td>
                             </tr>
                             <tr>
-                                <td colspan="4"><strong>Итого</strong></td>
+                                <td colspan="4"><strong class="ps-2 text-start d-block">Итого</strong></td>
                                 <td th:text="${workOrder.calculateTotalPriceAutoGoods()}"></td>
+                                <td th:if="${not #lists.isEmpty(autoGoods) and viewMode}"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -389,14 +403,14 @@
                     </legend>
                     <div class="table-responsive">
                         <table class="current-items" style="width: 60%;">
-                            <!-- Ваша существующая таблица услуг без изменений -->
                             <thead>
                             <tr>
                                 <th>№</th>
                                 <th>Название</th>
                                 <th>Цена</th>
-                                <th th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS
-                            and not #lists.isEmpty(services)}">Удаление
+                                <th th:if="${(userRole == 'MECHANIC') and not viewMode and workOrder.workOrderStatuses ==
+                                T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS
+                                and not #lists.isEmpty(services)}">Удаление
                                 </th>
                             </tr>
                             </thead>
@@ -405,19 +419,22 @@
                                 <td th:text="${iterStat.index + 1}"></td>
                                 <td th:text="${service.service.name}"></td>
                                 <td th:text="${service.price}"></td>
-                                <td th:if="${not viewMode and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS}">
+                                <td th:if="${(userRole == 'MECHANIC') and not viewMode and workOrder.workOrderStatuses ==
+                                 T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS}">
                                     <button type="button" class="btn btn-danger btn-sm"
-                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'">
-                                        Удалить
+                                            th:onclick="'deleteItem(' + ${workOrder.id} + ',' + ${service.service.id} + ', \'service\')'"
+                                            style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                                        <img src="/icons/trash-fill.svg" alt="Удалить" width="20" height="20">
                                     </button>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(services)}">
-                                <td colspan="4">Нет добавленных услуг</td>
+                                <td colspan="3">Нет добавленных услуг</td>
                             </tr>
                             <tr>
-                                <td colspan="2"><strong>Итого</strong></td>
+                                <td colspan="2"><strong class="ps-2 text-start d-block">Итого</strong></td>
                                 <td th:text="${workOrder.calculateTotalPriceServices()}"></td>
+                                <td th:if="${not #lists.isEmpty(services) and viewMode}"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -444,7 +461,7 @@
                       class="text-danger" th:text="${missingServiceError}"></span>
 
                 <button type="button" class="btn btn-success d-flex align-items-center mt-2"
-                        th:if="${workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}"
+                        th:if="${(userRole == 'MECHANIC') and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS} and not ${viewMode}"
                         th:onclick="|window.location='@{/work-order/details/complete(workOrderId=${workOrder.id})}'|">
                     <img src="/icons/check-circle.svg" alt="Иконка" width="20" height="20" class="me-2">
                     Завершить

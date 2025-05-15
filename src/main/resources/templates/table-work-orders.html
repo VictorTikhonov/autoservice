@@ -7,8 +7,8 @@
     <link th:href="@{/css/common.css}" rel="stylesheet">
     <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
     <style>
-        .container-2{
-            max-width: 50%;
+        .container-2 {
+            max-width: 75%;
         }
     </style>
 </head>
@@ -24,49 +24,120 @@
     <div th:if="${cancellationNotice}" class="alert alert-danger mb-3" th:utext="${cancellationNotice}"></div>
     <div th:if="${dateError}" class="alert alert-danger mb-3" th:text="${dateError}"></div>
 
-    <!-- Фильтры и поиск -->
+
     <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
-        <form method="get" th:action="@{/work-order/list}">
-            <fieldset class="border p-3 rounded">
-                <legend class="fw-bold text-dark text-center">Фильтр заказ-нарядов</legend>
+        <div class="d-flex justify-content-between align-items-stretch">
+            <!-- Блок фильтров -->
+            <div class="filter-block" style="width: 59%;">
+                <form method="get" th:action="@{/work-order/list}" class="h-100">
+                    <fieldset class="border p-3 rounded h-100 d-flex flex-column">
+                        <legend class="fw-bold text-dark text-center">Фильтр заказ-нарядов</legend>
 
-                <div class="row mb-3 align-items-end">
-                    <!-- Статус -->
-                    <div class="col-md-4">
-                        <label for="statusFilter" class="form-label">Статус:</label>
-                        <select id="statusFilter" name="status" class="form-select">
-                            <option th:each="status : ${statuses}"
-                                    th:value="${status}"
-                                    th:text="${status.description}"
-                                    th:selected="${status == selectedStatus}"></option>
-                        </select>
-                    </div>
+                        <!-- Фильтры и кнопка очистки -->
+                        <div class="d-flex flex-row align-items-end justify-content-center flex-wrap mb-3">
+                            <!-- Статус -->
+                            <div class="me-3 mb-2">
+                                <label for="statusFilter" class="form-label">Статус:</label>
+                                <select id="statusFilter" name="status" class="form-select">
+                                    <option th:each="status : ${statuses}"
+                                            th:value="${status}"
+                                            th:text="${status.description}"
+                                            th:selected="${status == selectedStatus}"></option>
+                                </select>
+                            </div>
 
-                    <!-- Период -->
-                    <div class="col-md-8">
-                        <label for="startDate" class="form-label">Период:</label>
-                        <div class="d-flex align-items-center">
-                            <input type="date" id="startDate" name="startDate" th:value="${startDate}"
-                                   class="form-control me-2">
-                            <span class="mx-1">-</span>
-                            <input type="date" id="endDate" name="endDate" th:value="${endDate}"
-                                   class="form-control">
+                            <!-- Период -->
+                            <div class="me-3 mb-2">
+                                <label for="startDate" class="form-label">Период:</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="date" id="startDate" name="startDate" th:value="${startDate}"
+                                           class="form-control me-2">
+                                    <span class="mx-1">-</span>
+                                    <input type="date" id="endDate" name="endDate" th:value="${endDate}"
+                                           class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Кнопка "Очистить" -->
+                            <div class="mb-2">
+                                <label class="form-label d-block invisible">Очистить</label>
+                                <!-- пустой лейбл для выравнивания -->
+                                <button type="button"
+                                        onclick="window.location.href='/work-order/list'"
+                                        class="btn btn-danger d-flex align-items-center justify-content-center"
+                                        style="width: 50px; height: 38px;">
+                                    <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center me-2">
-                        <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Применить
-                    </button>
-                    <button type="button" onclick="window.location.href='/work-order/list'"
-                            class="btn btn-danger d-flex align-items-center justify-content-center">
-                        <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20" class="me-2"> Сбросить
-                    </button>
-                </div>
-            </fieldset>
-        </form>
+                        <!-- Кнопка "Готово" -->
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-center">
+                                <button type="submit"
+                                        class="btn btn-success d-flex align-items-center justify-content-center">
+                                    <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                    Готово
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <!-- Блок поиска -->
+            <div class="search-block" style="width: 39%;">
+                <form method="get" th:action="@{/work-order/list}" class="h-100">
+                    <fieldset class="border p-3 rounded h-100 d-flex flex-column">
+                        <legend class="fw-bold text-dark text-center">Поиск заказ-наряда</legend>
+
+                        <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
+                            <!-- № заказ-наряда -->
+                            <div class="me-lg-3 mb-2 mb-lg-0">
+                                <label for="searchWorkOrderId" class="form-label">№ заказ-наряда:</label>
+                                <input type="text" id="searchWorkOrderId" name="searchWorkOrderId"
+                                       th:value="${searchWorkOrderId}" placeholder="100"
+                                       pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
+                                       class="form-control">
+                            </div>
+
+                            <!-- № заявки -->
+                            <div class="me-lg-3 mb-2 mb-lg-0">
+                                <label for="searchRequestId" class="form-label">№ заявки:</label>
+                                <input type="text" id="searchRequestId" name="searchRequestId"
+                                       th:value="${searchRequestId}" placeholder="200"
+                                       pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
+                                       class="form-control">
+                            </div>
+
+                            <!-- Очистить -->
+                            <div class="align-self-end">
+                                <button type="button" onclick="clearSearchWorkOrders()"
+                                        class="btn btn-danger d-flex align-items-center justify-content-center"
+                                        style="width: 50px; height: 38px;">
+                                    <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="text-muted text-center small mt-2">
+                                Поиск: ЗН или Заявка (приоритет — ЗН), без фильтров
+                            </div>
+
+                            <div class="d-flex justify-content-center mt-2">
+                                <button type="submit"
+                                        class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                    <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Поиск
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
     </div>
+
 
     <!-- Контейнер для таблицы и пагинации -->
     <div class="table-container">
@@ -83,13 +154,13 @@
                     <th>Дата создания</th>
                     <th>Дата окончания работ</th>
                     <th>Цена</th>
-                    <th>Действие</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="workOrder : ${workOrders}"
                     th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
-                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus).IN_PROGRESS)
+                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS)
                      ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
                     <td th:text="${workOrder.id}"></td>
                     <td th:text="${workOrder.request.id}"></td>
@@ -148,6 +219,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function clearSearchWorkOrders() {
+        document.getElementById('searchWorkOrderId').value = '';
+        document.getElementById('searchRequestId').value = '';
+        window.location.href = '/work-order/list';
+    }
+</script>
 
 </body>
 </html>

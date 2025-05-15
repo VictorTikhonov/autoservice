@@ -4,9 +4,9 @@
 .table-container {
     display: flex;
     flex-direction: column;
-    min-height: 750px; /* Минимальная высота */
+    min-height: 550px; /* Минимальная высота */
     background-color: white; /* Белый фон */
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень */
 }
@@ -15,14 +15,12 @@
 .table-wrapper {
     flex-grow: 1; /* Таблица займет все доступное пространство */
     overflow-y: auto; /* Прокрутка для длинных таблиц */
-    margin-bottom: 20px;
 }
 
 /* Таблица */
 table {
     width: 100%;
     border-collapse: collapse; /* Убирает двойные границы между ячейками */
-    margin-bottom: 20px; /* Отступ снизу */
 }
 
 th, td {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
+import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
-import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrder;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus;
 import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
 import ru.victortikhonov.autoserviceapp.repository.WorkOrderRepository;
 
@@ -35,31 +37,30 @@ public class WorkOrderManagementController {
     private final WorkOrderRepository workOrderRepository;
     private final RequestRepository requestRepository;
 
-    // TODO временное решение
-    private final MechanicRepository mechanicRepository;
-    private final Mechanic mechanic;
-
-    public WorkOrderManagementController(WorkOrderRepository workOrderRepository, RequestRepository requestRepository,
-                                         MechanicRepository mechanicRepository) {
+    public WorkOrderManagementController(WorkOrderRepository workOrderRepository,
+                                         RequestRepository requestRepository) {
 
         this.workOrderRepository = workOrderRepository;
         this.requestRepository = requestRepository;
-
-        this.mechanicRepository = mechanicRepository;
-        mechanic = mechanicRepository.findById(24L).orElse(null);
     }
 
 
     @Transactional
     @PostMapping("/create")
     public String createWorkOrder(@RequestParam("requestId") Long requestId, Model model,
+                                  @AuthenticationPrincipal EmployeeDetails employeeDetails,
                                   RedirectAttributes redirectAttributes) {
+
+        Employee employee = employeeDetails.getEmployee();
+        if (!(employee instanceof Mechanic mechanic)) {
+            throw new IllegalStateException("Текущий пользователь не является оператором");
+        }
 
         try {
             Request request = requestRepository.findById(requestId).orElseThrow(
                     () -> new IllegalArgumentException("неверное ID заявки: " + requestId));
 
-            WorkOrder workOrder = new WorkOrder(request, this.mechanic, WorkOrderStatus.IN_PROGRESS);
+            WorkOrder workOrder = new WorkOrder(request, mechanic, WorkOrderStatus.IN_PROGRESS);
             this.workOrderRepository.save(workOrder);
 
             request.setRequestStatus(RequestStatus.IN_PROGRESS);
@@ -79,17 +80,19 @@ public class WorkOrderManagementController {
 
 
     @GetMapping("/list")
-    public String showListWorkOrders(Model model,
+    public String showListWorkOrders(Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails,
                                      @RequestParam(required = false) Long newWorkOrderId,
                                      @RequestParam(required = false) WorkOrderStatus status,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                      @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "3") int size) {
+                                     @RequestParam(defaultValue = "3") int size,
+                                     @RequestParam(required = false) Long searchWorkOrderId,
+                                     @RequestParam(required = false) Long searchRequestId) {
 
-        // Добавляю id нового ЗН,чтобы подсветить его
-        if (newWorkOrderId != null) {
-            model.addAttribute("newWorkOrderId", newWorkOrderId);
+        // Статус по умолчанию
+        if (status == null) {
+            status = WorkOrderStatus.IN_PROGRESS;
         }
 
         // Уставливаю по умолчанию фильтр дат на 7 дней
@@ -110,20 +113,51 @@ public class WorkOrderManagementController {
             return "table-work-orders";
         }
 
-        // Поиск ЗН в соответствии с фильтрами
+        Page<WorkOrder> workOrders;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
-        Page<WorkOrder> workOrders = searchWorkOrders(status, pageable, startDate, endDate);
 
-        // Проверка отмененных заказ-нарядов
-        checkForCanceledWorkOrders(model);
+        if (employeeDetails.getEmployee().getAccount().getRole().name().equals("ADMIN")) {
+            if (searchWorkOrderId != null) {
+                workOrders = workOrderRepository.findById(searchWorkOrderId, pageable);
+            } else if (searchRequestId != null) {
+                workOrders = workOrderRepository.findByRequestId(searchRequestId, pageable);
+            } else {
+                // Поиск ЗН в соответствии с фильтрами
+                workOrders = searchWorkOrders(status, pageable, startDate, endDate, null);
+            }
+        } else {
+            Employee employee = employeeDetails.getEmployee();
+            if (!(employee instanceof Mechanic mechanic)) {
+                // Можно кинуть исключение или вернуть ошибку
+                throw new IllegalStateException("Текущий пользователь не является механиком");
+            }
+
+            // Добавляю id нового ЗН,чтобы подсветить его
+            if (newWorkOrderId != null) {
+                model.addAttribute("newWorkOrderId", newWorkOrderId);
+            }
+
+            if (searchWorkOrderId != null) {
+                workOrders = workOrderRepository.findById(searchWorkOrderId, mechanic.getId(), pageable);
+            } else if (searchRequestId != null) {
+                workOrders = workOrderRepository.findByRequestId(searchRequestId, mechanic.getId(), pageable);
+            } else {
+                // Поиск ЗН в соответствии с фильтрами
+                workOrders = searchWorkOrders(status, pageable, startDate, endDate, mechanic);
+            }
+
+            // Проверка отмененных заказ-нарядов
+            checkForCanceledWorkOrders(model);
+        }
 
         model.addAttribute("workOrders", workOrders);
         model.addAttribute("statuses", WorkOrderStatus.values());
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("newWorkOrderId", newWorkOrderId);
         model.addAttribute("currentPage", page);
+        model.addAttribute("searchWorkOrderId", searchWorkOrderId);
+        model.addAttribute("searchRequestId", searchRequestId);
         model.addAttribute("totalPages", Math.max(1, workOrders.getTotalPages()));
         model.addAttribute("totalItems", workOrders.getTotalElements());
 
@@ -152,21 +186,26 @@ public class WorkOrderManagementController {
 
 
     private Page<WorkOrder> searchWorkOrders(WorkOrderStatus status, Pageable pageable,
-                                             LocalDate startDate, LocalDate endDate) {
+                                             LocalDate startDate, LocalDate endDate, Mechanic mechanic) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-        if (status == WorkOrderStatus.ALL) {
-            return workOrderRepository.
-                    findByMechanicIdAndDateRange(mechanic.getId(), startDateTime, endDateTime, pageable);
-        } else {
-            // Статус по умолчанию
-            if (status == null) {
-                status = WorkOrderStatus.IN_PROGRESS;
+        if (mechanic != null) {
+            if (status == WorkOrderStatus.ALL) {
+                return workOrderRepository.
+                        findByMechanicIdAndDateRange(mechanic.getId(), startDateTime, endDateTime, pageable);
+            } else {
+                return workOrderRepository.
+                        findByMechanicIdAndStatusAndDate(mechanic.getId(), status, startDateTime, endDateTime, pageable);
             }
-
-            return workOrderRepository.
-                    findByMechanicIdAndStatusAndDate(this.mechanic.getId(), status, startDateTime, endDateTime, pageable);
+        } else {
+            if (status == WorkOrderStatus.ALL) {
+                return workOrderRepository.
+                        findByDateRange(startDateTime, endDateTime, pageable);
+            } else {
+                return workOrderRepository.
+                        findByStatusAndDate(status, startDateTime, endDateTime, pageable);
+            }
         }
     }
 }

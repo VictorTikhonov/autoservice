@@ -11,7 +11,7 @@ function clearSearchAutoGoods() {
 
 let currentAutoGoodsPage = 0;
 let currentServicesPage = 0;
-const rowsPerPage = 10;
+const rowsPerPage = 7;
 let autoGoodsTotalRows = 0;
 let servicesTotalRows = 0;
 let autoGoodsFilteredRows = [];

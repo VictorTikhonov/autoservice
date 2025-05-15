@@ -9,8 +9,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.repository.ServiceCategoryRepository;
 import ru.victortikhonov.autoserviceapp.repository.ServiceRepository;
 

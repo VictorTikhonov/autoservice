@@ -2,7 +2,7 @@ package ru.victortikhonov.autoserviceapp.converter;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus;
 
 
 @Component

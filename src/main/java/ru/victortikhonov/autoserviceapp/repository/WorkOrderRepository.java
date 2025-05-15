@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrder;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,9 +35,35 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
                                                  Pageable pageable);
 
 
+    @Query("SELECT w FROM WorkOrder w WHERE w.workOrderStatuses = :status " +
+            "AND w.startDate BETWEEN :startDate AND :endDate")
+    Page<WorkOrder> findByStatusAndDate(@Param("status") WorkOrderStatus status,
+                                        @Param("startDate") LocalDateTime startDate,
+                                        @Param("endDate") LocalDateTime endDate,
+                                        Pageable pageable);
+
+    @Query("SELECT w FROM WorkOrder w WHERE w.startDate BETWEEN :startDate AND :endDate")
+    Page<WorkOrder> findByDateRange(@Param("startDate") LocalDateTime startDate,
+                                    @Param("endDate") LocalDateTime endDate,
+                                    Pageable pageable);
+
     @Query("SELECT w.id FROM WorkOrder w LEFT JOIN w.request r " +
             "WHERE r.requestStatus = :rejectedStatus " +
             "AND w.workOrderStatuses = :inProgressStatus")
     List<Long> findRejectedRequestsWithInProgressWorkOrders(@Param("rejectedStatus") RequestStatus rejectedStatus,
                                                             @Param("inProgressStatus") WorkOrderStatus inProgressStatus);
+
+    Page<WorkOrder> findById(Long searchWorkOrderId, Pageable pageable);
+
+    Page<WorkOrder> findByRequestId(Long searchRequestId, Pageable pageable);
+
+    @Query("SELECT w FROM WorkOrder w WHERE w.id = :searchWorkOrderId AND w.mechanic.id = :mechanicId")
+    Page<WorkOrder> findById(@Param("searchWorkOrderId") Long searchWorkOrderId,
+                             @Param("mechanicId") Long mechanicId,
+                             Pageable pageable);
+
+    @Query("SELECT w FROM WorkOrder w WHERE w.request.id = :searchRequestId AND w.mechanic.id = :mechanicId")
+    Page<WorkOrder> findByRequestId(@Param("searchRequestId") Long searchRequestId,
+                                    @Param("mechanicId") Long mechanicId,
+                                        Pageable pageable);
 }

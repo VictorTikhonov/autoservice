@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.WorkOrders;
+package ru.victortikhonov.autoserviceapp.model.WorkOrder;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

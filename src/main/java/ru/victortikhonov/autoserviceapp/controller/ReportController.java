@@ -4,14 +4,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.victortikhonov.autoserviceapp.Task;
+import ru.victortikhonov.autoserviceapp.model.Task;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeStatus;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrder;
 import ru.victortikhonov.autoserviceapp.repository.MechanicRepository;
 import ru.victortikhonov.autoserviceapp.repository.OperatorRepository;
 import ru.victortikhonov.autoserviceapp.repository.RequestRepository;
@@ -59,6 +59,7 @@ public class ReportController {
         long totalRequestsCount = requests.size();
 
         if (totalRequestsCount == 0) {
+            model.addAttribute("errorMessage", "За выбранный период не найдено ни одной заявки");
             return "report-request";
         }
 

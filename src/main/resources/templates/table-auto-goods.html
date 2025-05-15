@@ -101,10 +101,10 @@
                 <tr>
                     <th>№</th>
                     <th>Название</th>
+                    <th>Категория</th>
                     <th>Количество</th>
                     <th>Цена</th>
-                    <th>Срок годности</th>
-                    <th>Категория</th>
+                    <th>Годен до</th>
                     <th th:if="${userRole == 'ADMIN'}"></th>
                 </tr>
                 </thead>
@@ -112,10 +112,10 @@
                 <tr th:each="autoGood, iterStat : ${autoGoods}">
                     <td th:text="${iterStat.index + 1}"></td>
                     <td th:text="${autoGood.name}"></td>
+                    <td th:text="${autoGood.category.name}"></td>
                     <td th:text="${autoGood.quantity}"></td>
                     <td th:text="${#numbers.formatDecimal(autoGood.priceOneUnit, 1, 2)} + ' ₽'"></td>
                     <td th:text="${#temporals.format(autoGood.expirationDate, 'dd.MM.yyyy')}"></td>
-                    <td th:text="${autoGood.category.name}"></td>
                     <td th:if="${userRole == 'ADMIN'}" class="text-center">
                         <form th:action="@{/auto-good/delete}" method="post"
                               style="display: inline-block; text-align: center;">

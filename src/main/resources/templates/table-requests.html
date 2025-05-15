@@ -22,12 +22,13 @@
 
     <h1 class="mb-4 text-center">Список заявок</h1>
 
+
     <div class="container-2 mt-2 mb-1 p-2 bg-white shadow rounded">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-stretch"> <!-- Ключевое: align-items-stretch -->
             <!-- Блок фильтров -->
             <div class="filter-block" style="width: 49%;">
-                <form method="get" th:action="@{/request/list}">
-                    <fieldset class="border p-3 rounded">
+                <form method="get" th:action="@{/request/list}" class="h-100">
+                    <fieldset class="border p-3 rounded h-100 d-flex flex-column">
                         <legend class="fw-bold text-dark text-center">Фильтр</legend>
                         <div class="d-flex flex-column flex-lg-row align-items-center justify-content-center mb-2">
                             <!-- Статус -->
@@ -57,7 +58,7 @@
                         </div>
 
                         <!-- Чекбокс "Мои" -->
-                        <div th:if = "${userRole == 'OPERATOR'}" class="form-check form-switch">
+                        <div th:if="${userRole == 'OPERATOR'}" class="form-check form-switch">
                             <input class="form-check-input"
                                    type="checkbox"
                                    id="myRequests"
@@ -67,11 +68,14 @@
                         </div>
 
                         <!-- Кнопка "Готово" -->
-                        <div class="d-flex justify-content-center mt-2">
-                            <button type="submit"
-                                    class="btn btn-success d-flex align-items-center justify-content-center">
-                                <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2"> Готово
-                            </button>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-center">
+                                <button type="submit"
+                                        class="btn btn-success d-flex align-items-center justify-content-center">
+                                    <img src="/icons/funnel.svg" alt="Иконка" width="20" height="20" class="me-2">
+                                    Готово
+                                </button>
+                            </div>
                         </div>
                     </fieldset>
                 </form>
@@ -79,14 +83,14 @@
 
             <!-- Блок поиска -->
             <div class="search-block" style="width: 49%;">
-                <form method="get" th:action="@{/request/list}">
-                    <fieldset class="border p-3 rounded">
+                <form method="get" th:action="@{/request/list}" class="h-100">
+                    <fieldset class="border p-3 rounded h-100 d-flex flex-column">
                         <!-- Заголовок "Поиск" -->
                         <legend class="fw-bold text-dark text-center">Поиск заявки</legend>
                         <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
                             <!-- Номер заявки -->
                             <div class="me-lg-3 mb-2 mb-lg-0">
-                                <label for="searchId" class="form-label">Номер заявки:</label>
+                                <label for="searchId" class="form-label">№ заявки:</label>
                                 <input type="text" id="searchId" name="searchId" th:value="${searchId}" placeholder="1"
                                        pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
                                        class="form-control">
@@ -111,17 +115,20 @@
                         </div>
 
                         <!-- Пояснение о работе поиска -->
-                        <div class="text-muted text-center mt-2">
+                        <div class="text-muted text-center small mt-2">
                             Поиск происходит без учета фильтров
                         </div>
 
                         <!-- Кнопка поиска-->
-                        <div class="d-flex justify-content-center mt-2">
-                            <button type="submit"
-                                    class="btn btn-orange text-white d-flex align-items-center justify-content-center">
-                                <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Поиск
-                            </button>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-center mt-2">
+                                <button type="submit"
+                                        class="btn btn-orange text-white d-flex align-items-center justify-content-center">
+                                    <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2"> Поиск
+                                </button>
+                            </div>
                         </div>
+
                     </fieldset>
                 </form>
             </div>
@@ -227,7 +234,7 @@
         window.location.href = '/request/list';
     }
 
-    document.getElementById('myRequests').addEventListener('change', function() {
+    document.getElementById('myRequests').addEventListener('change', function () {
         this.blur(); // Сброс фокуса после изменения состояния
     });
 </script>

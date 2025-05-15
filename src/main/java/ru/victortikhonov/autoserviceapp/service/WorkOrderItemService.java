@@ -5,8 +5,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.*;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGood;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.*;
 import ru.victortikhonov.autoserviceapp.repository.*;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class WorkOrderItemService {
     }
 
 
-    public Iterable<ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service> getAllServices() {
+    public Iterable<ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service> getAllServices() {
         return serviceRepository.findByRelevanceTrue();
     }
 
@@ -85,7 +85,7 @@ public class WorkOrderItemService {
     public WorkOrder addServices(List<ServicePrice> servicePrices, WorkOrder workOrder) {
 
         for (ServicePrice servicePrice : servicePrices) {
-            ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service service = serviceRepository.findById(servicePrice.getId())
+            ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service service = serviceRepository.findById(servicePrice.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Услуга с ID " + servicePrice.getId() + " не найден"));
 
             WorkOrderService workOrderService = new WorkOrderService(workOrder, service, servicePrice.getPrice());

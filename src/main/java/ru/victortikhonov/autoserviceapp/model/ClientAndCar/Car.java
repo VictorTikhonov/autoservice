@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.ClientsAndCars;
+package ru.victortikhonov.autoserviceapp.model.ClientAndCar;
 
 
 import jakarta.persistence.*;

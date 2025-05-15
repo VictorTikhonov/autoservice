@@ -1,7 +1,7 @@
 package ru.victortikhonov.autoserviceapp.model.Request;
 
 
-import ru.victortikhonov.autoserviceapp.TaskStatus;
+import ru.victortikhonov.autoserviceapp.model.TaskStatus;
 
 public enum RequestStatus implements TaskStatus {
     ALL("Все"),

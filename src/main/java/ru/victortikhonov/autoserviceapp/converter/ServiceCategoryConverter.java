@@ -2,7 +2,7 @@ package ru.victortikhonov.autoserviceapp.converter;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.ServiceCategory;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.repository.ServiceCategoryRepository;
 
 

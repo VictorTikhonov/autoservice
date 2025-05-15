@@ -1,7 +1,7 @@
-package ru.victortikhonov.autoserviceapp.model.WorkOrders;
+package ru.victortikhonov.autoserviceapp.model.WorkOrder;
 
 
-import ru.victortikhonov.autoserviceapp.TaskStatus;
+import ru.victortikhonov.autoserviceapp.model.TaskStatus;
 
 public enum WorkOrderStatus implements TaskStatus {
     ALL("Все"),

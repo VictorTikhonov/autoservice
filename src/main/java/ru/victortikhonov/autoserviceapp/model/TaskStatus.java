@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp;
+package ru.victortikhonov.autoserviceapp.model;
 
 public interface TaskStatus {
 

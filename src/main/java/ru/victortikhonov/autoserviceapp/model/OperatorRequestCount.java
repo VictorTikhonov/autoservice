@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp;
+package ru.victortikhonov.autoserviceapp.model;
 
 import lombok.Data;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;

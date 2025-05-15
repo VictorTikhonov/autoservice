@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Глобальные переменные
 let currentPage = 0;
-const rowsPerPage = 5;
+const rowsPerPage = 7;
 let totalRows = 0;
 let allRows = [];
 

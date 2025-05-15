@@ -9,18 +9,11 @@
 
 table td:nth-child(2),
 table th:nth-child(2) {
-    text-align: left; /* Выравнивание текста по левому краю */
-    padding-left: 40px; /* Отступ слева */
-}
-
-
-.current-items, .current-items th, .current-items td {
-    border: 1px solid black; /* Граница для таблицы и ячеек */
+    text-align: center; /* Выравнивание текста по левому краю */
 }
 
 
 .current-items th, .current-items td {
-    padding: 10px; /* Увеличиваем отступы в ячейках */
     text-align: center; /* Выравнивание текста по центру */
 }
 

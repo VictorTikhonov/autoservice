@@ -12,8 +12,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGood;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.AutoGoodCategory;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGood;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGoodCategory;
 import ru.victortikhonov.autoserviceapp.repository.AutoGoodCategoryRepository;
 import ru.victortikhonov.autoserviceapp.repository.AutoGoodRepository;
 
@@ -136,7 +136,7 @@ public class AutoGoodController {
                                      @RequestParam(required = false) Long categoryId,
                                      @RequestParam(required = false) String searchQuery,
                                      @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
+                                     @RequestParam(defaultValue = "7") int size,
                                      SessionStatus sessionStatus) {
 
         sessionStatus.setComplete();

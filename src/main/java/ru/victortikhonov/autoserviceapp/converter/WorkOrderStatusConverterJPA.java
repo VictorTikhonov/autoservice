@@ -3,8 +3,7 @@ package ru.victortikhonov.autoserviceapp.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrderStatus;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus;
 
 import java.util.Arrays;
 

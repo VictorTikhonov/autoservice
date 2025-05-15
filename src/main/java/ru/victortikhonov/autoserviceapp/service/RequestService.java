@@ -4,8 +4,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Car;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Client;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
@@ -55,12 +55,7 @@ public class RequestService {
             }
         }
 
-        Request request = new Request(
-                client,
-                car,
-                operator,
-                RequestStatus.OPEN,
-                requestForm.getComplaint());
+        Request request = new Request(client, car, operator, RequestStatus.OPEN, requestForm.getComplaint());
 
         requestRepository.save(request);
 

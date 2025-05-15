@@ -6,14 +6,13 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import lombok.ToString;
-import ru.victortikhonov.autoserviceapp.Task;
-import ru.victortikhonov.autoserviceapp.TaskStatus;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.*;
+import ru.victortikhonov.autoserviceapp.model.Task;
+import ru.victortikhonov.autoserviceapp.model.TaskStatus;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.*;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
-import ru.victortikhonov.autoserviceapp.model.WorkOrders.WorkOrder;
+import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

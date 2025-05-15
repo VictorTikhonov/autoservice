@@ -1,7 +1,7 @@
 package ru.victortikhonov.autoserviceapp.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.victortikhonov.autoserviceapp.model.ClientsAndCars.Client;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Client;
 
 import java.util.Optional;
 

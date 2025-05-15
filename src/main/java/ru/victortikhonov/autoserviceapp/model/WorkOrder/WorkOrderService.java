@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.WorkOrders;
+package ru.victortikhonov.autoserviceapp.model.WorkOrder;
 
 
 import jakarta.persistence.*;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
-import ru.victortikhonov.autoserviceapp.model.Service_Auto_goods.Service;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service;
 
 import java.math.BigDecimal;
 

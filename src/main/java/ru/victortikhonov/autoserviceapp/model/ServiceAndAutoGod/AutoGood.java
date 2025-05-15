@@ -1,4 +1,4 @@
-package ru.victortikhonov.autoserviceapp.model.Service_Auto_goods;
+package ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -29,7 +29,7 @@ public class AutoGood {
 
 
     @NotBlank(message = "Наименование не может быть пустым")
-    @Size(max = 35, message = "Наименование не должно превышать 35 символов")
+    @Size(max = 70, message = "Наименование не должно превышать 70 символов")
     @Column(name = "name")
     private String name;
 
