@@ -191,7 +191,7 @@
                 <!-- Стрелка назад -->
                 <span class="pagination-arrow" th:classappend="${currentPage == 0} ? 'disabled' : ''">
             <a th:if="${currentPage > 0}" th:href="@{/request/list(page=${currentPage - 1}, size=${size},
-                                        status=${status},
+                                        status=${selectedStatus},
                                         startDate=${startDate},
                                         endDate=${endDate})}">
                <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
@@ -208,7 +208,7 @@
                 <!-- Стрелка вперед -->
                 <span class="pagination-arrow" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
             <a th:if="${currentPage < totalPages - 1}" th:href="@{/request/list(page=${currentPage + 1}, size=${size},
-                                        status=${status},
+                                        status=${selectedStatus},
                                         startDate=${startDate},
                                         endDate=${endDate})}">
                 <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
@@ -237,6 +237,32 @@
     document.getElementById('myRequests').addEventListener('change', function () {
         this.blur(); // Сброс фокуса после изменения состояния
     });
+
+    function bindPaginationEvents() {
+        // Перепривязываем события после обновления DOM
+        document.querySelectorAll('.pagination-arrow a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch(this.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.querySelector('.table-wrapper').innerHTML =
+                            new DOMParser().parseFromString(html, 'text/html')
+                                .querySelector('.table-wrapper').innerHTML;
+
+                        document.querySelector('.pagination-container').innerHTML =
+                            new DOMParser().parseFromString(html, 'text/html')
+                                .querySelector('.pagination-container').innerHTML;
+
+                        // Обновляем обработчики событий для новых элементов пагинации
+                        bindPaginationEvents();
+                    });
+            });
+        });
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', bindPaginationEvents);
 </script>
 
 </body>

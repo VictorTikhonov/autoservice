@@ -1,3 +1,99 @@
+let currentAutoGoodsPage = 0;
+let currentServicesPage = 0;
+const rowsPerPage = 7;
+let autoGoodsTotalRows = 0;
+let servicesTotalRows = 0;
+let autoGoodsFilteredRows = [];
+let servicesFilteredRows = [];
+
+
+document.addEventListener('DOMContentLoaded', initializePagination);
+
+
+
+
+
+
+function filterAutoGoodsByCategory() {
+    const filterValue = document.getElementById("autoGoodCategoryFilter").value.toLowerCase();
+    const table = document.getElementById("autoGoodsTable");
+    const rows = Array.from(table.querySelector("tbody").rows);
+
+    // Получаем только подходящие строки
+    autoGoodsFilteredRows = rows.filter(row => {
+        const categoryText = row.cells[2].textContent.trim().toLowerCase();
+        return !filterValue || categoryText === filterValue;
+    });
+
+    // Сначала всё скрываем
+    rows.forEach(row => row.style.display = 'none');
+
+    // Сброс текущей страницы ПОСЛЕ фильтрации
+    currentAutoGoodsPage = 0;
+
+    const totalFiltered = autoGoodsFilteredRows.length;
+    updatePagination('autoGoods', totalFiltered);
+    updateTableDisplay('autoGoods'); // Обновляем отображение таблицы
+}
+
+function filterServicesByCategory() {
+    const filterValue = document.getElementById("serviceCategoryFilter").value.toLowerCase();
+    const table = document.getElementById("servicesTable");
+    const rows = Array.from(table.querySelector("tbody").rows);
+
+    servicesFilteredRows = rows.filter(row => {
+        const categoryText = row.cells[2].textContent.trim().toLowerCase(); // 3-й столбец: категория
+        return !filterValue || categoryText === filterValue;
+    });
+
+    rows.forEach(row => row.style.display = 'none');
+
+    currentServicesPage = 0;
+
+    const totalFiltered = servicesFilteredRows.length;
+    updatePagination('services', totalFiltered);
+    updateTableDisplay('services');
+}
+
+function searchByName(tableId, inputId) {
+    const filter = document.getElementById(inputId).value.toLowerCase();
+    const rows = document.getElementById(tableId).getElementsByTagName('tr');
+    let filteredRows = [];
+
+    for (let i = 1; i < rows.length; i++) {
+        const cellText = rows[i].cells[1]?.textContent || ''; // ищем по имени товара или услуги
+        if (cellText.toLowerCase().includes(filter)) {
+            filteredRows.push(rows[i]);
+            rows[i].style.display = ''; // показываем строку
+        } else {
+            rows[i].style.display = 'none'; // скрываем строку
+        }
+    }
+
+    if (tableId === 'autoGoodsTable') {
+        autoGoodsFilteredRows = filteredRows;
+        autoGoodsTotalRows = filteredRows.length;
+        currentAutoGoodsPage = 0; // сбрасываем на первую страницу
+        updatePagination('autoGoods', autoGoodsTotalRows);
+
+        // Сбросить фильтр категории на "все категории"
+        document.getElementById("autoGoodCategoryFilter").value = "";
+
+    } else if (tableId === 'servicesTable') {
+        servicesFilteredRows = filteredRows;
+        servicesTotalRows = filteredRows.length;
+        currentServicesPage = 0; // сбрасываем на первую страницу
+        updatePagination('services', servicesTotalRows);
+
+        // Сбросить фильтр категории на "все категории"
+        document.getElementById("serviceCategoryFilter").value = "";
+    }
+
+
+    updateTableDisplay(tableId === 'autoGoodsTable' ? 'autoGoods' : 'services');
+}
+
+
 function clearSearchServices() {
     document.getElementById("searchServices").value = "";  // Очистка поля поиска
     searchByName('servicesTable', 'searchServices');  // Вызов поиска с пустым значением
@@ -9,15 +105,9 @@ function clearSearchAutoGoods() {
 }
 
 
-let currentAutoGoodsPage = 0;
-let currentServicesPage = 0;
-const rowsPerPage = 7;
-let autoGoodsTotalRows = 0;
-let servicesTotalRows = 0;
-let autoGoodsFilteredRows = [];
-let servicesFilteredRows = [];
 
-document.addEventListener('DOMContentLoaded', initializePagination);
+
+
 
 function initializePagination() {
     const autoGoodsRows = document.querySelectorAll('#autoGoodsTable tbody tr');
@@ -128,35 +218,6 @@ function updatePaginationButtons(tableName, totalPages) {
 
 
 
-function searchByName(tableId, inputId) {
-    const filter = document.getElementById(inputId).value.toLowerCase();
-    const rows = document.getElementById(tableId).getElementsByTagName('tr');
-    let filteredRows = [];
-
-    for (let i = 1; i < rows.length; i++) {
-        const cellText = rows[i].cells[1]?.textContent || ''; // ищем по имени товара или услуги
-        if (cellText.toLowerCase().includes(filter)) {
-            filteredRows.push(rows[i]);
-            rows[i].style.display = ''; // показываем строку
-        } else {
-            rows[i].style.display = 'none'; // скрываем строку
-        }
-    }
-
-    if (tableId === 'autoGoodsTable') {
-        autoGoodsFilteredRows = filteredRows;
-        autoGoodsTotalRows = filteredRows.length;
-        currentAutoGoodsPage = 0; // сбрасываем на первую страницу
-        updatePagination('autoGoods', autoGoodsTotalRows);
-    } else if (tableId === 'servicesTable') {
-        servicesFilteredRows = filteredRows;
-        servicesTotalRows = filteredRows.length;
-        currentServicesPage = 0; // сбрасываем на первую страницу
-        updatePagination('services', servicesTotalRows);
-    }
-
-    updateTableDisplay(tableId === 'autoGoodsTable' ? 'autoGoods' : 'services');
-}
 
 // Автоматическая привязка для всех полей ввода
 document.addEventListener('DOMContentLoaded', () => {
@@ -193,11 +254,10 @@ function enableCheckbox(inputElement) {
     }
 
     // Обновляем список выбранных товаров/услуг
-    if (checkbox.name === "selectedAutoGoods") {
-        updateSelectedItems("AutoGoods");
-    } else if (checkbox.name === "selectedServices") {
-        updateSelectedItems("Services");
-    }
+    const type = checkbox.name.includes("AutoGoods") ? "AutoGoods" : "Services";
+    updateSelectedItems(type);
+
+
 
     // Обработчик для снятия галочки
     checkbox.addEventListener('change', function () {
@@ -250,34 +310,6 @@ function updateSelectedItems(itemType) {
         selectedItemsList.appendChild(listItem);
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Отправка выбранных автотоваров и услуг

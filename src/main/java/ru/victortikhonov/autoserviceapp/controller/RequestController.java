@@ -103,7 +103,7 @@ public class RequestController {
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "7") int size,
+                               @RequestParam(defaultValue = "2") int size,
                                @RequestParam(required = false) Long searchId,
                                @RequestParam(required = false) String searchPhone,
                                @RequestParam(required = false) boolean myRequests,

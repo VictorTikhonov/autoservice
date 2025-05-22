@@ -137,7 +137,7 @@
             <div class="pagination">
                 <!-- Стрелка назад -->
                 <span class="pagination-arrow" id="prevPageContainer">
-                    <a id="prevPage" href="#" onclick="changePage(currentPage - 1)" aria-disabled="false">
+                    <a id="prevPage" href="#" onclick="changePage(currentPage - 1, event)" aria-disabled="false">
                 <img src="/icons/arrow-left-circle-fill.svg" alt="Стрелка назад" width="24" height="24"/>
             </a>
                     <span id="prevPageDisabled" style="display: none;">
@@ -150,7 +150,7 @@
 
                 <!-- Стрелка вперед -->
                 <span class="pagination-arrow" id="nextPageContainer">
-                    <a id="nextPage" href="#" onclick="changePage(currentPage + 1)" aria-disabled="false">
+                    <a id="nextPage" href="#" onclick="changePage(currentPage + 1, event)" aria-disabled="false">
                 <img src="/icons/arrow-right-circle-fill.svg" alt="Стрелка вперед" width="24" height="24"/>
                     </a>
                     <span id="nextPageDisabled" style="display: none;">

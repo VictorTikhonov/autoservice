@@ -86,7 +86,7 @@ public class WorkOrderManagementController {
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                      @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "3") int size,
+                                     @RequestParam(defaultValue = "7") int size,
                                      @RequestParam(required = false) Long searchWorkOrderId,
                                      @RequestParam(required = false) Long searchRequestId) {
 

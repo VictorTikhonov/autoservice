@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Список заказ-нарядов</title>
     <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <link th:href="@{/css/table-work-orders.css}" rel="stylesheet">
     <link th:href="@{/css/table-pagination.css}" rel="stylesheet">
     <style>
         .container-2 {
@@ -151,8 +151,8 @@
                     <th>№ заявки</th>
                     <th>Статус</th>
                     <th>Авто</th>
-                    <th>Дата создания</th>
-                    <th>Дата окончания работ</th>
+                    <th>Создан</th>
+                    <th>Завершен</th>
                     <th>Цена</th>
                     <th></th>
                 </tr>
@@ -226,6 +226,32 @@
         document.getElementById('searchRequestId').value = '';
         window.location.href = '/work-order/list';
     }
+
+    function bindPaginationEvents() {
+        // Перепривязываем события после обновления DOM
+        document.querySelectorAll('.pagination-arrow a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch(this.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.querySelector('.table-wrapper').innerHTML =
+                            new DOMParser().parseFromString(html, 'text/html')
+                                .querySelector('.table-wrapper').innerHTML;
+
+                        document.querySelector('.pagination-container').innerHTML =
+                            new DOMParser().parseFromString(html, 'text/html')
+                                .querySelector('.pagination-container').innerHTML;
+
+                        // Обновляем обработчики событий для новых элементов пагинации
+                        bindPaginationEvents();
+                    });
+            });
+        });
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', bindPaginationEvents);
 </script>
 
 </body>

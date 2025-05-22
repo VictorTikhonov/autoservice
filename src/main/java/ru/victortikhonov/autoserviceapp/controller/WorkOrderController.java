@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGood;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGoodCategory;
 import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.Service;
+import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.ServiceCategory;
 import ru.victortikhonov.autoserviceapp.model.WorkOrder.*;
+import ru.victortikhonov.autoserviceapp.repository.AutoGoodCategoryRepository;
+import ru.victortikhonov.autoserviceapp.repository.ServiceCategoryRepository;
 import ru.victortikhonov.autoserviceapp.service.WorkOrderItemService;
 
 import java.time.LocalDateTime;
@@ -21,10 +25,16 @@ import java.util.Optional;
 @RequestMapping("/work-order/details")
 public class WorkOrderController {
     private final WorkOrderItemService workOrderItemService;
+    private final AutoGoodCategoryRepository autoGoodCategoryRepository;
+    private final ServiceCategoryRepository serviceCategoryRepository;
 
-    public WorkOrderController(WorkOrderItemService workOrderItemService) {
+    public WorkOrderController(WorkOrderItemService workOrderItemService,
+                               AutoGoodCategoryRepository autoGoodCategoryRepository,
+                               ServiceCategoryRepository serviceCategoryRepository) {
 
         this.workOrderItemService = workOrderItemService;
+        this.autoGoodCategoryRepository = autoGoodCategoryRepository;
+        this.serviceCategoryRepository = serviceCategoryRepository;
     }
 
 
@@ -55,8 +65,14 @@ public class WorkOrderController {
                 Iterable<AutoGood> availableAutoGoods = workOrderItemService.getAllAutoGoods();
                 Iterable<Service> availableServices = workOrderItemService.getAllServices();
 
+                Iterable<AutoGoodCategory> autoGoodCategories = autoGoodCategoryRepository.findAll();
+                Iterable<ServiceCategory> serviceCategories = serviceCategoryRepository.findAll();
+
                 model.addAttribute("availableAutoGoods", availableAutoGoods);
                 model.addAttribute("availableServices", availableServices);
+
+                model.addAttribute("autoGoodCategories", autoGoodCategories);
+                model.addAttribute("serviceCategories", serviceCategories);
             }
 
             return "work-order-details";

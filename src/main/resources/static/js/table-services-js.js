@@ -1,35 +1,38 @@
 let currentPage = 0;
-const rowsPerPage = 2;
+const rowsPerPage = 7;
 let totalRows = 0;
 let filteredRows = [];
+
 document.addEventListener('DOMContentLoaded', initializePagination);
 
-
 function initializePagination() {
-    const rows = document.querySelectorAll('#servicesTable tbody tr');
-    filteredRows = Array.from(rows); // Сохраняем все строки в массив
-    totalRows = filteredRows.length; // Считаем все строки
-    updatePagination(totalRows); // Обновляем пагинацию сразу при инициализации
+    const rows = Array.from(document.querySelectorAll('#servicesTable tbody tr'));
+    filteredRows = rows.filter(row => !row.style.display || row.style.display === '');
+    totalRows = filteredRows.length;
+    updatePagination();
 }
 
-
 function updateTableDisplay() {
+    // Сначала скрываем все строки
+    const allRows = document.querySelectorAll('#servicesTable tbody tr');
+    allRows.forEach(row => row.style.display = 'none');
+
+    // Показываем только строки для текущей страницы
     const startIndex = currentPage * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
 
-    filteredRows.forEach((row, index) => {
-        if (index >= startIndex && index < endIndex) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+    for (let i = startIndex; i < endIndex; i++) {
+        if (filteredRows[i]) {
+            filteredRows[i].style.display = '';
         }
-    });
+    }
 
     document.getElementById('currentPageNumber').innerText = currentPage + 1;
 }
 
+function changePage(page, event) {
+    if (event) event.preventDefault();  // отменяем переход по ссылке
 
-function changePage(page) {
     const totalPages = Math.ceil(totalRows / rowsPerPage);
     if (page >= 0 && page < totalPages) {
         currentPage = page;
@@ -47,45 +50,39 @@ function updatePaginationButtons(totalPages) {
 
     // Стрелка назад
     if (currentPage > 0) {
-        prevPage.style.display = 'inline';  // Показываем активную стрелку
-        prevPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
+        prevPage.style.display = 'inline';
+        prevPageDisabled.style.display = 'none';
     } else {
-        prevPage.style.display = 'none';  // Скрываем активную стрелку
-        prevPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
+        prevPage.style.display = 'none';
+        prevPageDisabled.style.display = 'inline';
     }
 
     // Стрелка вперед
     if (currentPage < totalPages - 1) {
-        nextPage.style.display = 'inline';  // Показываем активную стрелку
-        nextPageDisabled.style.display = 'none';  // Скрываем неактивную стрелку
+        nextPage.style.display = 'inline';
+        nextPageDisabled.style.display = 'none';
     } else {
-        nextPage.style.display = 'none';  // Скрываем активную стрелку
-        nextPageDisabled.style.display = 'inline';  // Показываем неактивную стрелку
+        nextPage.style.display = 'none';
+        nextPageDisabled.style.display = 'inline';
     }
 }
-
 
 function searchByName(tableId, inputId) {
     const filter = document.getElementById(inputId).value.toLowerCase();
-    const rows = document.getElementById(tableId).getElementsByTagName('tr');
-    filteredRows = [];  // Очищаем массив отфильтрованных строк
+    const rows = Array.from(document.getElementById(tableId).getElementsByTagName('tr'));
 
-    for (let i = 1; i < rows.length; i++) {
-        const cellText = rows[i].cells[1]?.textContent || '';
-        if (cellText.toLowerCase().includes(filter)) {
-            filteredRows.push(rows[i]);  // Добавляю строку в массив отфильтрованных
-        } else {
-            rows[i].style.display = 'none';
-        }
-    }
+    // Пропускаем заголовок таблицы (первую строку)
+    filteredRows = rows.slice(1).filter(row => {
+        const cellText = row.cells[1]?.textContent || '';
+        return cellText.toLowerCase().includes(filter);
+    });
 
-    totalRows = filteredRows.length; // Пересчитываем количество строк после фильтрации
-    currentPage = 0;  // Возвращаюсь на первую страницу при изменении поиска
-    updatePagination(totalRows); // Обновляем пагинацию после изменения фильтра
+    totalRows = filteredRows.length;
+    currentPage = 0;
+    updatePagination();
 }
 
-
-function updatePagination(totalRows) {
+function updatePagination() {
     const totalPages = Math.ceil(totalRows / rowsPerPage);
     document.getElementById('totalPages').innerText = totalPages;
     updateTableDisplay();

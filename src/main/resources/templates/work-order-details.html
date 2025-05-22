@@ -129,66 +129,75 @@
             <form id="itemsForm" method="post" class="mb-2">
                 <input type="hidden" name="workOrderId" th:value="${workOrder.id}"/>
 
-                <!-- Фильтрация автотоваров -->
-                <div class="mb-2 p-3 border rounded">
-                    <div class="d-flex align-items-center mb-3">
-                        <label for="searchAutoGoods" class="form-label me-2">Поиск товара:</label>
-                        <input type="text" id="searchAutoGoods" class="form-control" style="width: 50%;"
-                               onkeyup="searchByName('autoGoodsTable', 'searchAutoGoods')"
-                               placeholder="Введите название товара"/>
+                <div class="d-flex align-items-center mb-3">
+                    <label for="searchAutoGoods" class="form-label me-2">Поиск товара:</label>
+                    <input type="text" id="searchAutoGoods" class="form-control" style="width: 30%;"
+                           onkeyup="searchByName('autoGoodsTable', 'searchAutoGoods')"
+                           placeholder="Введите название товара"/>
 
-                        <!-- Кнопка очистки -->
-                        <button type="button" onclick="clearSearchAutoGoods()"
-                                class="btn btn-danger d-flex align-items-center justify-content-center ms-2"
-                                style="width: 50px; height: 38px;">
-                            <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
-                        </button>
+                    <button type="button" onclick="clearSearchAutoGoods()"
+                            class="btn btn-danger d-flex align-items-center justify-content-center ms-2"
+                            style="width: 50px; height: 38px;">
+                        <img src="/icons/eraser-fill.svg" alt="Очистить" width="20" height="20">
+                    </button>
+
+                    <!-- Категория -->
+                    <label for="autoGoodCategoryFilter" class="form-label ms-4 me-2">Категория:</label>
+                    <select id="autoGoodCategoryFilter" class="form-select" style="width: 200px;"
+                            onchange="filterAutoGoodsByCategory()">
+                        <option value="">Все категории</option>
+                        <option th:each="category : ${autoGoodCategories}"
+                                th:value="${category.name}"
+                                th:text="${category.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Если услуг нет -->
+                <div th:if="${#lists.isEmpty(availableAutoGoods)}" class="alert alert-danger">
+                    Автотовары отсутствуют
+                </div>
+
+                <!-- Таблица для выбора авто товаров -->
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table id="autoGoodsTable" th:if="${!#lists.isEmpty(availableAutoGoods)}">
+                            <thead>
+                            <tr>
+                                <th style="width: 10%;">Выбор</th>
+                                <th style="width: 45%;">Название</th>
+                                <th style="width: 15%;">Категория</th>
+                                <th style="width: 10%;">Кол-во</th>
+                                <th style="width: 10%;">Цена</th>
+                                <th style="width: 10%;">Кол-во</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            <tr th:each="autoGood : ${availableAutoGoods}">
+                                <td>
+                                    <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}"
+                                           class="checkbox" disabled/>
+                                </td>
+                                <td th:text="${autoGood.name}" style="text-align: left; padding-left: 10px;"></td>
+                                <td th:text="${autoGood.category.name}"
+                                    style="text-align: left; padding-left: 10px;"></td>
+                                <td th:text="${autoGood.quantity}"></td>
+                                <td th:text="${autoGood.priceOneUnit}"></td>
+                                <td>
+                                    <input style="width: 80%;"
+                                           type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
+                                           class="quantity-input"
+                                           oninput="enableCheckbox(this); validateInput(this)"/>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <!-- Если автотоваров нет -->
-                    <div th:if="${#lists.isEmpty(availableAutoGoods)}" class="alert alert-danger">
-                        Автотовары отсутствуют
-                    </div>
-
-                    <!-- Таблица для выбора авто товаров -->
-                    <div class="table-container">
-                        <div class="table-wrapper">
-                            <table id="autoGoodsTable" th:if="${!#lists.isEmpty(availableAutoGoods)}">
-                                <thead>
-                                <tr>
-                                    <th style="width: 10%;">Выбор</th>
-                                    <th style="width: 45%;">Название</th>
-                                    <th style="width: 15%;">Категория</th>
-                                    <th style="width: 10%;">Кол-во</th>
-                                    <th style="width: 10%;">Цена</th>
-                                    <th style="width: 10%;">Кол-во</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-
-                                <tr th:each="autoGood : ${availableAutoGoods}">
-                                    <td>
-                                        <input type="checkbox" name="selectedAutoGoods" th:value="${autoGood.id}"
-                                               class="checkbox" disabled/>
-                                    </td>
-                                    <td th:text="${autoGood.name}" style="text-align: left; padding-left: 10px;"></td>
-                                    <td th:text="${autoGood.category.name}" style="text-align: left; padding-left: 10px;"></td>
-                                    <td th:text="${autoGood.quantity}"></td>
-                                    <td th:text="${autoGood.priceOneUnit}"></td>
-                                    <td>
-                                        <input style="width: 80%;"
-                                               type="number" name="quantities" min="1" th:max="${autoGood.quantity}"
-                                               class="quantity-input"
-                                               oninput="enableCheckbox(this); validateInput(this)"/>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Пагинация для авто товаров -->
-                        <div class="pagination-container">
-                            <div class="pagination">
+                    <!-- Пагинация для авто товаров -->
+                    <div class="pagination-container">
+                        <div class="pagination">
                                 <span class="pagination-arrow">
                                     <a id="prevAutoGoodsPage" href="#"
                                        onclick="changePage('autoGoods', currentAutoGoodsPage - 1)">
@@ -199,10 +208,10 @@
                                     </span>
                                 </span>
 
-                                <span id="currentAutoGoodsPageNumber">1</span> из <span
-                                    id="totalAutoGoodsPages">1</span>
+                            <span id="currentAutoGoodsPageNumber">1</span> из <span
+                                id="totalAutoGoodsPages">1</span>
 
-                                <span class="pagination-arrow">
+                            <span class="pagination-arrow">
                                     <a id="nextAutoGoodsPage" href="#"
                                        onclick="changePage('autoGoods', currentAutoGoodsPage + 1)">
                                         <img src="/icons/arrow-right-circle-fill.svg" alt="Вперед">
@@ -211,7 +220,6 @@
                                         <img src="/icons/arrow-right-circle.svg" alt="Вперед (неактивно)">
                                     </span>
                                 </span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -223,19 +231,30 @@
 
                 <!-- Фильтрация услуг -->
                 <div class="mb-2 p-3 border rounded">
+
+
                     <div class="d-flex align-items-center mb-3">
                         <label for="searchServices" class="form-label me-2">Поиск услуги:</label>
-                        <input type="text" id="searchServices" class="form-control" style="width: 50%;"
+                        <input type="text" id="searchServices" class="form-control" style="width: 30%;"
                                onkeyup="searchByName('servicesTable', 'searchServices')"
                                placeholder="Введите название услуги"/>
-                        <!-- Кнопка очистки -->
+
                         <button type="button" onclick="clearSearchServices()"
                                 class="btn btn-danger d-flex align-items-center justify-content-center ms-2"
                                 style="width: 50px; height: 38px;">
                             <img src="/icons/eraser-fill.svg" alt="Иконка" width="20" height="20">
                         </button>
-                    </div>
 
+                        <label for="serviceCategoryFilter" class="form-label ms-4 me-2">Категория:</label>
+                        <select id="serviceCategoryFilter" class="form-select" style="width: 200px;"
+                                onchange="filterServicesByCategory()">
+                            <option value="">Все категории</option>
+                            <option th:each="category : ${serviceCategories}"
+                                    th:value="${category.name}"
+                                    th:text="${category.name}">
+                            </option>
+                        </select>
+                    </div>
 
                     <!-- Если услуг нет -->
                     <div th:if="${#lists.isEmpty(availableServices)}" class="alert alert-danger">
