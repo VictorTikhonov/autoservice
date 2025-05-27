@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGood;
 import ru.victortikhonov.autoserviceapp.model.ServiceAndAutoGod.AutoGoodCategory;
@@ -27,6 +28,7 @@ public class WorkOrderController {
     private final WorkOrderItemService workOrderItemService;
     private final AutoGoodCategoryRepository autoGoodCategoryRepository;
     private final ServiceCategoryRepository serviceCategoryRepository;
+
 
     public WorkOrderController(WorkOrderItemService workOrderItemService,
                                AutoGoodCategoryRepository autoGoodCategoryRepository,
@@ -79,7 +81,7 @@ public class WorkOrderController {
         }
 
         // Если заказ не найден, возвращаю страницу ошибки
-        model.addAttribute("errorMessage", "Заказ-наряд с таким ID не найден");
+        model.addAttribute("errorMessage", "Заказ-наряд не найден");
         return "error-page";
     }
 
@@ -105,8 +107,7 @@ public class WorkOrderController {
             return ResponseEntity.ok().build();
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Заказ с ID " + workOrderItems.getWorkOrderId() + " не найден");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Заказ-наряд не найден");
     }
 
 
@@ -119,10 +120,15 @@ public class WorkOrderController {
 
             WorkOrder workOrder = workOrderOptional.get();
 
-            if (!workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.CANCELED) &&
+            System.out.println(workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.CANCELED) + "\n\n" +
+                    workOrder.getRequest().getRequestStatus().equals(RequestStatus.REJECTED) );
+
+            if ((!workOrder.getWorkOrderStatuses().equals(WorkOrderStatus.CANCELED)
+                    && !workOrder.getRequest().getRequestStatus().equals(RequestStatus.REJECTED)) &&
                     workOrder.getServices().isEmpty()) {
                 redirectAttributes.addFlashAttribute("missingServiceError",
                         "Необходимо выбрать хотя бы одну услугу");
+
                 return "redirect:/work-order/details?workOrderId=" + workOrderId + "#missingServiceError";
             }
 
@@ -132,13 +138,13 @@ public class WorkOrderController {
                 workOrder.setWorkOrderStatuses(WorkOrderStatus.CANCELED);
 
                 redirectAttributes.addFlashAttribute("success",
-                        "Заказ-наряд №" + workOrder.getId() + " закрыт со статусом \"" +
+                        "Заказ-наряд №" + NumberGenerator.toRussian(workOrder.getWorkOrderNumber()) + " закрыт со статусом \"" +
                                 workOrder.getWorkOrderStatuses().getDescription() + "\"");
             } else {
                 workOrder.setWorkOrderStatuses(WorkOrderStatus.COMPLETED);
 
                 redirectAttributes.addFlashAttribute("success",
-                        "Заказ-наряд №" + workOrder.getId() + " успешно завершен!");
+                        "Заказ-наряд №" + NumberGenerator.toRussian(workOrder.getWorkOrderNumber()) + " завершен!");
             }
 
             workOrderItemService.saveWorkOrder(workOrder);
@@ -146,7 +152,8 @@ public class WorkOrderController {
             return "redirect:/work-order/list?status=ALL";
         }
 
-        model.addAttribute("errorMessage", "Заказ-наряд с таким ID не найден");
+        model.addAttribute("errorMessage", "Заказ-наряд не найден");
+
         return "error-page";
     }
 
@@ -160,7 +167,7 @@ public class WorkOrderController {
             return ResponseEntity.ok().build(); // Успешное удаление
         } else {
             // Обработка ошибок с помощью вспомогательного метода
-            return handleError(code, "Автотовар не найден в указанном заказ-наряде.");
+            return handleError(code, "Автотовар не найден в указанном заказ-наряде");
         }
     }
 
@@ -173,7 +180,7 @@ public class WorkOrderController {
         if (code == 0) {
             return ResponseEntity.ok().build(); // Успешное удаление
         } else {
-            return handleError(code, "Услуга не найдена в указанном заказ-наряде.");
+            return handleError(code, "Услуга не найдена в указанном заказ-наряде");
         }
     }
 
@@ -184,10 +191,10 @@ public class WorkOrderController {
                     .body(errorMessage);
         } else if (code == -2) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Заказ-наряд с указанным ID не найден.");
+                    .body("Заказ-наряд не найден");
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Произошла непредвиденная ошибка.");
+                    .body("Произошла непредвиденная ошибка");
         }
     }
 

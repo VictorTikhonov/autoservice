@@ -1,5 +1,6 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +13,9 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
-import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
 import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
@@ -22,6 +23,7 @@ import ru.victortikhonov.autoserviceapp.model.RequestForm;
 import ru.victortikhonov.autoserviceapp.service.RequestService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -43,7 +45,6 @@ public class RequestController {
     public String registerForm(Model model) {
 
         model.addAttribute("requestForm", new RequestForm());
-
         return "request-form";
     }
 
@@ -51,7 +52,7 @@ public class RequestController {
     @PostMapping("/create")
     public String createRequest(@Valid @ModelAttribute("requestForm") RequestForm requestForm,
                                 Errors errors, @AuthenticationPrincipal EmployeeDetails employeeDetails,
-                                SessionStatus sessionStatus, RedirectAttributes redirectAttributes) {
+                                SessionStatus sessionStatus, RedirectAttributes redirectAttributes, Model model) {
 
         if (errors.hasErrors()) {
             return "request-form";
@@ -59,19 +60,24 @@ public class RequestController {
 
         Employee employee = employeeDetails.getEmployee();
         if (!(employee instanceof Operator operator)) {
-            throw new IllegalStateException("Текущий пользователь не является оператором");
+            model.addAttribute("errorMessage", "Только оператор может создать заявку");
+            return "error-page";
         }
 
-        // Ошибок нет, создаю и сохраняю заявку
-        Long requestId = requestService.createRequest(requestForm, operator);
+        try {
+            String requestNumber = requestService.createRequest(requestForm, operator);
 
-        // Завершаю сессию для requestForm
-        sessionStatus.setComplete();
+            sessionStatus.setComplete(); // Завершаю сессию для requestForm
 
-        redirectAttributes.addFlashAttribute("success",
-                "Заявка №" + requestId + " успешно создана!");
+            redirectAttributes.addFlashAttribute("success",
+                    "Заявка №" + NumberGenerator.toRussian(requestNumber) + " создана!");
 
-        return "redirect:/request/list";
+            return "redirect:/request/list";
+        } catch (IllegalStateException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+            return "request-form";
+        }
     }
 
 
@@ -91,7 +97,7 @@ public class RequestController {
         // Ищю клиента по номеру
         requestService.findClientByPhoneNumber(phoneNumber).ifPresentOrElse(
                 requestForm::setClient,  // Если клиент найден
-                () -> model.addAttribute("clientNotFound", true)  // Если клиент не найден
+                () -> model.addAttribute("alertMessage", "Клиент с таким номером телефона не найден")  // Если клиент не найден
         );
 
         return "request-form";
@@ -103,8 +109,8 @@ public class RequestController {
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "2") int size,
-                               @RequestParam(required = false) Long searchId,
+                               @RequestParam(defaultValue = "7") int size,
+                               @RequestParam(required = false) String searchNumber,
                                @RequestParam(required = false) String searchPhone,
                                @RequestParam(required = false) boolean myRequests,
                                Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails) {
@@ -137,35 +143,18 @@ public class RequestController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Request> requests;
 
-        if(myRequests)
-        {
+        Operator operator = null;
+        if (myRequests) {
             Employee employee = employeeDetails.getEmployee();
-            if (!(employee instanceof Operator operator)) {
-                // Можно кинуть исключение или вернуть ошибку
-                throw new IllegalStateException("Текущий пользователь не является оператором");
+            if (!(employee instanceof Operator op)) {
+                model.addAttribute("errorMessage", "Только оператор может просмотреть свои заявки");
+                return "error-page";
             }
-
-            if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
-                requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
-            } else if (searchId != null) {
-                requests = requestService.findRequestsById(searchId, pageable);
-            } else if (searchPhone != null && !searchPhone.isEmpty()) {
-                requests = requestService.findRequestsByPhone(searchPhone, pageable);
-            } else {
-                requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable, operator);
-            }
-        }else{
-            if (searchId != null && searchPhone != null && !searchPhone.isEmpty()) {
-                requests = requestService.findRequestsByIdAndPhone(searchId, searchPhone, pageable);
-            } else if (searchId != null) {
-                requests = requestService.findRequestsById(searchId, pageable);
-            } else if (searchPhone != null && !searchPhone.isEmpty()) {
-                requests = requestService.findRequestsByPhone(searchPhone, pageable);
-            } else {
-                requests = requestService.findRequests(status, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), pageable, null);
-            }
+            operator = op;
         }
 
+        requests = findRequestsByCriteria(searchNumber, searchPhone, pageable, status,
+                startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), operator);
 
         // Добавляю в модель
         model.addAttribute("requests", requests);
@@ -176,20 +165,37 @@ public class RequestController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", Math.max(1, requests.getTotalPages()));
         model.addAttribute("totalItems", requests.getTotalElements());
-        model.addAttribute("searchId", searchId);
+        model.addAttribute("searchNumber", searchNumber);
         model.addAttribute("searchPhone", searchPhone);
         model.addAttribute("myRequests", myRequests);
 
         return "table-requests";
     }
 
+    private Page<Request> findRequestsByCriteria(String searchNumber,
+                                                 String searchPhone,
+                                                 Pageable pageable,
+                                                 RequestStatus status,
+                                                 LocalDateTime startDateTime,
+                                                 LocalDateTime endDateTime,
+                                                 Operator operator) {
 
-    @PostMapping("/details")
+        if (searchNumber != null && searchPhone != null && !searchPhone.isEmpty()) {
+            return requestService.findRequestsByNumberAndPhone(searchNumber, searchPhone, pageable);
+        } else if (searchNumber != null) {
+            return requestService.findRequestsByNumber(searchNumber, pageable);
+        } else if (searchPhone != null && !searchPhone.isEmpty()) {
+            return requestService.findRequestsByPhone(searchPhone, pageable);
+        } else {
+            return requestService.findRequests(status, startDateTime, endDateTime, pageable, operator);
+        }
+    }
+
+
+    @GetMapping("/details")
     public String checkRequest(@RequestParam("requestId") Long requestId, Model model) {
 
-        // Получаю заявку
         requestService.findRequestById(requestId).ifPresent(request -> {
-
             model.addAttribute("request", request);
             model.addAttribute("requestStatus", request.getRequestStatus());
         });
@@ -204,16 +210,18 @@ public class RequestController {
         Optional<Request> requestOptional = requestService.findRequestById(requestId);
 
         if (requestOptional.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка №" + requestId + " не найдена");
+            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка не найдена");
             return "redirect:/request/list";
         }
 
         Request request = requestOptional.get();
 
         if (requestService.cancelRequest(request)) {
-            redirectAttributes.addFlashAttribute("success", "Заявка №" + requestId + " успешно отклонена!");
+            redirectAttributes.addFlashAttribute("success", "Заявка №" +
+                    NumberGenerator.toRussian(request.getRequestNumber()) + " отклонена!");
         } else {
-            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка №" + requestId + " не может быть отменена из-за статуса");
+            redirectAttributes.addFlashAttribute("errorCancelRequest", "Заявка №" +
+                    NumberGenerator.toRussian(request.getRequestNumber()) + " не может быть отменена из-за статуса");
         }
 
         return "redirect:/request/list";

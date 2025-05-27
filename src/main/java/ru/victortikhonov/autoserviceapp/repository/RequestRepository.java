@@ -9,6 +9,7 @@ import ru.victortikhonov.autoserviceapp.model.Request.Request;
 import ru.victortikhonov.autoserviceapp.model.Request.RequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
@@ -42,9 +43,9 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
                                      @Param("operatorId") Long operatorId,
                                      Pageable pageable);
 
-    Page<Request> findById(Long searchId, Pageable pageable);
+    Page<Request> findByRequestNumber(String requestNumber, Pageable pageable);
 
-    Page<Request> findByIdAndClientPhoneNumber(Long searchId, String searchPhone, Pageable pageable);
+    Page<Request> findByRequestNumberAndClientPhoneNumber(String requestNumber, String searchPhone, Pageable pageable);
 
     Page<Request> findByClientPhoneNumber(String searchPhone, Pageable pageable);
 
@@ -57,4 +58,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     long countRequestsByDateAndStatus(@Param("startDate") LocalDateTime startDate,
                                       @Param("endDate") LocalDateTime endDate,
                                       @Param("status") RequestStatus status);
+
+
+    boolean existsByRequestNumber(String requestNumber);
 }

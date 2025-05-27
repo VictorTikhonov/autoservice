@@ -31,11 +31,6 @@ public class Position {
     private String positionName;
 
 
-    // TODO надо ли это поле?
-    @OneToMany(mappedBy = "position")
-    private List<Employee> employees = new ArrayList<>();
-
-
     public Position(String positionName) {
         this.positionName = positionName;
     }
@@ -48,11 +43,6 @@ public class Position {
     @Override
     public String toString() {
         return "Наименование должности: " + positionName;
-    }
-
-
-    public List<Employee> getEmployees() {
-        return Collections.unmodifiableList(employees);
     }
 }
 

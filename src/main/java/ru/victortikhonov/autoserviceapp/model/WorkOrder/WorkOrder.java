@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
 import ru.victortikhonov.autoserviceapp.model.Task;
 import ru.victortikhonov.autoserviceapp.model.TaskStatus;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
@@ -28,6 +29,11 @@ public class WorkOrder implements Task {
     @Setter(AccessLevel.NONE)
     @Column(name = "id")
     private Long id;
+
+
+    @Column(name = "work_order_number")
+    @Setter(AccessLevel.NONE)
+    private String workOrderNumber;
 
 
     @OneToOne
@@ -65,6 +71,19 @@ public class WorkOrder implements Task {
     @Column(name = "end_date")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime endDate;
+
+
+    public WorkOrder() {
+    }
+
+
+    public WorkOrder(Request request, Mechanic mechanic,
+                     WorkOrderStatus workOrderStatuses, String workOrderNumber) {
+        this.request = request;
+        this.mechanic = mechanic;
+        this.workOrderStatuses = workOrderStatuses;
+        this.workOrderNumber = workOrderNumber;
+    }
 
 
     public void addAutoGood(WorkOrderAutoGood autoGood) {
@@ -120,17 +139,6 @@ public class WorkOrder implements Task {
     }
 
 
-    public WorkOrder() {
-    }
-
-
-    public WorkOrder(Request request, Mechanic mechanic, WorkOrderStatus workOrderStatuses) {
-        this.request = request;
-        this.mechanic = mechanic;
-        this.workOrderStatuses = workOrderStatuses;
-    }
-
-
     public BigDecimal calculatePrice() {
         return this.calculateTotalPriceAutoGoods().
                 add(this.calculateTotalPriceServices());
@@ -168,5 +176,9 @@ public class WorkOrder implements Task {
     @Override
     public Employee getEmployee() {
         return this.mechanic;
+    }
+
+    public String getWorkOrderNumber() {
+        return NumberGenerator.toRussian(this.workOrderNumber);
     }
 }

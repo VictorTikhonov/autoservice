@@ -90,18 +90,9 @@
                         <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
                             <!-- Номер заявки -->
                             <div class="me-lg-3 mb-2 mb-lg-0">
-                                <label for="searchId" class="form-label">№ заявки:</label>
-                                <input type="text" id="searchId" name="searchId" th:value="${searchId}" placeholder="1"
-                                       pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
-                                       class="form-control">
-                            </div>
-
-                            <!-- Телефон клиента -->
-                            <div class="me-lg-3 mb-2 mb-lg-0">
-                                <label for="searchPhone" class="form-label">Телефон клиента:</label>
-                                <input type="text" id="searchPhone" name="searchPhone" th:value="${searchPhone}"
-                                       placeholder="89999999999" pattern="\d*"
-                                       oninput="this.value = this.value.replace(/\D/g, '')" class="form-control">
+                                <label for="searchNumber" class="form-label">№ заявки:</label>
+                                <input type="text" id="searchNumber" name="searchNumber" th:value="${searchNumber}"
+                                       placeholder="А234567Е" pattern="[0-9А-Яа-я]{1,14}" class="form-control">
                             </div>
 
                             <!-- Кнопка "Очистить" -->
@@ -145,8 +136,6 @@
                 <tr>
                     <th>№</th>
                     <th>Оператор</th>
-                    <th>Клиент</th>
-                    <th>Телефон</th>
                     <th>Создано</th>
                     <th>Статус</th>
                     <th>Автомобиль</th>
@@ -156,29 +145,23 @@
                 </thead>
                 <tbody>
                 <tr th:each="request : ${requests}">
-                    <td th:text="${request.id}"></td>
+                    <td th:text="${request.getRequestNumber()}"></td>
                     <td th:text="${request.operator.surname + ' ' + request.operator.name.substring(0,1) + '.' +
                      (request.operator.patronymic != null ? ' ' + request.operator.patronymic.substring(0,1) + '.' : '')}"></td>
-                    <td th:text="${request.client.surname + ' ' + request.client.name.substring(0,1) + '.' +
-                     (request.client.patronymic != null ? ' ' + request.client.patronymic.substring(0,1) + '.' : '')}"></td>
-                    <td th:text="${request.client.phoneNumber}"></td>
                     <td th:text="${#temporals.format(request.submissionDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${request.requestStatus.description}"></td>
                     <td th:text="${request.car.brand} + ' ' + ${request.car.model}"></td>
                     <td th:text="${request.car.stateNumber}"></td>
                     <td class="text-center" th:if="${!requests.isEmpty()}">
-                        <form th:action="@{/request/details}" method="post"
-                              style="display: inline-block; text-align: center;">
-                            <input type="hidden" name="requestId" th:value="${request.id}"/>
-                            <button type="submit" class="btn btn-primary p-2"
-                                    style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
-                                <img src="/icons/eye-fill.svg" alt="Просмотр" width="20" height="20">
-                            </button>
-                        </form>
+                        <a th:href="@{/request/details(requestId=${request.id})}"
+                           class="btn btn-primary p-2"
+                           style="width: 50px; height: 30px; margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                            <img src="/icons/eye-fill.svg" alt="Просмотр" width="20" height="20">
+                        </a>
                     </td>
                 </tr>
                 <tr th:if="${requests.isEmpty()}">
-                    <td colspan="9">Заявки отсутствуют</td>
+                    <td colspan="7">Заявки отсутствуют</td>
                 </tr>
                 </tbody>
             </table>
@@ -228,7 +211,7 @@
 <script>
     function clearSearch() {
         // Очистка значений полей
-        document.getElementById("searchId").value = "";
+        document.getElementById("searchNumber").value = "";
         document.getElementById("searchPhone").value = "";
 
         window.location.href = '/request/list';
@@ -237,33 +220,9 @@
     document.getElementById('myRequests').addEventListener('change', function () {
         this.blur(); // Сброс фокуса после изменения состояния
     });
-
-    function bindPaginationEvents() {
-        // Перепривязываем события после обновления DOM
-        document.querySelectorAll('.pagination-arrow a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                fetch(this.href)
-                    .then(response => response.text())
-                    .then(html => {
-                        document.querySelector('.table-wrapper').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.table-wrapper').innerHTML;
-
-                        document.querySelector('.pagination-container').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.pagination-container').innerHTML;
-
-                        // Обновляем обработчики событий для новых элементов пагинации
-                        bindPaginationEvents();
-                    });
-            });
-        });
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', bindPaginationEvents);
 </script>
+
+<script src="/js/pagination.js"></script>
 
 </body>
 </html>

@@ -164,6 +164,7 @@ CREATE TABLE employees
 CREATE TABLE requests
 (
     id              BIGSERIAL PRIMARY KEY,               -- ID за€вки
+    request_number  VARCHAR(14) NOT NULL UNIQUE,         -- Ќомер за€вки
     client_id       BIGINT      NOT NULL,                -- ID клиента
     car_id          BIGINT      NOT NULL,                -- ID автомобил€
     operator_id     BIGINT      NOT NULL,                -- ID оператора
@@ -246,8 +247,8 @@ CREATE TABLE work_orders
     id                BIGSERIAL PRIMARY KEY,               -- ID заказ-нар€да
     request_id        BIGINT      NOT NULL,                -- ID за€вки
     mechanic_id       BIGINT      NOT NULL,                -- ID механика
+    work_order_number VARCHAR(14) NOT NULL UNIQUE,         -- Ќомер заказ-нар€да
     work_order_status VARCHAR(20) NOT NULL,                -- —татус заказ-нар€да
---                              price DECIMAL(10, 2) NOT NULL DEFAULT 0,          -- ÷ена работ, об€зательное поле с начальным значением 0
     start_date        TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- ƒата начала работ, может быть пустым
     end_date          TIMESTAMP,                           -- ƒата окончани€ работ, может быть пустым
 

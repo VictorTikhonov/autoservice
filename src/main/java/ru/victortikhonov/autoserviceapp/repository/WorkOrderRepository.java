@@ -47,23 +47,35 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
                                     @Param("endDate") LocalDateTime endDate,
                                     Pageable pageable);
 
-    @Query("SELECT w.id FROM WorkOrder w LEFT JOIN w.request r " +
+
+    @Query("SELECT w.workOrderNumber FROM WorkOrder w LEFT JOIN w.request r " +
             "WHERE r.requestStatus = :rejectedStatus " +
             "AND w.workOrderStatuses = :inProgressStatus")
-    List<Long> findRejectedRequestsWithInProgressWorkOrders(@Param("rejectedStatus") RequestStatus rejectedStatus,
-                                                            @Param("inProgressStatus") WorkOrderStatus inProgressStatus);
+    List<String> findRejectedRequestsWithInProgressWorkOrders(@Param("rejectedStatus") RequestStatus rejectedStatus,
+                                                              @Param("inProgressStatus") WorkOrderStatus inProgressStatus);
 
-    Page<WorkOrder> findById(Long searchWorkOrderId, Pageable pageable);
 
-    Page<WorkOrder> findByRequestId(Long searchRequestId, Pageable pageable);
 
-    @Query("SELECT w FROM WorkOrder w WHERE w.id = :searchWorkOrderId AND w.mechanic.id = :mechanicId")
-    Page<WorkOrder> findById(@Param("searchWorkOrderId") Long searchWorkOrderId,
-                             @Param("mechanicId") Long mechanicId,
-                             Pageable pageable);
+    // Поиск по номеру заказа-наряда
+    Page<WorkOrder> findByWorkOrderNumber(String workOrderNumber, Pageable pageable);
 
-    @Query("SELECT w FROM WorkOrder w WHERE w.request.id = :searchRequestId AND w.mechanic.id = :mechanicId")
-    Page<WorkOrder> findByRequestId(@Param("searchRequestId") Long searchRequestId,
-                                    @Param("mechanicId") Long mechanicId,
-                                        Pageable pageable);
+
+    // Поиск по номеру заказа-наряда с механиком
+    @Query("SELECT w FROM WorkOrder w WHERE w.workOrderNumber = :workOrderNumber AND w.mechanic.id = :mechanicId")
+    Page<WorkOrder> findByWorkOrderNumber(@Param("workOrderNumber") String workOrderNumber,
+                                          @Param("mechanicId") Long mechanicId,
+                                          Pageable pageable);
+
+
+    // Поиск по номеру заявки без механика
+    Page<WorkOrder> findByRequest_RequestNumber(String requestNumber, Pageable pageable);
+
+
+    // Поиск по номеру заявки с механиком
+    @Query("SELECT w FROM WorkOrder w WHERE w.request.requestNumber = :requestNumber AND w.mechanic.id = :mechanicId")
+    Page<WorkOrder> findByRequestNumberAndMechanicId(@Param("requestNumber") String requestNumber,
+                                                     @Param("mechanicId") Long mechanicId,
+                                                     Pageable pageable);
+
+    boolean existsByWorkOrderNumber(String numberWorkOrder);
 }

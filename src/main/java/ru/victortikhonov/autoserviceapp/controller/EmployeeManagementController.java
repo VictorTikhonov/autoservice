@@ -44,8 +44,8 @@ public class EmployeeManagementController {
         // Если status равен null, задаю значения по умолчанию
         List<EmployeeStatus> defaultStatuses = List.of(EmployeeStatus.ACTIVE, EmployeeStatus.INACTIVE);
         Iterable<Employee> employees = (status != null)
-                ? employeeRepository.findByEmploymentStatus(status)
-                : employeeRepository.findByEmploymentStatusIn(defaultStatuses);
+                ? employeeRepository.findByEmploymentStatusExcludeAdmin(status)
+                : employeeRepository.findByEmploymentStatusInExcludeAdmin(defaultStatuses);
 
         model.addAttribute("employees", employees);
         model.addAttribute("filterStatus", status);
@@ -73,7 +73,7 @@ public class EmployeeManagementController {
         }
 
         model.addAttribute("selectedEmployee", employee);
-        model.addAttribute("positions", positionRepository.findAll());
+        model.addAttribute("positions", positionRepository.findByPositionNameNot("Администратор"));
         model.addAttribute("statuses", EmployeeStatus.values());
 
         return "employee-details";
@@ -117,7 +117,7 @@ public class EmployeeManagementController {
 
         employeeRepository.save(employee);
 
-        redirectAttributes.addFlashAttribute("success", "Данные успешно обновлены");
+        redirectAttributes.addFlashAttribute("success", "Данные обновлены");
         model.addAttribute("editMode", false);
         sessionStatus.setComplete();
 

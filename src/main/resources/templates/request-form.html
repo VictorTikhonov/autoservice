@@ -89,7 +89,8 @@
                     </div>
 
                     <div class="d-flex flex-column align-items-center">
-                        <button id="searchClientButton" type="submit" formaction="/request/create/search-client"
+                        <button id="searchClientButton" type="submit"
+                                formaction="/request/create/search-client"
                                 class="btn btn-orange text-white d-flex align-items-center justify-content-center">
                             <img src="/icons/search.svg" alt="Иконка" width="20" height="20" class="me-2">
                             Поиск
@@ -191,12 +192,13 @@
         </div>
     </form>
 
-    <!-- Уведомление, если клиент не найден -->
-    <div th:if="${clientNotFound}">
+
+    <div th:if="${alertMessage != null}">
         <script type="text/javascript">
-            alert('Клиент с таким номером телефона не найден');
+            alert('[(${alertMessage})]');
         </script>
     </div>
+
 </div>
 </div>
 

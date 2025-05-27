@@ -110,7 +110,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="autoGood, iterStat : ${autoGoods}">
-                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${currentPage * 7 + iterStat.index + 1}"></td>
                     <td th:text="${autoGood.name}"></td>
                     <td th:text="${autoGood.category.name}"></td>
                     <td th:text="${autoGood.quantity}"></td>
@@ -173,33 +173,9 @@
         document.getElementById("searchInput").value = "";
         window.location.href = "/auto-good/list";
     }
-
-    function bindPaginationEvents() {
-        // Перепривязываем события после обновления DOM
-        document.querySelectorAll('.pagination-arrow a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                fetch(this.href)
-                    .then(response => response.text())
-                    .then(html => {
-                        document.querySelector('.table-wrapper').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.table-wrapper').innerHTML;
-
-                        document.querySelector('.pagination-container').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.pagination-container').innerHTML;
-
-                        // Обновляем обработчики событий для новых элементов пагинации
-                        bindPaginationEvents();
-                    });
-            });
-        });
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', bindPaginationEvents);
 </script>
+
+<script src="/js/pagination.js"></script>
 
 </body>
 </html>

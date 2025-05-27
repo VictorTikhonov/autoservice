@@ -2,6 +2,7 @@ package ru.victortikhonov.autoserviceapp.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -20,17 +21,19 @@ import java.util.List;
 @SessionAttributes("employeeProfile")
 public class UserProfileController {
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserProfileController(EmployeeRepository employeeRepository) {
+    public UserProfileController(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
 
         this.employeeRepository = employeeRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     @GetMapping
     public String showProfile(Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails) {
-        Employee employee = employeeDetails.getEmployee();
 
+        Employee employee = employeeDetails.getEmployee();
         model.addAttribute("employeeProfile", employee);
 
         return "employee-profile";
@@ -53,19 +56,21 @@ public class UserProfileController {
         if (newPassword.isBlank() || newPassword.length() > 100) {
             model.addAttribute("errorNewPassword",
                     "Пароль не может быть пустым и должен содержать не более 100 символов");
+
             return "employee-update-password";
         }
 
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("errorMessage", "Пароли не совпадают");
+
             return "employee-update-password";
         }
 
         Employee employee = employeeDetails.getEmployee();
-        employee.getAccount().setPassword(newPassword);
+        employee.getAccount().setPassword(passwordEncoder.encode(newPassword));
         employeeRepository.save(employee);
 
-        redirectAttributes.addFlashAttribute("success", "Пароль успешно обновлен!");
+        redirectAttributes.addFlashAttribute("success", "Пароль обновлен!");
 
         return "redirect:/my-profile";
     }
@@ -99,10 +104,8 @@ public class UserProfileController {
         }
 
         employeeRepository.save(employee);
-
         sessionStatus.setComplete();
-
-        redirectAttributes.addFlashAttribute("success", "Личная информация успешно обновлена!");
+        redirectAttributes.addFlashAttribute("success", "Личная информация обновлена!");
 
         return "redirect:/my-profile";
     }

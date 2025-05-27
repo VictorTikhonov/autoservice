@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
 import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Car;
 import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Client;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
@@ -41,7 +42,7 @@ public class RequestService {
     }
 
 
-    public Long createRequest(RequestForm requestForm, Operator operator) {
+    public String createRequest(RequestForm requestForm, Operator operator) {
 
         Car car = findOrCreateCar(requestForm.getCar());
         Client client = findOrCreateClient(requestForm.getClient());
@@ -55,11 +56,26 @@ public class RequestService {
             }
         }
 
-        Request request = new Request(client, car, operator, RequestStatus.OPEN, requestForm.getComplaint());
+        for (int attempts = 0; attempts < 3; attempts++) {
+            String requestNumber = NumberGenerator.generateNumber();
 
-        requestRepository.save(request);
+            if (!requestRepository.existsByRequestNumber(requestNumber)) {
+                Request request = new Request(client, car, operator,
+                        RequestStatus.OPEN, requestForm.getComplaint(), requestNumber);
+                requestRepository.save(request);
+                return requestNumber;
+            }
 
-        return request.getId();
+            System.out.println("Конфликт номера, попытка " + (attempts + 1));
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt(); // восстанавливаем флаг
+                throw new IllegalStateException("Поток был прерван", ie);
+            }
+        }
+
+        throw new IllegalStateException("Не удалось сгенерировать номер заявки, повторите попытку позже");
     }
 
 
@@ -121,15 +137,13 @@ public class RequestService {
             throw new IllegalArgumentException("Дата начала не может быть позже даты конца");
         }
 
-        if(operator!=null)
-        {
+        if (operator != null) {
             if (status.equals(RequestStatus.ALL)) {
                 return requestRepository.findRequestsByDate(startDate, endDate, operator.getId(), pageable);
             } else {
                 return requestRepository.findRequestsByStatusAndDate(status, startDate, endDate, operator.getId(), pageable);
             }
-        }
-        else{
+        } else {
             if (status.equals(RequestStatus.ALL)) {
                 return requestRepository.findRequestsByDate(startDate, endDate, pageable);
             } else {
@@ -139,15 +153,15 @@ public class RequestService {
     }
 
 
-    public Page<Request> findRequestsByIdAndPhone(Long searchId, String searchPhone, Pageable pageable) {
+    public Page<Request> findRequestsByNumberAndPhone(String searchNumber, String searchPhone, Pageable pageable) {
 
-        return requestRepository.findByIdAndClientPhoneNumber(searchId, searchPhone, pageable);
+        return requestRepository.findByRequestNumberAndClientPhoneNumber(NumberGenerator.toEnglish(searchNumber), searchPhone, pageable);
     }
 
 
-    public Page<Request> findRequestsById(Long searchId, Pageable pageable) {
+    public Page<Request> findRequestsByNumber(String searchNumber, Pageable pageable) {
 
-        return requestRepository.findById(searchId, pageable);
+        return requestRepository.findByRequestNumber(NumberGenerator.toEnglish(searchNumber), pageable);
     }
 
 

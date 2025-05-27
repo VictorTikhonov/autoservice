@@ -30,7 +30,7 @@
             </form>
         </div>
 
-        <h1 class="mb-4 text-center">Детали заявки</h1>
+        <h1 class="mb-4 text-center">Детали заявки №<span th:text="${request.requestNumber}"></span></h1>
 
         <!-- Кнопка открытия заказ-наряда -->
         <div class="mb-3 text-center" th:if="${request.workOrder != null}">
@@ -115,5 +115,12 @@
         </div>
     </div>
 </div>
+
+<div th:if="${alertMessage != null and !alertMessage.isEmpty()}">
+    <script type="text/javascript">
+        alert('[(${alertMessage})]');
+    </script>
+</div>
+
 
 </body>

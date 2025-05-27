@@ -94,19 +94,19 @@
                         <div class="d-flex flex-column flex-lg-row align-items-end justify-content-center mb-2">
                             <!-- № заказ-наряда -->
                             <div class="me-lg-3 mb-2 mb-lg-0">
-                                <label for="searchWorkOrderId" class="form-label">№ заказ-наряда:</label>
-                                <input type="text" id="searchWorkOrderId" name="searchWorkOrderId"
-                                       th:value="${searchWorkOrderId}" placeholder="100"
-                                       pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
+                                <label for="searchWorkOrderNumber" class="form-label">№ заказ-наряда:</label>
+                                <input type="text" id="searchWorkOrderNumber" name="searchWorkOrderNumber"
+                                       th:value="${searchWorkOrderNumber}" placeholder="100"
+                                       pattern="[0-9А-Яа-я]{1,14}"
                                        class="form-control">
                             </div>
 
                             <!-- № заявки -->
                             <div class="me-lg-3 mb-2 mb-lg-0">
-                                <label for="searchRequestId" class="form-label">№ заявки:</label>
-                                <input type="text" id="searchRequestId" name="searchRequestId"
-                                       th:value="${searchRequestId}" placeholder="200"
-                                       pattern="\d*" oninput="this.value = this.value.replace(/\D/g, '')"
+                                <label for="searchRequestNumber" class="form-label">№ заявки:</label>
+                                <input type="text" id="searchRequestNumber" name="searchRequestNumber"
+                                       th:value="${searchRequestNumber}" placeholder="200"
+                                       pattern="[0-9А-Яа-я]{1,14}"
                                        class="form-control">
                             </div>
 
@@ -150,7 +150,7 @@
                     <th>№ ЗН</th>
                     <th>№ заявки</th>
                     <th>Статус</th>
-                    <th>Авто</th>
+                    <th>Автомобиль</th>
                     <th>Создан</th>
                     <th>Завершен</th>
                     <th>Цена</th>
@@ -162,12 +162,12 @@
                     th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
                      and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS)
                      ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
-                    <td th:text="${workOrder.id}"></td>
-                    <td th:text="${workOrder.request.id}"></td>
+                    <td th:text="${workOrder.getWorkOrderNumber()}"></td>
+                    <td th:text="${workOrder.request.getRequestNumber()}"></td>
                     <td th:text="${workOrder.workOrderStatuses.description}"></td>
                     <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
-                    <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy HH:mm')}"></td>
-                    <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy')}"></td>
                     <td th:text="${workOrder.calculatePrice()}"></td>
                     <td class="text-center">
                         <form th:action="@{/work-order/details}" method="get" style="display: inline-block;">
@@ -222,37 +222,13 @@
 
 <script>
     function clearSearchWorkOrders() {
-        document.getElementById('searchWorkOrderId').value = '';
-        document.getElementById('searchRequestId').value = '';
+        document.getElementById('searchWorkOrderNumber').value = '';
+        document.getElementById('searchRequestNumber').value = '';
         window.location.href = '/work-order/list';
     }
-
-    function bindPaginationEvents() {
-        // Перепривязываем события после обновления DOM
-        document.querySelectorAll('.pagination-arrow a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                fetch(this.href)
-                    .then(response => response.text())
-                    .then(html => {
-                        document.querySelector('.table-wrapper').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.table-wrapper').innerHTML;
-
-                        document.querySelector('.pagination-container').innerHTML =
-                            new DOMParser().parseFromString(html, 'text/html')
-                                .querySelector('.pagination-container').innerHTML;
-
-                        // Обновляем обработчики событий для новых элементов пагинации
-                        bindPaginationEvents();
-                    });
-            });
-        });
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', bindPaginationEvents);
 </script>
+
+<script src="/js/pagination.js"></script>
 
 </body>
 </html>

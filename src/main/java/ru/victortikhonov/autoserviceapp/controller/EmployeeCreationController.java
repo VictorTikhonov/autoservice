@@ -43,7 +43,7 @@ public class EmployeeCreationController {
     @GetMapping
     public String showEmployeeCreateForm(Model model) {
 
-        Iterable<Position> positions = positionRepository.findAll();
+        Iterable<Position> positions = positionRepository.findByPositionNameNot("Администратор");
 
         Employee employee = new Employee();
         employee.setAccount(new Account());
@@ -113,7 +113,7 @@ public class EmployeeCreationController {
                 ? employee.getPatronymic().charAt(0) + "."
                 : "");
 
-        model.addAttribute("success", "Сотрудник \"" + employeeName + "\" успешно добавлен");
+        model.addAttribute("success", "Сотрудник \"" + employeeName + "\" добавлен");
 
         // Создание пустого объекта Работника
         Employee employeeNew = new Employee();

@@ -6,11 +6,13 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import lombok.ToString;
-import ru.victortikhonov.autoserviceapp.model.Task;
-import ru.victortikhonov.autoserviceapp.model.TaskStatus;
-import ru.victortikhonov.autoserviceapp.model.ClientAndCar.*;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Car;
+import ru.victortikhonov.autoserviceapp.model.ClientAndCar.Client;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Operator;
+import ru.victortikhonov.autoserviceapp.model.Task;
+import ru.victortikhonov.autoserviceapp.model.TaskStatus;
 import ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrder;
 
 import java.time.LocalDateTime;
@@ -19,13 +21,18 @@ import java.time.LocalDateTime;
 @Table(name = "requests")
 @Data
 @ToString(exclude = "workOrder")
-public class Request implements Task{
+public class Request implements Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     @Column(name = "id")
     private Long id;
+
+
+    @Column(name = "request_number")
+    @Setter(AccessLevel.NONE)
+    private String requestNumber;
 
 
     @ManyToOne
@@ -68,12 +75,14 @@ public class Request implements Task{
     }
 
 
-    public Request(Client client, Car car, Operator operator, RequestStatus requestStatus, String complaints) {
+    public Request(Client client, Car car, Operator operator,
+                   RequestStatus requestStatus, String complaints, String requestNumber) {
         this.client = client;
         this.car = car;
         this.operator = operator;
         this.requestStatus = requestStatus;
         this.complaints = complaints;
+        this.requestNumber = requestNumber;
     }
 
     @Override
@@ -84,5 +93,9 @@ public class Request implements Task{
     @Override
     public Employee getEmployee() {
         return this.operator;
+    }
+
+    public String getRequestNumber() {
+        return NumberGenerator.toRussian(this.requestNumber);
     }
 }

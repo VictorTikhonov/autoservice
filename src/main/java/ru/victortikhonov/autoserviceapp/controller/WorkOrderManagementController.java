@@ -2,6 +2,7 @@ package ru.victortikhonov.autoserviceapp.controller;
 
 
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ru.victortikhonov.autoserviceapp.NumberGenerator;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Employee;
 import ru.victortikhonov.autoserviceapp.model.Personnel.EmployeeDetails;
 import ru.victortikhonov.autoserviceapp.model.Personnel.Mechanic;
@@ -28,6 +30,7 @@ import ru.victortikhonov.autoserviceapp.repository.WorkOrderRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -53,42 +56,62 @@ public class WorkOrderManagementController {
 
         Employee employee = employeeDetails.getEmployee();
         if (!(employee instanceof Mechanic mechanic)) {
-            throw new IllegalStateException("Текущий пользователь не является оператором");
-        }
-
-        try {
-            Request request = requestRepository.findById(requestId).orElseThrow(
-                    () -> new IllegalArgumentException("неверное ID заявки: " + requestId));
-
-            WorkOrder workOrder = new WorkOrder(request, mechanic, WorkOrderStatus.IN_PROGRESS);
-            this.workOrderRepository.save(workOrder);
-
-            request.setRequestStatus(RequestStatus.IN_PROGRESS);
-            request.setWorkOrder(workOrder);
-            requestRepository.save(request);
-
-            redirectAttributes.addFlashAttribute("success",
-                    "Заказ-наряд №" + workOrder.getId() + " успешно создан!");
-
-            return "redirect:/work-order/list?newWorkOrderId=" + workOrder.getId();
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Не удалось начать работу по заявке: " + e.getMessage());
-
+            model.addAttribute("errorMessage", "Только механик может создать заказ-наряд");
             return "error-page";
         }
+
+        Request request = requestRepository.findById(requestId).orElse(null);
+        if (request == null) {
+            model.addAttribute("errorMessage", "Заявка не найдена, нельзя создать заказ-наряд");
+            return "error-page";
+        }
+
+        for (int attempts = 0; attempts < 3; attempts++) {
+
+            String numberWorkOrder = NumberGenerator.generateNumber();
+
+            if (workOrderRepository.existsByWorkOrderNumber(numberWorkOrder)) {
+                System.out.println("Конфликт номера, попытка " + (attempts + 1));
+            } else {
+                try {
+                    WorkOrder workOrder = new WorkOrder(request, mechanic, WorkOrderStatus.IN_PROGRESS, numberWorkOrder);
+                    this.workOrderRepository.save(workOrder);
+
+                    request.setRequestStatus(RequestStatus.IN_PROGRESS);
+                    request.setWorkOrder(workOrder);
+                    requestRepository.save(request);
+
+                    redirectAttributes.addFlashAttribute("success",
+                            "Заказ-наряд №" + workOrder.getWorkOrderNumber() + " создан!");
+
+                    return "redirect:/work-order/list?newWorkOrderId=" + workOrder.getId();
+                } catch (DataIntegrityViolationException e) {
+                    System.out.println("Конфликт номера, попытка " + (attempts + 1));
+                }
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt(); // восстанавливаем флаг
+                throw new IllegalStateException("Поток был прерван", ie);
+            }
+        }
+
+        redirectAttributes.addFlashAttribute("alertMessage", "Не удалось создать заказ-наряд, повторите попытку");
+        return "redirect:/request/details?requestId=" + requestId;
     }
 
 
     @GetMapping("/list")
     public String showListWorkOrders(Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails,
-                                     @RequestParam(required = false) Long newWorkOrderId,
                                      @RequestParam(required = false) WorkOrderStatus status,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "7") int size,
-                                     @RequestParam(required = false) Long searchWorkOrderId,
-                                     @RequestParam(required = false) Long searchRequestId) {
+                                     @RequestParam(required = false) String searchWorkOrderNumber,
+                                     @RequestParam(required = false) String searchRequestNumber) {
 
         // Статус по умолчанию
         if (status == null) {
@@ -117,10 +140,12 @@ public class WorkOrderManagementController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
 
         if (employeeDetails.getEmployee().getAccount().getRole().name().equals("ADMIN")) {
-            if (searchWorkOrderId != null) {
-                workOrders = workOrderRepository.findById(searchWorkOrderId, pageable);
-            } else if (searchRequestId != null) {
-                workOrders = workOrderRepository.findByRequestId(searchRequestId, pageable);
+            if (searchWorkOrderNumber != null && !searchWorkOrderNumber.isEmpty()) {
+                workOrders = workOrderRepository.findByWorkOrderNumber(
+                        NumberGenerator.toEnglish(searchWorkOrderNumber), pageable);
+            } else if (searchRequestNumber != null) {
+                workOrders = workOrderRepository.findByRequest_RequestNumber(
+                        NumberGenerator.toEnglish(searchRequestNumber), pageable);
             } else {
                 // Поиск ЗН в соответствии с фильтрами
                 workOrders = searchWorkOrders(status, pageable, startDate, endDate, null);
@@ -132,15 +157,12 @@ public class WorkOrderManagementController {
                 throw new IllegalStateException("Текущий пользователь не является механиком");
             }
 
-            // Добавляю id нового ЗН,чтобы подсветить его
-            if (newWorkOrderId != null) {
-                model.addAttribute("newWorkOrderId", newWorkOrderId);
-            }
-
-            if (searchWorkOrderId != null) {
-                workOrders = workOrderRepository.findById(searchWorkOrderId, mechanic.getId(), pageable);
-            } else if (searchRequestId != null) {
-                workOrders = workOrderRepository.findByRequestId(searchRequestId, mechanic.getId(), pageable);
+            if (searchWorkOrderNumber != null && !searchWorkOrderNumber.isEmpty()) {
+                workOrders = workOrderRepository.findByWorkOrderNumber(
+                        NumberGenerator.toEnglish(searchWorkOrderNumber), mechanic.getId(), pageable);
+            } else if (searchRequestNumber != null) {
+                workOrders = workOrderRepository.findByRequestNumberAndMechanicId(
+                        NumberGenerator.toEnglish(searchRequestNumber), mechanic.getId(), pageable);
             } else {
                 // Поиск ЗН в соответствии с фильтрами
                 workOrders = searchWorkOrders(status, pageable, startDate, endDate, mechanic);
@@ -156,8 +178,8 @@ public class WorkOrderManagementController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("currentPage", page);
-        model.addAttribute("searchWorkOrderId", searchWorkOrderId);
-        model.addAttribute("searchRequestId", searchRequestId);
+        model.addAttribute("searchWorkOrderNumber", Optional.ofNullable(searchWorkOrderNumber).orElse(""));
+        model.addAttribute("searchRequestNumber", Optional.ofNullable(searchRequestNumber).orElse(""));
         model.addAttribute("totalPages", Math.max(1, workOrders.getTotalPages()));
         model.addAttribute("totalItems", workOrders.getTotalElements());
 
@@ -167,13 +189,13 @@ public class WorkOrderManagementController {
 
     private void checkForCanceledWorkOrders(Model model) {
 
-        List<Long> canceledWorkOrdersInProgress = workOrderRepository.findRejectedRequestsWithInProgressWorkOrders(
+        List<String> canceledWorkOrdersInProgress = workOrderRepository.findRejectedRequestsWithInProgressWorkOrders(
                 RequestStatus.REJECTED, WorkOrderStatus.IN_PROGRESS);
 
         if (!canceledWorkOrdersInProgress.isEmpty()) {
             // Преобразуем список Long в строку, разделенную запятыми
             String ids = canceledWorkOrdersInProgress.stream()
-                    .map(String::valueOf)  // Преобразую Long в String
+                    .map(NumberGenerator::toRussian)  // Преобразую Long в String
                     .collect(Collectors.joining(", "));  // Объединяем в строку с разделителем ", "
 
             String cancellationNotice = "Некоторые заказ-наряды были отменены. " +
