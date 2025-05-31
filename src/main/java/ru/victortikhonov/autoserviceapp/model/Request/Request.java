@@ -54,6 +54,7 @@ public class Request implements Task {
 
 
     @Column(name = "request_status")
+    @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus;
 
 

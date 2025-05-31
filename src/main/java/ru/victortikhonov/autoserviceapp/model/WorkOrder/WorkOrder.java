@@ -47,6 +47,7 @@ public class WorkOrder implements Task {
 
 
     @Column(name = "work_order_status")
+    @Enumerated(EnumType.STRING)
     private WorkOrderStatus workOrderStatuses;
 
 

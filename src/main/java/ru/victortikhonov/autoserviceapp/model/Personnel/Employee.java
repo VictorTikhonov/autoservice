@@ -38,6 +38,7 @@ public class Employee extends Person {
 
 
     @Column(name = "employment_status")
+    @Enumerated(EnumType.STRING)
     private EmployeeStatus employmentStatus;
 
 

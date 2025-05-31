@@ -66,7 +66,6 @@ public class RequestService {
                 return requestNumber;
             }
 
-            System.out.println("Конфликт номера, попытка " + (attempts + 1));
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ie) {
@@ -152,21 +151,12 @@ public class RequestService {
         }
     }
 
-
-    public Page<Request> findRequestsByNumberAndPhone(String searchNumber, String searchPhone, Pageable pageable) {
-
-        return requestRepository.findByRequestNumberAndClientPhoneNumber(NumberGenerator.toEnglish(searchNumber), searchPhone, pageable);
-    }
-
-
     public Page<Request> findRequestsByNumber(String searchNumber, Pageable pageable) {
 
         return requestRepository.findByRequestNumber(NumberGenerator.toEnglish(searchNumber), pageable);
     }
 
-
-    public Page<Request> findRequestsByPhone(String searchPhone, Pageable pageable) {
-
-        return requestRepository.findByClientPhoneNumber(searchPhone, pageable);
+    public void save(Request request) {
+        requestRepository.save(request);
     }
 }

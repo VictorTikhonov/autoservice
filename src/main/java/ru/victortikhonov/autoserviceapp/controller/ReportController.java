@@ -53,6 +53,8 @@ public class ReportController {
             return "report-request";
         }
 
+        setDateRangeAttributes(model, startDate, endDate);
+
         List<Operator> operators = (List<Operator>) operatorRepository.findAll();
         List<Request> requests = (List<Request>) requestRepository.findRequestsByDate(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
 
@@ -85,7 +87,6 @@ public class ReportController {
         model.addAttribute("totalInProgress", totalInProgress);
         model.addAttribute("totalCompleted", totalCompleted);
         model.addAttribute("totalRejected", totalRejected);
-        setDateRangeAttributes(model, startDate, endDate);
 
         return "report-request";
     }
@@ -100,14 +101,18 @@ public class ReportController {
             return "report-work-order";
         }
 
+        setDateRangeAttributes(model, startDate, endDate);
+
         List<Mechanic> mechanics = (List<Mechanic>) mechanicRepository.findAll();
         List<WorkOrder> workOrders = (List<WorkOrder>) workOrderRepository.findWorkOrdersByDate(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
 
         long totalWorkOrdersCount = workOrders.size();
 
         if (totalWorkOrdersCount == 0) {
+            model.addAttribute("errorMessage", "За выбранный период не найдено ни одной заявки");
             return "report-work-order";
         }
+
 
         long totalInProgress = 0; // В процессе
         long totalCompleted = 0; // Завершен
@@ -133,7 +138,6 @@ public class ReportController {
         model.addAttribute("totalInProgress", totalInProgress);
         model.addAttribute("totalCompleted", totalCompleted);
         model.addAttribute("totalCanceled", totalCanceled);
-        setDateRangeAttributes(model, startDate, endDate);
 
         return "report-work-order";
     }

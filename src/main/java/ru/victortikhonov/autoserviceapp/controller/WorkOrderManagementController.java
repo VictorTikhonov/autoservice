@@ -54,11 +54,7 @@ public class WorkOrderManagementController {
                                   @AuthenticationPrincipal EmployeeDetails employeeDetails,
                                   RedirectAttributes redirectAttributes) {
 
-        Employee employee = employeeDetails.getEmployee();
-        if (!(employee instanceof Mechanic mechanic)) {
-            model.addAttribute("errorMessage", "Только механик может создать заказ-наряд");
-            return "error-page";
-        }
+        Mechanic mechanic  = (Mechanic) employeeDetails.getEmployee();
 
         Request request = requestRepository.findById(requestId).orElse(null);
         if (request == null) {

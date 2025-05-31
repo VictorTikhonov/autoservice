@@ -1,6 +1,5 @@
 package ru.victortikhonov.autoserviceapp.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,11 +57,8 @@ public class RequestController {
             return "request-form";
         }
 
-        Employee employee = employeeDetails.getEmployee();
-        if (!(employee instanceof Operator operator)) {
-            model.addAttribute("errorMessage", "Только оператор может создать заявку");
-            return "error-page";
-        }
+        // Привожу к Operator
+        Operator operator = (Operator) employeeDetails.getEmployee();
 
         try {
             String requestNumber = requestService.createRequest(requestForm, operator);
@@ -111,7 +107,6 @@ public class RequestController {
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "7") int size,
                                @RequestParam(required = false) String searchNumber,
-                               @RequestParam(required = false) String searchPhone,
                                @RequestParam(required = false) boolean myRequests,
                                Model model, @AuthenticationPrincipal EmployeeDetails employeeDetails) {
 
@@ -153,7 +148,7 @@ public class RequestController {
             operator = op;
         }
 
-        requests = findRequestsByCriteria(searchNumber, searchPhone, pageable, status,
+        requests = findRequestsByCriteria(searchNumber, pageable, status,
                 startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), operator);
 
         // Добавляю в модель
@@ -166,26 +161,20 @@ public class RequestController {
         model.addAttribute("totalPages", Math.max(1, requests.getTotalPages()));
         model.addAttribute("totalItems", requests.getTotalElements());
         model.addAttribute("searchNumber", searchNumber);
-        model.addAttribute("searchPhone", searchPhone);
         model.addAttribute("myRequests", myRequests);
 
         return "table-requests";
     }
 
     private Page<Request> findRequestsByCriteria(String searchNumber,
-                                                 String searchPhone,
                                                  Pageable pageable,
                                                  RequestStatus status,
                                                  LocalDateTime startDateTime,
                                                  LocalDateTime endDateTime,
                                                  Operator operator) {
 
-        if (searchNumber != null && searchPhone != null && !searchPhone.isEmpty()) {
-            return requestService.findRequestsByNumberAndPhone(searchNumber, searchPhone, pageable);
-        } else if (searchNumber != null) {
+        if (searchNumber != null) {
             return requestService.findRequestsByNumber(searchNumber, pageable);
-        } else if (searchPhone != null && !searchPhone.isEmpty()) {
-            return requestService.findRequestsByPhone(searchPhone, pageable);
         } else {
             return requestService.findRequests(status, startDateTime, endDateTime, pageable, operator);
         }
@@ -195,12 +184,15 @@ public class RequestController {
     @GetMapping("/details")
     public String checkRequest(@RequestParam("requestId") Long requestId, Model model) {
 
-        requestService.findRequestById(requestId).ifPresent(request -> {
+        Request request = requestService.findRequestById(requestId).orElse(null);
+        if (request != null) {
             model.addAttribute("request", request);
             model.addAttribute("requestStatus", request.getRequestStatus());
-        });
-
-        return "request-details";
+            return "request-details";
+        } else {
+            model.addAttribute("errorMessage", "Заявка не найдена");
+            return "error-page";
+        }
     }
 
 
@@ -225,5 +217,30 @@ public class RequestController {
         }
 
         return "redirect:/request/list";
+    }
+
+    @PostMapping("/update-complaint")
+    public String updateComplaint(@RequestParam("requestId") Long requestId,
+                                  @RequestParam("complaints") String complaints, Model model) {
+
+        Request request = requestService.findRequestById(requestId).orElse(null);
+
+
+        if (request != null) {
+
+            if ((request.getStatus() == RequestStatus.OPEN || request.getStatus() == RequestStatus.IN_PROGRESS) &&
+                    !complaints.isEmpty()) {
+                request.setComplaints(complaints);
+                requestService.save(request);
+            }else{
+                model.addAttribute("alertMessage", "Редактирование жалобы недоступно для завершённой или отклонённой заявки.");
+                return "redirect:/request/details?requestId=" + requestId;
+            }
+
+            return "redirect:/request/details?requestId=" + requestId;
+        } else {
+            model.addAttribute("errorMessage", "Заявка не найдена");
+            return "error-page";
+        }
     }
 }
