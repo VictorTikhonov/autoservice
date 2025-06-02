@@ -19,6 +19,6 @@ public class RequestForm implements Serializable {
     @Valid
     private Car car;
 
-    @NotBlank(message = "Поле не может быть пустым")
+    @NotBlank(message = "Пустое поле")
     private String complaint;
 }

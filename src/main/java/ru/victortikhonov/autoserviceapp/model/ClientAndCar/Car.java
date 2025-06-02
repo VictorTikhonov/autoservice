@@ -25,7 +25,7 @@ public class Car {
     private String stateNumber;
 
 
-    @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "Некорректный VIN (17 символов)")
+    @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "Некорректный VIN")
     @Column(name = "vin")
     private String vin;
 
@@ -43,7 +43,7 @@ public class Car {
 
 
     @PastOrPresent(message = "Год выпуска не может быть больше текущего")
-    @NotNull(message = "Год выпуска не может быть пустым")
+    @NotNull(message = "Пустое поле")
     @Column(name = "year_of_manufacture")
     private Year yearOfManufacture;
 }

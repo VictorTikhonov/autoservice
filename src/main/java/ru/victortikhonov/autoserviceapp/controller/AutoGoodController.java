@@ -99,7 +99,7 @@ public class AutoGoodController {
         }
 
         autoGoodRepository.save(autoGood);
-        model.addAttribute("success", "Автотовар \"" + autoGood.getName() + "\" успешно добавлен" +
+        model.addAttribute("success", "Автотовар \"" + autoGood.getName() + "\" добавлен" +
                 " в категорию \"" + autoGood.getCategory().getName() + "\"");
 
         session.removeAttribute("autoGood");
@@ -125,7 +125,7 @@ public class AutoGoodController {
         AutoGoodCategory category = new AutoGoodCategory(categoryName);
         autoGoodCategoryRepository.save(category);
         categories.add(category);
-        model.addAttribute("success", "Категория \"" + categoryName + "\" успешно добавлена");
+        model.addAttribute("success", "Категория \"" + categoryName + "\" добавлена");
 
         return "add-auto-good-and-category";
     }

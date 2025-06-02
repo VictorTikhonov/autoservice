@@ -54,7 +54,7 @@
                     <p class="border rounded p-2 bg-white shadow-sm"><strong>Статус заявки: </strong>
                         <span th:text="${requestStatus.description}"></span></p>
                     <p class="border rounded p-2 bg-white shadow-sm"><strong>Дата создания: </strong>
-                        <span th:text="${#temporals.format(request.submissionDate, 'dd.MM.yyyy')}"></span></p>
+                        <span th:text="${#temporals.format(request.submissionDate, 'dd.MM.yyyy HH:mm')}"></span>
                 </div>
 
                 <div class="info-block">
@@ -96,6 +96,7 @@
                 </div>
 
                 <div class="info-block">
+                    <h2>Жалобы</h2>
                     <form id="complaintForm" th:action="@{/request/update-complaint}" method="post">
                         <input type="hidden" name="requestId" th:value="${request.id}"/>
                         <textarea id="complaintField"

@@ -96,7 +96,7 @@
                             <div class="me-lg-3 mb-2 mb-lg-0">
                                 <label for="searchWorkOrderNumber" class="form-label">№ заказ-наряда:</label>
                                 <input type="text" id="searchWorkOrderNumber" name="searchWorkOrderNumber"
-                                       th:value="${searchWorkOrderNumber}" placeholder="100"
+                                       th:value="${searchWorkOrderNumber}" placeholder="113Б3В97"
                                        pattern="[0-9А-Яа-я]{1,14}"
                                        class="form-control">
                             </div>
@@ -105,7 +105,7 @@
                             <div class="me-lg-3 mb-2 mb-lg-0">
                                 <label for="searchRequestNumber" class="form-label">№ заявки:</label>
                                 <input type="text" id="searchRequestNumber" name="searchRequestNumber"
-                                       th:value="${searchRequestNumber}" placeholder="200"
+                                       th:value="${searchRequestNumber}" placeholder="456А3Б88"
                                        pattern="[0-9А-Яа-я]{1,14}"
                                        class="form-control">
                             </div>
@@ -160,14 +160,14 @@
                 <tbody>
                 <tr th:each="workOrder : ${workOrders}"
                     th:classappend="${(workOrder.request.requestStatus == T(ru.victortikhonov.autoserviceapp.model.Request.RequestStatus).REJECTED
-                     and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS)
-                     ? 'canceled-in-progress ' : '' + (workOrder.id == newWorkOrderId ? 'highlight' : '')}">
+                    and workOrder.workOrderStatuses == T(ru.victortikhonov.autoserviceapp.model.WorkOrder.WorkOrderStatus).IN_PROGRESS)
+                    ? 'canceled-in-progress' : ''}">
                     <td th:text="${workOrder.getWorkOrderNumber()}"></td>
                     <td th:text="${workOrder.request.getRequestNumber()}"></td>
                     <td th:text="${workOrder.workOrderStatuses.description}"></td>
                     <td th:text="${workOrder.request.car.brand} + ' ' + ${workOrder.request.car.model}"></td>
                     <td th:text="${#temporals.format(workOrder.startDate, 'dd-MM-yyyy')}"></td>
-                    <td th:text="${#temporals.format(workOrder.endDate, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${workOrder.endDate != null ? #temporals.format(workOrder.endDate, 'dd-MM-yyyy') : '-'}"></td>
                     <td th:text="${workOrder.calculatePrice()}"></td>
                     <td class="text-center">
                         <form th:action="@{/work-order/details}" method="get" style="display: inline-block;">
@@ -228,7 +228,7 @@
     }
 </script>
 
-<script src="/js/pagination.js"></script>
+<script src="/js/pagination-events.js"></script>
 
 </body>
 </html>

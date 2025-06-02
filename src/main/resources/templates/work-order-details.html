@@ -268,7 +268,7 @@
                                 <thead>
                                 <tr>
                                     <th style="width: 15%;">Выбрать</th>
-                                    <th style="width: 35%;">Наименование</th>
+                                    <th style="width: 35%;">Название</th>
                                     <th style="width: 35%;">Категория</th>
                                     <th style="width: 15%;">Цена</th>
                                 </tr>
@@ -281,7 +281,8 @@
                                                class="checkbox" disabled/>
                                     </td>
                                     <td th:text="${service.name}"></td>
-                                    <td th:text="${service.category.name}"></td>
+                                    <td th:text="${service.category.name}"
+                                        style="text-align: left; padding-left: 10px;"></td>
                                     <td>
                                         <input type="number" name="price" min="0" class="price-input"
                                                oninput="enableCheckbox(this)"/>

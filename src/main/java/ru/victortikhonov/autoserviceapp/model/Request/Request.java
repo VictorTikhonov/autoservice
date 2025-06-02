@@ -64,7 +64,7 @@ public class Request implements Task {
 
 
     @Column(name = "complaints")
-    @NotBlank(message = "Поле жалоб не может быть пустым")
+    @NotBlank(message = "Пустое поле")
     private String complaints;
 
 

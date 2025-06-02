@@ -16,20 +16,23 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     // Поиск заявки по статусу и дате
     @Query("SELECT r FROM Request r WHERE r.requestStatus = :status " +
-            "AND r.submissionDate BETWEEN :startDate AND :endDate")
+            "AND r.submissionDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY r.submissionDate DESC")
     Page<Request> findRequestsByStatusAndDate(@Param("status") RequestStatus status,
                                               @Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate,
                                               Pageable pageable);
 
-    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate")
+    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY r.submissionDate DESC")
     Page<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
                                      @Param("endDate") LocalDateTime endDate,
                                      Pageable pageable);
 
     @Query("SELECT r FROM Request r WHERE r.requestStatus = :status " +
             "AND r.submissionDate BETWEEN :startDate AND :endDate " +
-            "AND r.operator.id = :operatorId")
+            "AND r.operator.id = :operatorId " +
+            "ORDER BY r.submissionDate DESC")
     Page<Request> findRequestsByStatusAndDate(@Param("status") RequestStatus status,
                                               @Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate,
@@ -37,7 +40,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
                                               Pageable pageable);
 
     @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate " +
-            "AND r.operator.id = :operatorId")
+            "AND r.operator.id = :operatorId " +
+            "ORDER BY r.submissionDate DESC")
     Page<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
                                      @Param("endDate") LocalDateTime endDate,
                                      @Param("operatorId") Long operatorId,
@@ -45,12 +49,14 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Page<Request> findByRequestNumber(String requestNumber, Pageable pageable);
 
-    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate")
+    @Query("SELECT r FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate "+
+            "ORDER BY r.submissionDate DESC")
     Iterable<Request> findRequestsByDate(@Param("startDate") LocalDateTime startDate,
                                          @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT COUNT(r) FROM Request r WHERE r.submissionDate BETWEEN :startDate AND :endDate " +
-            "AND r.requestStatus = :status")
+            "AND r.requestStatus = :status " +
+            "ORDER BY r.submissionDate DESC")
     long countRequestsByDateAndStatus(@Param("startDate") LocalDateTime startDate,
                                       @Param("endDate") LocalDateTime endDate,
                                       @Param("status") RequestStatus status);

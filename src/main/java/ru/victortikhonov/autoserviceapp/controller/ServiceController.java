@@ -95,7 +95,7 @@ public class ServiceController {
         }
 
         serviceRepository.save(service);
-        model.addAttribute("success", "Услуга \"" + service.getName() + "\" успешно добавлена" +
+        model.addAttribute("success", "Услуга \"" + service.getName() + "\" добавлена" +
                 " в категорию \"" + service.getCategory().getName() + "\"");
 
         session.removeAttribute("service");
@@ -121,7 +121,7 @@ public class ServiceController {
         ServiceCategory category = new ServiceCategory(categoryName);
         serviceCategoryRepository.save(category);
         categories.add(category);
-        model.addAttribute("success", "Категория \"" + categoryName + "\" успешно добавлена");
+        model.addAttribute("success", "Категория \"" + categoryName + "\" добавлена");
 
         return "add-service-and-category";
     }
