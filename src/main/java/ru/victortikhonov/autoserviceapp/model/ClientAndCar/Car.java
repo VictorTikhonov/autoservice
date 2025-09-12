@@ -30,13 +30,13 @@ public class Car {
     private String vin;
 
 
-    @NotBlank(message = "Марка автомобиля не может быть пустой")
+    @NotBlank(message = "Пустое поле")
     @Size(max = 50, message = "Марка автомобиля не должна превышать 50 символов")
     @Column(name = "brand")
     private String brand;
 
 
-    @NotBlank(message = "Модель автомобиля не может быть пустой")
+    @NotBlank(message = "Пустое поле")
     @Size(max = 50, message = "Модель автомобиля не должна превышать 50 символов")
     @Column(name = "model")
     private String model;
