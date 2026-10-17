@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: AutoServiceApp
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/auto_service
+    username: postgres
+    password: ",fpfLFYYS["
+
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      show-sql: true
+      format-sql: true
+    properties:
+      hibernate:
+        ddl-auto: validation
+#  mvc:
+#    servlet:
+#      path: /auto-service

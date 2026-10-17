@@ -1,0 +1,23 @@
+@import url("common.css");
+
+.role-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.role-options {
+    display: flex;
+    gap: 1rem;
+}
+
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.account-info-block {
+    height: 65%;
+}

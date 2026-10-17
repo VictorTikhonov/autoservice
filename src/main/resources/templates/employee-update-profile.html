@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Редактирование личной информации</title>
+    <link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/common.css}" rel="stylesheet">
+    <style>
+        .container{
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-3 mb-3">
+    <div class="bg-white p-4 rounded shadow-sm">
+        <div class="profile-container">
+            <!-- Кнопка возврата -->
+            <a th:href="@{/my-profile}" class="btn btn-primary mb-4 d-flex align-items-center" style="width: 130px;">
+                <img src="/icons/person.svg" alt="Профиль" width="20" height="20" class="me-2">
+                Профиль
+            </a>
+
+            <h1 class="mb-4 text-center">Редактирование личной информации</h1>
+
+            <!-- Сообщения об ошибках -->
+            <div th:if="${errorPhoneNumberUpdate}" class="alert alert-danger" role="alert">
+                <span th:text="${errorPhoneNumberUpdate}"></span>
+            </div>
+
+            <div class="profile-form">
+                <form id="employeeForm" th:action="@{/my-profile/update-info}" method="post"
+                      th:object="${employeeProfile}">
+                    <!-- Фамилия -->
+                    <div class="mb-3">
+                        <label for="surname" class="form-label">Фамилия:</label>
+                        <input id="surname" type="text" class="form-control" name="surname"
+                               th:value="${employeeProfile.surname}"
+                               th:classappend="${#fields.hasErrors('surname')} ? 'is-invalid' : ''"/>
+                        <div th:if="${#fields.hasErrors('surname')}" class="invalid-feedback"
+                             th:errors="*{surname}"></div>
+                    </div>
+
+                    <!-- Имя -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Имя:</label>
+                        <input id="name" type="text" class="form-control" name="name" th:value="${employeeProfile.name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"/>
+                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+
+                    <!-- Отчество -->
+                    <div class="mb-3">
+                        <label for="patronymic" class="form-label">Отчество:</label>
+                        <input id="patronymic" type="text" class="form-control" name="patronymic"
+                               th:value="${employeeProfile.patronymic}"
+                               th:classappend="${#fields.hasErrors('patronymic')} ? 'is-invalid' : ''"/>
+                        <div th:if="${#fields.hasErrors('patronymic')}" class="invalid-feedback"
+                             th:errors="*{patronymic}"></div>
+                    </div>
+
+                    <!-- Телефон -->
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Телефон:</label>
+                        <input id="phoneNumber" type="text" class="form-control" name="phoneNumber"
+                               th:value="${employeeProfile.phoneNumber}"
+                               pattern="[0-9]*" title="Введите только цифры"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''"/>
+                        <div th:if="${#fields.hasErrors('phoneNumber')}" class="invalid-feedback"
+                             th:errors="*{phoneNumber}"></div>
+                    </div>
+
+                    <!-- Дата рождения -->
+                    <div class="mb-4">
+                        <label for="birthDate" class="form-label">Дата рождения:</label>
+                        <input id="birthDate" type="date" class="form-control" name="birthDate"
+                               th:value="${employeeProfile.birthDate}"
+                               th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid' : ''"/>
+                        <div th:if="${#fields.hasErrors('birthDate')}" class="invalid-feedback"
+                             th:errors="*{birthDate}"></div>
+                    </div>
+
+                    <!-- Кнопка отправки -->
+                    <div class="d-flex justify-content-center">
+                        <button type="submit"
+                                class="btn btn-success d-flex align-items-center justify-content-center submit-btn">
+                            <img src="/icons/check-circle.svg" alt="Сохранить" class="form-icon me-2">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

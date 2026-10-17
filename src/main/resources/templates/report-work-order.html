@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет по заказ-нарядам механиков</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/report.css" rel="stylesheet">
+</head>
+<body>
+
+<div th:insert="~{/fragments/navigation.html}"></div>
+
+<div class="container-1 mt-3 mb-3">
+    <h1 class="mb-4 text-center">Отчет по заказ-нарядам</h1>
+
+    <!-- Контейнер для верхних блоков -->
+    <div class="top-blocks-container">
+        <!-- Блок выбора периода -->
+        <div class="info-block period-selector-block text-center">
+            <h2>Указание периода</h2>
+            <form action="/report/mechanic" method="get" class="d-flex flex-column align-items-center">
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <label for="startDate" class="form-label">Начальная дата:</label>
+                        <input type="date" id="startDate" name="startDate" class="form-control"
+                               th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}" required>
+                    </div>
+
+                    <div>
+                        <label for="endDate" class="form-label">Конечная дата:</label>
+                        <input type="date" id="endDate" name="endDate" class="form-control"
+                               th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center" style="width: 150px;">
+                    <img src="/icons/file-earmark-bar-graph.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Сформировать
+                </button>
+            </form>
+        </div>
+
+
+        <!-- Блок общей информации -->
+        <div class="info-block general-info-block" th:unless="${errorMessage}">
+            <h2>Общая информация</h2>
+            <ul class="general-info-list">
+                <li>
+                    <div class="profile-field">
+                    <strong>Период: </strong><span th:text="${formattedDate ?: 'Не выбран'}"></span></div>
+                </li>
+
+                <li>
+                    <div class="profile-field"><strong>Всего заказ-нарядов: </strong><span th:text="${totalWorkOrdersCount ?: '0'}"></span></div>
+                </li>
+                <li>
+                    <div class="profile-field"><strong>Заявок без заказ-наряда: </strong><span th:text="${totalOpen ?: '0'}"></span></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Отображение сообщения об ошибке -->
+    <div th:if="${errorMessage}" class="alert alert-danger text-center" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- Остальной код остается без изменений -->
+    <div th:unless="${errorMessage}">
+        <!-- Диаграмма с количеством заказ-нарядов по статусам -->
+        <div class="info-block" th:if="${totalInProgress != null or totalCompleted != null or totalCanceled != null}">
+            <h2>Статистика по заказ-нарядам</h2>
+            <div class="top-row-container">
+                <div class="color-legend-container">
+                    <h4>Объяснение цветов</h4>
+                    <ul class="color-legend">
+                        <li>
+                            <span style="background-color: #ff9800;"></span>
+                            В процессе
+                        </li>
+                        <li>
+                            <span style="background-color: #4caf50;"></span>
+                            Завершено
+                        </li>
+                        <li>
+                            <span style="background-color: #f44336;"></span>
+                            Отменено
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <div id="status-chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- График количества заявок, обработанных каждым оператором за указанный период -->
+        <div class="info-block" th:if="${not mechanicWorkOrderCounts.isEmpty()}">
+            <h2>График количества заказ-нарядов по механикам</h2>
+            <div class="top-row-container">
+                <div class="color-legend-container">
+                    <h4>Объяснение цветов</h4>
+                    <ul class="color-legend">
+                        <li>
+                            <span style="background-color: rgba(54, 162, 235, 0.6);"></span>
+                            Работающие механики
+                        </li>
+                        <li>
+                            <span style="background-color: rgba(169, 169, 169, 0.6);"></span>
+                            Уволенные механики
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <div id="chart-container">
+                        <canvas id="mechanicChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-block" th:if="${not mechanicWorkOrderCounts.isEmpty()}">
+            <h2>Таблица с количеством заказ-нарядов по механикам</h2>
+            <table id="report-table" class="w-100">
+                <thead>
+                <tr>
+                    <th class="text-center">ФИО</th>
+                    <th class="text-center">Телефон</th>
+                    <th class="text-center">Количество заявок</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${mechanicWorkOrderCounts}"
+                    th:classappend="${entry.key.contains('(У)') ? 'dismissed' : ''}">
+                    <td th:text="${entry.key.split('\n')[0]}"></td>
+                    <td th:text="${entry.key.split('\n')[1]}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var ctxStatus = document.getElementById('statusChart')?.getContext('2d');
+    if (ctxStatus) {
+        var chartData = [
+            { label: 'Исполняется', value: [[${totalInProgress}]], color: '#FFA726', hoverColor: '#FF9800' },
+            { label: 'Завершено', value: [[${totalCompleted}]], color: '#66BB6A', hoverColor: '#4CAF50' },
+            { label: 'Отменено', value: [[${totalCanceled}]], color: '#EF5350', hoverColor: '#F44336' }
+        ];
+        var filteredData = chartData.filter(item => item.value > 0);
+        var labels = filteredData.map(item => item.label);
+        var data = filteredData.map(item => item.value);
+        var backgroundColors = filteredData.map(item => item.color);
+        var hoverColors = filteredData.map(item => item.hoverColor);
+
+        var statusChart = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Статистика по заказ-нарядам',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverBackgroundColor: hoverColors,
+                    hoverBorderColor: '#ffffff',
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                radius: '90%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.raw;
+                                return label;
+                            }
+                        },
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                        },
+                        formatter: function(value) {
+                            return value; // Отображаем абсолютное значение
+                        },
+                        padding: 6,
+                        borderRadius: 4,
+                        textShadowColor: 'rgba(0,0,0,0.5)',
+                        textShadowBlur: 3,
+                        anchor: 'center',
+                        align: 'center',
+                        offset: 0
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                },
+                elements: {
+                    arc: {
+                        borderRadius: 4
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+</script>
+
+
+<script th:inline="javascript">
+    let mechanicData = /*[[${mechanicWorkOrderCounts}]]*/ {};
+    console.log("Данные для диаграммы:", mechanicData);
+
+    if (Object.keys(mechanicData).length > 0) {
+        let labels = [];
+        let data = [];
+        let backgroundColors = [];
+
+        for (let mechanic in mechanicData) {
+            if (mechanicData[mechanic] > 0) {
+                let mechanicInfo = mechanic.split("\n");
+                let fullName = mechanicInfo[0];
+                let phone = mechanicInfo[1];
+                let nameParts = fullName.split(" ");
+                let formattedName = nameParts[0] + " " + nameParts[1].charAt(0) + ".";
+
+                if (nameParts.length > 2 && !nameParts[2].startsWith("(")) {
+                    formattedName += " " + nameParts[2].charAt(0) + ".";
+                }
+
+                if (mechanic.includes("(У)")) {
+                    formattedName += " (У)";
+                }
+
+                let label = formattedName + "\n" + phone;
+                let mechanicInfo2 = label.split("\n");
+                labels.push(mechanicInfo2);
+                data.push(mechanicData[mechanic]);
+
+                if (mechanic.includes("(У)")) {
+                    backgroundColors.push('rgba(169, 169, 169, 0.6)');
+                } else {
+                    backgroundColors.push('rgba(54, 162, 235, 0.6)');
+                }
+            }
+        }
+
+        let maxRequests = Math.max(...data);
+        let stepSize = Math.ceil(maxRequests / 10);
+
+        let ctx = document.getElementById("mechanicChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество заказ-нарядов',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: stepSize || 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                },
+                annotation: {
+                    annotations: data.map((value, index) => ({
+                        type: 'label',
+                        xValue: index,
+                        yValue: value,
+                        backgroundColor: 'transparent',
+                        content: [value],
+                        font: {
+                            weight: 'bold',
+                            color: 'white'
+                        },
+                        padding: 6,
+                        yAdjust: -10
+                    }))
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

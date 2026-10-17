@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет по заявкам операторов</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/report.css" rel="stylesheet">
+</head>
+<body>
+
+<div th:insert="~{/fragments/navigation.html}"></div>
+
+<div class="container-1 mt-3 mb-3">
+    <h1 class="mb-4 text-center">Отчет по заявкам операторов</h1>
+
+    <!-- Контейнер для верхних блоков -->
+    <div class="top-blocks-container">
+        <!-- Блок выбора периода -->
+        <div class="info-block period-selector-block text-center">
+            <h2>Указание периода</h2>
+            <form action="/report/operator" method="get" class="d-flex flex-column align-items-center">
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <label for="startDate" class="form-label">Начальная дата:</label>
+                        <input type="date" id="startDate" name="startDate" class="form-control"
+                               th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}" required>
+                    </div>
+
+                    <div>
+                        <label for="endDate" class="form-label">Конечная дата:</label>
+                        <input type="date" id="endDate" name="endDate" class="form-control"
+                               th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success d-flex align-items-center justify-content-center" style="width: 150px;">
+                    <img src="/icons/file-earmark-bar-graph.svg" alt="Иконка" width="20" height="20" class="me-2">
+                    Сформировать
+                </button>
+            </form>
+        </div>
+
+        <!-- Блок общей информации -->
+        <div class="info-block general-info-block" th:unless="${errorMessage}">
+            <h2>Общая информация</h2>
+            <ul class="general-info-list">
+                <li>
+                    <div class="profile-field"><strong>Период: </strong><span th:text="${formattedDate ?: 'Не выбран'}"></span></div>
+                </li>
+                <li>
+                    <div class="profile-field"><strong>Всего заявок: </strong><span th:text="${totalRequestsCount ?: '0'}"></span></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Отображение сообщения об ошибке -->
+    <div th:if="${errorMessage}" class="alert alert-danger text-center" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div th:unless="${errorMessage}">
+        <!-- Диаграмма с количеством заявок по статусам -->
+        <div class="info-block" th:if="${totalOpen != null or totalInProgress != null or totalCompleted != null or totalRejected != null}">
+            <h2>Статистика по заявкам</h2>
+            <div class="top-row-container">
+                <div class="color-legend-container">
+                    <h4>Объяснение цветов</h4>
+                    <ul class="color-legend">
+                        <li>
+                            <span style="background-color: #2196f3;"></span>
+                            В ожидании
+                        </li>
+                        <li>
+                            <span style="background-color: #ff9800;"></span>
+                            Исполняется
+                        </li>
+                        <li>
+                            <span style="background-color: #4caf50;"></span>
+                            Завершено
+                        </li>
+                        <li>
+                            <span style="background-color: #f44336;"></span>
+                            Отменено
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- График количества заявок по операторам -->
+        <div class="info-block" th:if="${not operatorRequestCounts.isEmpty()}">
+            <h2>График количества заявок по операторам</h2>
+            <div class="top-row-container">
+                <div class="color-legend-container">
+                    <h4>Объяснение цветов</h4>
+                    <ul class="color-legend">
+                        <li>
+                            <span style="background-color: rgba(54, 162, 235, 0.6);"></span>
+                            Работающие операторы
+                        </li>
+                        <li>
+                            <span style="background-color: rgba(169, 169, 169, 0.6);"></span>
+                            Уволенные операторы
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="operatorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблица с данными -->
+        <div class="info-block" th:if="${not operatorRequestCounts.isEmpty()}">
+            <h2>Таблица с количеством заявок по операторам</h2>
+            <table id="report-table" class="w-100">
+                <thead>
+                <tr>
+                    <th class="text-center">ФИО</th>
+                    <th class="text-center">Телефон</th>
+                    <th class="text-center">Количество заявок</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${operatorRequestCounts}"
+                    th:classappend="${entry.key.contains('(У)') ? 'dismissed' : ''}">
+                    <td th:text="${entry.key.split('\n')[0]}"></td>
+                    <td th:text="${entry.key.split('\n')[1]}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let operatorData = /*[[${operatorRequestCounts}]]*/ {};
+
+    if (Object.keys(operatorData).length > 0) {
+        let labels = [];
+        let data = [];
+        let backgroundColors = [];
+
+        for (let operator in operatorData) {
+            if (operatorData[operator] > 0) {
+                let operatorInfo = operator.split("\n");
+                let fullName = operatorInfo[0];
+                let phone = operatorInfo[1];
+                let nameParts = fullName.split(" ");
+                let formattedName = nameParts[0] + " " + nameParts[1].charAt(0) + ".";
+
+                if (nameParts.length > 2 && !nameParts[2].startsWith("(")) {
+                    formattedName += " " + nameParts[2].charAt(0) + ".";
+                }
+
+                if (operator.includes("(У)")) {
+                    formattedName += " (У)";
+                }
+
+                let label = formattedName + "\n" + phone;
+                let operatorInfo2 = label.split("\n");
+                labels.push(operatorInfo2);
+                data.push(operatorData[operator]);
+
+                if (operator.includes("(У)")) {
+                    backgroundColors.push('rgba(169, 169, 169, 0.6)');
+                } else {
+                    backgroundColors.push('rgba(54, 162, 235, 0.6)');
+                }
+            }
+        }
+
+        let maxRequests = Math.max(...data);
+        let stepSize = Math.ceil(maxRequests / 10);
+
+        let ctx = document.getElementById("operatorChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Количество заявок',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: stepSize || 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                },
+                annotation: {
+                    annotations: data.map((value, index) => ({
+                        type: 'label',
+                        xValue: index,
+                        yValue: value,
+                        backgroundColor: 'transparent',
+                        content: [value],
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: "'Arial', sans-serif",
+                            color: 'white'
+                        },
+                        padding: 6,
+                        yAdjust: -10
+                    }))
+                }
+            }
+        });
+    }
+</script>
+
+<script>
+    var ctxStatus = document.getElementById('statusChart')?.getContext('2d');
+    if (ctxStatus) {
+        var chartData = [
+            { label: 'В ожидании', value: [[${totalOpen}]], color: '#2196f3', hoverColor: '#1e88e5' },
+            { label: 'Исполняется', value: [[${totalInProgress}]], color: '#ff9800', hoverColor: '#fb8c00' },
+            { label: 'Завершено', value: [[${totalCompleted}]], color: '#4caf50', hoverColor: '#43a047' },
+            { label: 'Отменено', value: [[${totalRejected}]], color: '#f44336', hoverColor: '#e53935' }
+        ];
+        var filteredData = chartData.filter(item => item.value > 0);
+        var labels = filteredData.map(item => item.label);
+        var data = filteredData.map(item => item.value);
+        var backgroundColors = filteredData.map(item => item.color);
+        var hoverColors = filteredData.map(item => item.hoverColor);
+
+        var statusChart = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Статистика по заявкам',
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverBackgroundColor: hoverColors,
+                    hoverBorderColor: '#ffffff',
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                radius: '90%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.raw;
+                                return label;
+                            }
+                        },
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14,
+                            family: "'Arial', sans-serif"
+                        },
+                        formatter: function(value) {
+                            return value;
+                        },
+                        padding: 6,
+                        borderRadius: 4,
+                        textShadowColor: 'rgba(0,0,0,0.5)',
+                        textShadowBlur: 3,
+                        anchor: 'center',
+                        align: 'center',
+                        offset: 0
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                },
+                elements: {
+                    arc: {
+                        borderRadius: 4
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+</script>
+
+</body>
+</html>

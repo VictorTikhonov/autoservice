@@ -1,0 +1,21 @@
+@import url("common.css");
+
+
+.container {
+    max-width: 80%;
+    border: 1px solid #ddd; /* Легкая граница */
+    border-radius: 10px; /* Скругленные углы */
+    background-color: white; /* Белый фон формы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
+
+/* Стиль для label и span на одной строке */
+.info-block p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Отступ между строками */
+}
+
+.info-block p strong {
+    margin-right: 10px; /* Отступ между label и значением */
+}

@@ -1,0 +1,52 @@
+package ru.victortikhonov.autoserviceapp.model.Personnel;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
+
+@Entity
+@Table(name = "accounts")
+@Data
+public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
+    @Column(name = "id")
+    private Long id;
+
+
+    @NotBlank(message = "Логин не может быть пустым")
+    @Size(max = 30, message = "Логин не должен превышать 30 символов")
+    @Column(name = "login", unique = true)
+    private String login;
+
+
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    private Employee employee;
+
+
+    @NotBlank(message = "Пароль не может быть пустым")
+    @Size(max = 100, message = "Пароль не должен превышать 100 символов")
+    @Column(name = "password")
+    private String password;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
+
+    public Account() {
+    }
+
+
+    public Account(String login, String password, Role role) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
+}

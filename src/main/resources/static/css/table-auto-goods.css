@@ -1,0 +1,47 @@
+@import url("common.css");
+
+/* Размеры столбцов в процентном соотношении */
+.table-container table th,
+.table-container table td {
+    width: auto; /* Автоматическое распределение */
+    text-align: center; /* Центрирование текста по умолчанию */
+}
+
+.table-container table th:nth-child(1), /* Столбец № */
+.table-container table td:nth-child(1) {
+    width: 5%;
+}
+
+.table-container table th:nth-child(2), /* Столбец Название */
+.table-container table td:nth-child(2) {
+    width: 40%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 10px; /* Отступ слева */
+}
+
+.table-container table th:nth-child(3), /* Столбец Категория */
+.table-container table td:nth-child(3) {
+    width: 20%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 30px; /* Отступ слева */
+}
+
+.table-container table th:nth-child(4), /* Столбец Цена */
+.table-container table td:nth-child(4) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(5), /* Столбец Срок годности */
+.table-container table td:nth-child(5) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(6), /* Столбец Количество */
+.table-container table td:nth-child(6) {
+    width: 10%;
+}
+
+.table-container table th:nth-child(7), /* Столбец Действие */
+.table-container table td:nth-child(7) {
+    width: 5%;
+}

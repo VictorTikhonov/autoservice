@@ -1,0 +1,44 @@
+@import url("common.css");
+
+.w-40 {
+    width: 40% !important;
+}
+
+.w-60 {
+    width: 60% !important;
+}
+
+th:nth-child(1), td:nth-child(1) {
+    width: 10%;
+}
+
+th:nth-child(2), td:nth-child(2) {
+    width: 18%;
+}
+
+th:nth-child(3), td:nth-child(3) {
+    width: 10%;
+}
+
+th:nth-child(4), td:nth-child(4) {
+    width: 12%;
+}
+
+th:nth-child(5), td:nth-child(5) {
+    width: 27%;
+    text-align: left; /* Текст выравнивается по левому краю */
+    padding-left: 50px; /* Отступ слева */
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 15%;
+}
+
+th:nth-child(7), td:nth-child(7) {
+    width: 8%;
+}
+
+input[type="checkbox"].form-check-input:not(:checked) {
+    background-color: #adb5bd; /* насыщенный серый */
+    border-color: #adb5bd;
+}

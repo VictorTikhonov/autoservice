@@ -1,0 +1,21 @@
+@import url("common.css");
+
+
+/* Убираем лишний отступ снизу в fieldset */
+fieldset {
+    margin-bottom: 0; /* Убираем отступ снизу */
+}
+
+
+#complaint {
+    height: 80px; /* Увеличенная высота */
+    resize: vertical; /* Разрешить изменение размера по вертикали */
+}
+
+.container {
+    max-width: 60%;
+    border: 1px solid #ddd; /* Легкая граница */
+    border-radius: 6px; /* Скругленные углы */
+    background-color: white; /* Белый фон формы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Тень для выделения */
+}
